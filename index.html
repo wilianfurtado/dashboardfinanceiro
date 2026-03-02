@@ -236,6 +236,58 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .toast-undo{font-size:12px;font-weight:700;color:#fff;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:5px;padding:2px 9px;cursor:pointer;flex-shrink:0}
 
 /* ═══════════════════════════════════════
+   BARRA DE RECEITA / ORÇAMENTO
+═══════════════════════════════════════ */
+.renda-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 24px;margin-bottom:16px;display:flex;align-items:center;gap:20px;box-shadow:var(--sh);flex-wrap:wrap}
+.renda-bar-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);flex-shrink:0}
+.renda-slots{display:flex;gap:10px;flex:1;flex-wrap:wrap;min-width:0}
+.renda-slot{flex:1;min-width:120px;background:var(--bg);border-radius:var(--r-sm);padding:10px 14px;border:1px solid var(--border)}
+.renda-slot-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:4px}
+.renda-slot-val{font-family:'DM Serif Display',serif;font-size:20px;letter-spacing:-.3px;line-height:1}
+.renda-slot-val.positivo{color:var(--accent)}
+.renda-slot-val.negativo{color:var(--danger)}
+.renda-prog-wrap{flex:1;min-width:200px}
+.renda-prog-track{height:10px;background:var(--bg);border-radius:99px;overflow:hidden;border:1px solid var(--border);display:flex}
+.renda-prog-seg{height:100%;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.renda-prog-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:5px}
+.renda-set-btn{font-size:12px;color:var(--accent);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;padding:4px 8px;border-radius:6px;transition:.2s;flex-shrink:0}
+.renda-set-btn:hover{background:var(--accent-lt)}
+
+/* ═══════════════════════════════════════
+   GASTOS FIXOS + HISTÓRICO
+═══════════════════════════════════════ */
+.gastos-section{margin-bottom:24px}
+.gastos-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:14px}
+@media(max-width:860px){.gastos-grid{grid-template-columns:1fr}}
+
+/* Lista de gastos fixos */
+.gf-list{display:flex;flex-direction:column;gap:6px;margin-top:4px;max-height:260px;overflow-y:auto}
+.gf-list::-webkit-scrollbar{width:4px}.gf-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.gf-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r-sm);background:var(--bg);border:1px solid var(--border);transition:.15s}
+.gf-row:hover{border-color:var(--muted2)}
+.gf-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.gf-nome{flex:1;font-size:13px;font-weight:500}
+.gf-val{font-family:'DM Serif Display',serif;font-size:14px;flex-shrink:0}
+.gf-del{background:none;border:none;cursor:pointer;color:var(--muted2);font-size:13px;padding:2px 4px;border-radius:4px;transition:.15s;flex-shrink:0}
+.gf-del:hover{color:var(--danger);background:var(--danger-lt)}
+.gf-total-row{display:flex;justify-content:space-between;align-items:center;padding:10px 10px 2px;border-top:1px solid var(--border);margin-top:6px}
+.gf-total-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+.gf-total-val{font-family:'DM Serif Display',serif;font-size:18px}
+.gf-add-row{display:flex;gap:6px;margin-top:10px}
+.gf-add-row .fi{padding:8px 11px;font-size:13px}
+.gf-add-btn{background:var(--accent);color:#fff;border:none;border-radius:var(--r-sm);padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;transition:.2s;flex-shrink:0}
+.gf-add-btn:hover{background:var(--accent-dk)}
+
+/* Histórico mensal */
+.hist-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.hist-tab{font-size:12px;padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:.2s;font-family:'DM Sans',sans-serif}
+.hist-tab.active{background:var(--text);color:#fff;border-color:var(--text)}
+.hist-chart-wrap{position:relative;height:180px}
+.hist-register-btn{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--accent);background:var(--accent-lt);border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:.2s;margin-top:10px}
+.hist-register-btn:hover{background:var(--accent);color:#fff}
+.hist-empty{text-align:center;padding:32px 0;color:var(--muted);font-size:13px}
+
+/* ═══════════════════════════════════════
    MOBILE TWEAKS
 ═══════════════════════════════════════ */
 @media(max-width:640px){
@@ -270,6 +322,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       <span id="syncLbl">—</span>
     </div>
     <button class="btn btn-dark" onclick="openAdd()">+ Novo Gasto</button>
+    <button class="btn btn-ghost" onclick="openRenda()" title="Definir Renda">💵</button>
     <button class="btn btn-ghost" onclick="openCfg()" title="Configurar URL">⚙</button>
     <button class="btn btn-ghost" onclick="fetchData()" title="Recarregar">↻</button>
   </div>
@@ -282,6 +335,36 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 <!-- ═══════════════ MAIN ═══════════════ -->
 <main class="main">
+
+  <!-- RECEITA / ORÇAMENTO -->
+  <div class="renda-bar" id="rendaBar" style="display:none">
+    <span class="renda-bar-label">💵 Orçamento</span>
+    <div class="renda-slots">
+      <div class="renda-slot">
+        <div class="renda-slot-lbl">Renda Mensal</div>
+        <div class="renda-slot-val" id="rendaTotal">—</div>
+      </div>
+      <div class="renda-slot">
+        <div class="renda-slot-lbl">Comprometido</div>
+        <div class="renda-slot-val" id="rendaComprometido">—</div>
+      </div>
+      <div class="renda-slot">
+        <div class="renda-slot-lbl">Saldo Livre</div>
+        <div class="renda-slot-val" id="rendaSaldo">—</div>
+      </div>
+    </div>
+    <div class="renda-prog-wrap">
+      <div class="renda-prog-track">
+        <div class="renda-prog-seg" id="rendaSegPago"    style="background:var(--accent);width:0%"  title="Já pago"></div>
+        <div class="renda-prog-seg" id="rendaSegFuturo"  style="background:var(--warn);width:0%"    title="A pagar (este mês)"></div>
+      </div>
+      <div class="renda-prog-labels">
+        <span id="rendaProgLeft">—</span>
+        <span id="rendaProgRight">—</span>
+      </div>
+    </div>
+    <button class="renda-set-btn" onclick="openRenda()">✏ Editar renda</button>
+  </div>
 
   <!-- META MENSAL -->
   <div class="meta-bar" id="metaBar" style="display:none">
@@ -297,6 +380,53 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       </div>
     </div>
     <button class="meta-set-btn" onclick="openMeta()">✏ Editar meta</button>
+  </div>
+
+  <!-- GASTOS FIXOS + HISTÓRICO -->
+  <div class="gastos-section">
+    <div class="sec-header" style="margin-bottom:12px">
+      <div class="sec-title">Gastos Fixos & Histórico</div>
+    </div>
+    <div class="gastos-grid">
+
+      <!-- Painel: Gastos Fixos -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Gastos Fixos Mensais</div>
+            <div class="card-sub">aluguel, internet, mercado…</div>
+          </div>
+        </div>
+        <div class="gf-list" id="gfList"></div>
+        <div class="gf-total-row">
+          <span class="gf-total-lbl">Total Fixo / mês</span>
+          <span class="gf-total-val" id="gfTotalVal">R$ 0</span>
+        </div>
+        <div class="gf-add-row">
+          <input class="fi" id="gfNome" placeholder="Nome (ex: Aluguel)" style="flex:2">
+          <input class="fi" id="gfValor" type="number" min="0" placeholder="Valor" style="flex:1">
+          <button class="gf-add-btn" onclick="addGastoFixo()">+ Add</button>
+        </div>
+      </div>
+
+      <!-- Painel: Histórico Mensal -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Histórico de Gastos</div>
+            <div class="card-sub" id="histSub">últimos meses</div>
+          </div>
+          <div class="hist-tabs">
+            <button class="hist-tab active" onclick="setHistView('total',this)">Total</button>
+            <button class="hist-tab" onclick="setHistView('fixos',this)">Fixos</button>
+            <button class="hist-tab" onclick="setHistView('compras',this)">Compras</button>
+          </div>
+        </div>
+        <div class="hist-chart-wrap"><canvas id="cHist"></canvas></div>
+        <button class="hist-register-btn" onclick="openRegistroMes()">📝 Registrar mês atual</button>
+      </div>
+
+    </div>
   </div>
 
   <!-- KPIs -->
@@ -442,6 +572,56 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
+<!-- MODAL: RENDA MENSAL -->
+<div class="overlay" id="rendaOverlay">
+  <div class="panel">
+    <h2>Renda Mensal</h2>
+    <p class="panel-sub">Informe a renda mensal combinada de vocês dois. O dashboard mostra quanto está comprometido com as parcelas e o que sobra livre.</p>
+    <div class="fg">
+      <label class="fl">Renda Mensal Total (R$)</label>
+      <input class="fi" type="number" id="rendaInput" placeholder="Ex: 8000" min="0" step="100" oninput="previewRenda(this.value)">
+      <div class="fh">Some os salários dos dois para ter o panorama completo.</div>
+    </div>
+    <div class="meta-preview" id="rendaPreview" style="display:none"></div>
+    <div class="pa">
+      <button class="btn btn-ghost" onclick="closeModals()">Cancelar</button>
+      <button class="btn btn-accent" onclick="saveRenda()">Salvar Renda</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: REGISTRAR MÊS -->
+<div class="overlay" id="registroOverlay">
+  <div class="panel">
+    <h2>Registrar Mês</h2>
+    <p class="panel-sub">Salve um snapshot do gasto real deste mês para acompanhar o histórico ao longo do tempo.</p>
+    <div class="fg">
+      <label class="fl">Mês de referência</label>
+      <input class="fi" type="month" id="regMes">
+    </div>
+    <div class="fg">
+      <label class="fl">Gastos com Compras da Casa (R$)</label>
+      <input class="fi" type="number" id="regCompras" min="0" step="0.01" placeholder="0,00">
+      <div class="fh" id="regComprasHint">Sugerido com base nas parcelas marcadas.</div>
+    </div>
+    <div class="fg">
+      <label class="fl">Gastos Fixos do Mês (R$)</label>
+      <input class="fi" type="number" id="regFixos" min="0" step="0.01" placeholder="0,00">
+      <div class="fh" id="regFixosHint">Sugerido com base nos gastos fixos cadastrados.</div>
+    </div>
+    <div class="fg">
+      <label class="fl">Outros Gastos (R$)</label>
+      <input class="fi" type="number" id="regOutros" min="0" step="0.01" placeholder="0,00">
+      <div class="fh">Saídas, extras, imprevistos, etc.</div>
+    </div>
+    <div class="meta-preview" id="regPreview" style="display:none;margin-top:14px"></div>
+    <div class="pa">
+      <button class="btn btn-ghost" onclick="closeModals()">Cancelar</button>
+      <button class="btn btn-accent" onclick="saveRegistroMes()">Salvar Registro</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOASTS -->
 <div class="toast-wrap" id="toastWrap">
   <div class="toast" id="toast"></div>
@@ -454,15 +634,50 @@ let DATA = [];
 let URL = localStorage.getItem('cn_url') || '';
 let FILTER = 'Todos';
 let SEARCH = '';
-let SORT = 'default'; // default | valor-desc | valor-asc | nome | pct-desc | pct-asc
-let META = parseFloat(localStorage.getItem('cn_meta')) || 0;
+let SORT = 'default';
+let META   = parseFloat(localStorage.getItem('cn_meta'))   || 0;
+let RENDA  = parseFloat(localStorage.getItem('cn_renda'))  || 0;
 
-let chartPago = null, chartCat = null;
-let undoTimers = {}; // row -> {timer, data}
+// Gastos fixos: [{id, nome, valor, cor}]
+let GASTOS_FIXOS = JSON.parse(localStorage.getItem('cn_gastos_fixos') || '[]');
+
+// Histórico mensal: [{mes:'2025-02', compras:1200, fixos:3500, outros:400}]
+let HISTORICO = JSON.parse(localStorage.getItem('cn_historico') || '[]');
+
+// Vista atual do gráfico histórico
+let HIST_VIEW = 'total'; // 'total' | 'fixos' | 'compras'
+
+let chartPago = null, chartCat = null, chartHist = null;
+let undoTimers = {};
 let editPagasCount = 0;
+
+// ─── CORES FIXAS POR CATEGORIA ───────────────────────────────────────────
+// Edite à vontade para adicionar novas categorias.
+const CAT_COLORS = {
+  'Cozinha':        '#2A6B4E', // verde escuro
+  'Sala':           '#2D5FA6', // azul
+  'Quarto':         '#9B5DE5', // roxo
+  'Banheiro':       '#06B6D4', // ciano
+  'Escritório':     '#D4720A', // laranja
+  'Área de Serviço':'#F59E0B', // âmbar
+  'Outros':         '#94908A', // cinza
+};
+const CAT_COLORS_FALLBACK = [
+  '#EC4899','#EF4444','#10B981','#3B82F6','#8B5CF6',
+  '#F97316','#14B8A6','#A855F7','#6366F1','#84CC16',
+];
+function catColor(catName) {
+  if (CAT_COLORS[catName]) return CAT_COLORS[catName];
+  // Para categorias não mapeadas, gera cor consistente pelo nome
+  let hash = 0;
+  for (let i = 0; i < catName.length; i++) hash = catName.charCodeAt(i) + ((hash << 5) - hash);
+  return CAT_COLORS_FALLBACK[Math.abs(hash) % CAT_COLORS_FALLBACK.length];
+}
 
 // ─── INIT ────────────────────────────────────────────────────────────────
 window.onload = () => {
+  renderGastosFixos();
+  renderHistorico();
   if (!URL) setTimeout(openCfg, 600);
   else fetchData();
 };
@@ -510,11 +725,14 @@ function render() {
   // 2. Ordenar
   items = sortItems(items);
 
-  // 3. Filtros UI
+  // 3. Filtros UI — pill ativo usa a cor da categoria
   const cats = ['Todos', ...new Set(DATA.map(i => i.cat).filter(Boolean))];
   document.getElementById('filtersBar').innerHTML = cats.map(c => {
     const cnt = c === 'Todos' ? DATA.length : DATA.filter(i => i.cat === c).length;
-    return `<div class="pill-filter ${c === FILTER ? 'active' : ''}" onclick="setFilter('${c}')">${c} <span class="count">${cnt}</span></div>`;
+    const isActive = c === FILTER;
+    const color = (isActive && c !== 'Todos') ? catColor(c) : '';
+    const style = color ? `style="background:${color};border-color:${color}"` : '';
+    return `<div class="pill-filter ${isActive ? 'active' : ''}" ${style} onclick="setFilter('${c}')">${c} <span class="count">${cnt}</span></div>`;
   }).join('') + `<select class="sort-select" onchange="setSort(this.value)">
     <option value="default" ${SORT==='default'?'selected':''}>Ordem padrão</option>
     <option value="valor-desc" ${SORT==='valor-desc'?'selected':''}>Maior valor</option>
@@ -538,6 +756,9 @@ function render() {
   renderCharts(items);
   renderForecast(DATA);
   renderMeta(DATA);
+  renderRenda(DATA);
+  renderGastosFixos();
+  renderHistorico();
 
   // 6. Lista
   renderList(items);
@@ -589,15 +810,16 @@ function renderCharts(items) {
     }
   });
 
-  // Chart 2: Donut por categoria
+  // Chart 2: Donut por categoria — cores fixas por nome
   if (chartCat) chartCat.destroy();
   const ctx2 = document.getElementById('cCat').getContext('2d');
   const catMap = {};
   items.forEach(i => catMap[i.cat] = (catMap[i.cat] || 0) + i.total);
-  const palette = ['#2A6B4E', '#D4720A', '#C13333', '#2D5FA6', '#9B5DE5', '#F59E0B', '#06B6D4', '#EC4899'];
+  const catLabels = Object.keys(catMap);
+  const catColors = catLabels.map(c => catColor(c));
   chartCat = new Chart(ctx2, {
     type: 'doughnut',
-    data: { labels: Object.keys(catMap), datasets: [{ data: Object.values(catMap), backgroundColor: palette.slice(0, Object.keys(catMap).length), borderWidth: 2, borderColor: '#fff', hoverOffset: 8 }] },
+    data: { labels: catLabels, datasets: [{ data: Object.values(catMap), backgroundColor: catColors, borderWidth: 2, borderColor: '#fff', hoverOffset: 8 }] },
     options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 10, padding: 8 } }, tooltip: { callbacks: { label: c => ` ${c.label}: ${fmt(c.raw)}` } } } }
   });
 }
@@ -712,6 +934,7 @@ function renderList(items) {
     const card = document.createElement('div');
     card.className = 'item-card';
     card.id = 'card-' + item.row;
+    card.style.borderLeft = `3px solid ${catColor(item.cat)}`;
     card.innerHTML = `
       <!-- Undo overlay -->
       <div class="undo-bar" id="undo-${item.row}">
@@ -1000,6 +1223,309 @@ function previewMeta(val) {
   const ok = gastosEsteMes <= v;
   prev.style.display = '';
   prev.innerHTML = `Previsão deste mês: <strong>${fmt(gastosEsteMes)}</strong><br>Meta: <strong>${fmt(v)}</strong><br>Status: <strong style="color:${ok?'var(--accent)':'var(--danger)'}">${ok ? '✅ Dentro da meta' : '⚠ Acima da meta em ' + fmt(gastosEsteMes - v)}</strong>`;
+}
+
+// ─── RENDA / ORÇAMENTO ───────────────────────────────────────────────────
+function renderRenda(data) {
+  const bar = document.getElementById('rendaBar');
+  if (!RENDA) { bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+
+  // Parcelas previstas para este mês
+  let parcelas = 0;
+  data.forEach(item => {
+    const valParc = item.total / (item.parcelas || 1);
+    const pagas = (item.checks || []).filter(Boolean).length;
+    if (pagas < item.parcelas) parcelas += valParc;
+  });
+
+  // Soma dos gastos fixos cadastrados
+  const totalFixos = GASTOS_FIXOS.reduce((s, g) => s + g.valor, 0);
+
+  const comprometido = parcelas + totalFixos;
+  const saldo = RENDA - comprometido;
+  const ok = saldo >= 0;
+
+  const pctFixos   = Math.min((totalFixos / RENDA) * 100, 100);
+  const pctParc    = Math.min((parcelas   / RENDA) * 100, 100 - pctFixos);
+
+  document.getElementById('rendaTotal').textContent        = fmt(RENDA);
+  document.getElementById('rendaComprometido').textContent = fmt(comprometido);
+  document.getElementById('rendaSaldo').textContent        = fmt(Math.abs(saldo));
+  document.getElementById('rendaSaldo').className          = 'renda-slot-val ' + (ok ? 'positivo' : 'negativo');
+
+  // Barra: fixos (azul) + parcelas (laranja)
+  document.getElementById('rendaSegPago').style.cssText   = `background:#2D5FA6;width:${pctFixos}%;height:100%;transition:width .8s cubic-bezier(.4,0,.2,1)`;
+  document.getElementById('rendaSegFuturo').style.cssText = `background:var(--warn);width:${pctParc}%;height:100%;transition:width .8s cubic-bezier(.4,0,.2,1)`;
+
+  document.getElementById('rendaProgLeft').textContent  = ok
+    ? `✅ Sobram ${fmt(saldo)}`
+    : `⚠ Deficit de ${fmt(Math.abs(saldo))}`;
+  document.getElementById('rendaProgRight').textContent =
+    `Fixos ${fmt(totalFixos)} + Parcelas ${fmt(parcelas)}`;
+}
+
+function openRenda() {
+  document.getElementById('rendaInput').value = RENDA || '';
+  document.getElementById('rendaPreview').style.display = 'none';
+  document.getElementById('rendaOverlay').classList.add('open');
+}
+function saveRenda() {
+  RENDA = parseFloat(document.getElementById('rendaInput').value) || 0;
+  localStorage.setItem('cn_renda', RENDA);
+  closeModals();
+  renderRenda(DATA);
+  toast(RENDA ? `💵 Renda de ${fmt(RENDA)}/mês salva!` : '💵 Renda removida');
+}
+function previewRenda(val) {
+  const v = parseFloat(val) || 0;
+  const prev = document.getElementById('rendaPreview');
+  if (!v || !DATA.length) { prev.style.display = 'none'; return; }
+  let comprometido = 0;
+  DATA.forEach(item => {
+    const valParc = item.total / (item.parcelas || 1);
+    if ((item.checks||[]).filter(Boolean).length < item.parcelas) comprometido += valParc;
+  });
+  const saldo = v - comprometido;
+  const ok = saldo >= 0;
+  const pct = Math.round((comprometido / v) * 100);
+  prev.style.display = '';
+  prev.innerHTML = `
+    Comprometido este mês: <strong>${fmt(comprometido)}</strong> (${pct}% da renda)<br>
+    Saldo livre: <strong style="color:${ok?'var(--accent)':'var(--danger)'}">${ok ? fmt(saldo) : '⚠ deficit de ' + fmt(Math.abs(saldo))}</strong>
+  `;
+}
+
+// ─── GASTOS FIXOS ────────────────────────────────────────────────────────
+const GF_CORES = ['#2A6B4E','#2D5FA6','#D4720A','#9B5DE5','#C13333','#06B6D4','#F59E0B','#EC4899','#10B981','#6366F1'];
+
+function gfCor(idx) { return GF_CORES[idx % GF_CORES.length]; }
+
+function saveGF() { localStorage.setItem('cn_gastos_fixos', JSON.stringify(GASTOS_FIXOS)); }
+
+function addGastoFixo() {
+  const nome  = document.getElementById('gfNome').value.trim();
+  const valor = parseFloat(document.getElementById('gfValor').value) || 0;
+  if (!nome)    { toast('⚠ Nome é obrigatório', 'warn'); return; }
+  if (valor<=0) { toast('⚠ Informe um valor', 'warn'); return; }
+  const id = Date.now();
+  GASTOS_FIXOS.push({ id, nome, valor, cor: gfCor(GASTOS_FIXOS.length) });
+  saveGF();
+  document.getElementById('gfNome').value  = '';
+  document.getElementById('gfValor').value = '';
+  renderGastosFixos();
+  renderRenda(DATA); // atualiza orçamento
+  toast('✅ Gasto fixo adicionado');
+}
+
+function removeGastoFixo(id) {
+  GASTOS_FIXOS = GASTOS_FIXOS.filter(g => g.id !== id);
+  saveGF();
+  renderGastosFixos();
+  renderRenda(DATA);
+  toast('🗑 Removido');
+}
+
+function renderGastosFixos() {
+  const list  = document.getElementById('gfList');
+  const total = GASTOS_FIXOS.reduce((s, g) => s + g.valor, 0);
+  document.getElementById('gfTotalVal').textContent = fmt(total);
+
+  if (!GASTOS_FIXOS.length) {
+    list.innerHTML = `<div style="text-align:center;padding:24px 0;color:var(--muted);font-size:13px">Nenhum gasto fixo cadastrado.<br>Adicione aluguel, internet, etc.</div>`;
+    return;
+  }
+
+  list.innerHTML = GASTOS_FIXOS.map(g => `
+    <div class="gf-row">
+      <div class="gf-dot" style="background:${g.cor}"></div>
+      <span class="gf-nome">${g.nome}</span>
+      <span class="gf-val">${fmt(g.valor)}</span>
+      <button class="gf-del" onclick="removeGastoFixo(${g.id})" title="Remover">✕</button>
+    </div>
+  `).join('');
+}
+
+// ─── HISTÓRICO MENSAL ────────────────────────────────────────────────────
+function saveHist() { localStorage.setItem('cn_historico', JSON.stringify(HISTORICO)); }
+
+function setHistView(view, btn) {
+  HIST_VIEW = view;
+  document.querySelectorAll('.hist-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistorico();
+}
+
+function openRegistroMes() {
+  // Pré-preenche o mês atual
+  const now = new Date();
+  const mesStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  document.getElementById('regMes').value = mesStr;
+
+  // Sugere compras com base nos checks deste mês (parcelas marcadas no mês atual)
+  const totalParc = DATA.reduce((s, item) => {
+    const valParc = item.total / (item.parcelas || 1);
+    const pagas = (item.checks || []).filter(Boolean).length;
+    return pagas > 0 ? s + valParc : s;
+  }, 0);
+  document.getElementById('regCompras').value = totalParc > 0 ? totalParc.toFixed(2) : '';
+  document.getElementById('regComprasHint').textContent = totalParc > 0
+    ? `Sugerido: ${fmt(totalParc)} (baseado nas parcelas marcadas)`
+    : 'Baseado nas parcelas marcadas no Sheets.';
+
+  // Sugere fixos com base no cadastro
+  const totalFixos = GASTOS_FIXOS.reduce((s, g) => s + g.valor, 0);
+  document.getElementById('regFixos').value = totalFixos > 0 ? totalFixos.toFixed(2) : '';
+  document.getElementById('regFixosHint').textContent = totalFixos > 0
+    ? `Sugerido: ${fmt(totalFixos)} (soma dos gastos fixos)`
+    : 'Baseado nos gastos fixos cadastrados.';
+
+  document.getElementById('regOutros').value = '';
+  document.getElementById('regPreview').style.display = 'none';
+  document.getElementById('registroOverlay').classList.add('open');
+
+  // Atualiza preview ao vivo
+  ['regCompras','regFixos','regOutros','regMes'].forEach(id => {
+    document.getElementById(id).oninput = updateRegPreview;
+  });
+  updateRegPreview();
+}
+
+function updateRegPreview() {
+  const compras = parseFloat(document.getElementById('regCompras').value) || 0;
+  const fixos   = parseFloat(document.getElementById('regFixos').value)   || 0;
+  const outros  = parseFloat(document.getElementById('regOutros').value)  || 0;
+  const total   = compras + fixos + outros;
+  const prev    = document.getElementById('regPreview');
+  if (!total) { prev.style.display = 'none'; return; }
+  const saldo   = RENDA - total;
+  const ok      = saldo >= 0;
+  prev.style.display = '';
+  prev.innerHTML = `
+    Total do mês: <strong>${fmt(total)}</strong><br>
+    ${RENDA ? `Saldo após gastos: <strong style="color:${ok?'var(--accent)':'var(--danger)'}">${ok ? fmt(saldo) : '⚠ deficit de '+fmt(Math.abs(saldo))}</strong>` : ''}
+  `;
+}
+
+function saveRegistroMes() {
+  const mes     = document.getElementById('regMes').value;
+  const compras = parseFloat(document.getElementById('regCompras').value) || 0;
+  const fixos   = parseFloat(document.getElementById('regFixos').value)   || 0;
+  const outros  = parseFloat(document.getElementById('regOutros').value)  || 0;
+  if (!mes) { toast('⚠ Selecione o mês', 'warn'); return; }
+  // Remove entrada anterior do mesmo mês se existir
+  HISTORICO = HISTORICO.filter(h => h.mes !== mes);
+  HISTORICO.push({ mes, compras, fixos, outros });
+  // Ordena cronologicamente
+  HISTORICO.sort((a, b) => a.mes.localeCompare(b.mes));
+  saveHist();
+  closeModals();
+  renderHistorico();
+  toast('📝 Mês registrado!');
+}
+
+function renderHistorico() {
+  if (chartHist) { chartHist.destroy(); chartHist = null; }
+
+  const canvas = document.getElementById('cHist');
+  const hist = [...HISTORICO].slice(-12); // últimos 12 meses
+
+  if (!hist.length) {
+    canvas.style.display = 'none';
+    document.getElementById('histSub').textContent = 'nenhum dado ainda';
+    // Mostra mensagem no lugar do canvas
+    const wrap = canvas.parentElement;
+    if (!wrap.querySelector('.hist-empty')) {
+      const div = document.createElement('div');
+      div.className = 'hist-empty';
+      div.innerHTML = '📊 Registre o primeiro mês<br>clicando no botão abaixo.';
+      wrap.appendChild(div);
+    }
+    return;
+  }
+
+  // Remove mensagem de vazio se existir
+  const emptyMsg = canvas.parentElement.querySelector('.hist-empty');
+  if (emptyMsg) emptyMsg.remove();
+  canvas.style.display = '';
+
+  const labels = hist.map(h => {
+    const [y, m] = h.mes.split('-');
+    return new Date(y, m-1, 1).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+  });
+
+  document.getElementById('histSub').textContent = `${hist.length} mese${hist.length !== 1 ? 's' : ''} registrado${hist.length !== 1 ? 's' : ''}`;
+
+  let datasets = [];
+
+  if (HIST_VIEW === 'total') {
+    datasets = [{
+      label: 'Total',
+      data: hist.map(h => h.compras + h.fixos + h.outros),
+      borderColor: '#2A6B4E',
+      backgroundColor: 'rgba(42,107,78,.10)',
+      fill: true,
+      tension: .35,
+      pointRadius: 4,
+      pointBackgroundColor: '#2A6B4E',
+    }];
+  } else if (HIST_VIEW === 'fixos') {
+    datasets = [{
+      label: 'Gastos Fixos',
+      data: hist.map(h => h.fixos),
+      borderColor: '#2D5FA6',
+      backgroundColor: 'rgba(45,95,166,.10)',
+      fill: true, tension: .35, pointRadius: 4, pointBackgroundColor: '#2D5FA6',
+    }];
+  } else {
+    datasets = [
+      {
+        label: 'Compras da Casa',
+        data: hist.map(h => h.compras),
+        borderColor: '#2A6B4E',
+        backgroundColor: 'rgba(42,107,78,.10)',
+        fill: true, tension: .35, pointRadius: 4, pointBackgroundColor: '#2A6B4E',
+      },
+      {
+        label: 'Outros',
+        data: hist.map(h => h.outros),
+        borderColor: '#D4720A',
+        backgroundColor: 'rgba(212,114,10,.08)',
+        fill: true, tension: .35, pointRadius: 4, pointBackgroundColor: '#D4720A',
+      }
+    ];
+  }
+
+  // Adiciona linha de renda como referência se disponível
+  if (RENDA && HIST_VIEW === 'total') {
+    datasets.push({
+      label: 'Renda',
+      data: hist.map(() => RENDA),
+      borderColor: '#C13333',
+      borderDash: [5, 4],
+      borderWidth: 1.5,
+      pointRadius: 0,
+      fill: false,
+      tension: 0,
+    });
+  }
+
+  chartHist = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 10, padding: 10 } },
+        tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${fmt(c.raw)}` } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 } } },
+        y: { ticks: { font: { family: 'DM Sans', size: 11 }, callback: v => fmtShort(v) }, grid: { color: '#f0ede8' } }
+      }
+    }
+  });
 }
 
 // ─── UTILS ───────────────────────────────────────────────────────────────
