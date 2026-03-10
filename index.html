@@ -191,11 +191,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .split-row{display:flex;align-items:center;gap:7px}
 .split-avatar{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:0}
 .split-info{display:flex;flex-direction:column;flex:1;min-width:0}
-.split-name{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.split-val{font-size:13px;font-weight:600;font-family:'DM Serif Display',serif;line-height:1.1}
+.split-name{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px}
+.split-val{font-size:13px;font-weight:600;font-family:'DM Serif Display',serif;line-height:1.15}
 .split-val.done{color:var(--accent)}
 .split-val.pending{color:var(--warn)}
-.split-pct{font-size:10px;color:var(--muted2);flex-shrink:0}
+.split-pct{font-size:10px;color:var(--muted2);flex-shrink:0;background:var(--bg);border-radius:4px;padding:1px 4px}
+.split-parc{font-size:10px;color:var(--muted);margin-top:1px;display:block}
 
 /* ═══════════════════════════════════════
    MODAL / OVERLAY
@@ -924,36 +925,35 @@ function renderMeta(data) {
 // ─── SPLIT PROPORCIONAL ──────────────────────────────────────────────────
 function buildSplitCol(item) {
   const fracs = splitFracs();
-  // Mostramos split apenas se houver 2+ pessoas configuradas com renda
   if (!PESSOAS.length || PESSOAS.every(p => !p.renda)) return '<div></div>';
 
-  const valParc    = item.total / (item.parcelas || 1);
-  const pagas      = (item.checks || []).filter(Boolean).length;
-  const quitado    = pagas >= item.parcelas;
+  const valParc = item.total / (item.parcelas || 1);
+  const pagas   = (item.checks || []).filter(Boolean).length;
+  const quitado = pagas >= item.parcelas;
 
   const rows = PESSOAS.map((p, i) => {
     const frac = fracs[i];
     const pctLabel = Math.round(frac * 100) + '%';
 
-    // Valor total da pessoa neste item
-    const valTotal  = item.total * frac;
-    // Quanto a pessoa já pagou (proporcional às parcelas pagas)
-    const valPago   = valParc * pagas * frac;
-    // Quanto ainda deve (restante proporcional)
-    const valRest   = valTotal - valPago;
+    const valTotal     = item.total * frac;
+    const valPago      = valParc * pagas * frac;
+    const valRest      = valTotal - valPago;
+    const valParcPess  = valParc * frac;   // parcela mensal desta pessoa
 
     const initials = p.nome.slice(0, 2).toUpperCase();
     const cls      = quitado ? 'done' : 'pending';
     const display  = quitado ? fmt(valPago) : fmt(valRest);
-    const tip      = quitado ? 'quitado' : 'restante';
+    const parcSub  = quitado
+      ? `<span class="split-parc">quitado ✓</span>`
+      : `<span class="split-parc">${fmt(valParcPess)}/mês</span>`;
 
     return `<div class="split-row">
       <div class="split-avatar" style="background:${p.cor}">${initials}</div>
       <div class="split-info">
-        <span class="split-name">${p.nome}</span>
+        <span class="split-name">${p.nome} <span class="split-pct">${pctLabel}</span></span>
         <span class="split-val ${cls}">${display}</span>
+        ${parcSub}
       </div>
-      <span class="split-pct">${pctLabel}</span>
     </div>`;
   }).join('');
 
