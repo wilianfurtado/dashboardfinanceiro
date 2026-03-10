@@ -422,7 +422,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <div class="gf-list" id="gfList"></div>
         <div class="gf-total-row">
           <span class="gf-total-lbl">Total Fixo / mês</span>
-          <span class="gf-total-val" id="gfTotalVal">R$ 0</span>
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end">
+            <div id="gfTotalSplit" style="display:flex;gap:10px"></div>
+            <span class="gf-total-val" id="gfTotalVal">R$ 0</span>
+          </div>
         </div>
         <div class="gf-add-row">
           <input class="fi" id="gfNome" placeholder="Nome (ex: Aluguel)" style="flex:2">
@@ -1447,13 +1450,32 @@ function renderGastosFixos() {
   const total = GASTOS_FIXOS.reduce((s, g) => s + g.valor, 0);
   document.getElementById('gfTotalVal').textContent = fmt(total);
 
+  const fracs    = splitFracs();
+  const temSplit = PESSOAS.length && PESSOAS.some(p => p.renda > 0);
+
+  // ── Totais por pessoa no rodapé ──
+  const splitEl = document.getElementById('gfTotalSplit');
+  if (splitEl) {
+    if (temSplit && total > 0) {
+      splitEl.style.display = 'flex';
+      splitEl.innerHTML = PESSOAS.map((p, i) => `
+        <div style="display:flex;align-items:center;gap:5px">
+          <div class="split-avatar" style="background:${p.cor};width:20px;height:20px;font-size:9px;flex-shrink:0">${p.nome.slice(0,2).toUpperCase()}</div>
+          <div>
+            <span style="display:block;font-size:9px;color:var(--muted);line-height:1">${p.nome}</span>
+            <span style="display:block;font-family:'DM Serif Display',serif;font-size:14px;line-height:1.1;color:${p.cor}">${fmt(total * fracs[i])}</span>
+          </div>
+        </div>`).join('');
+    } else {
+      splitEl.style.display = 'none';
+      splitEl.innerHTML = '';
+    }
+  }
+
   if (!GASTOS_FIXOS.length) {
     list.innerHTML = `<div style="text-align:center;padding:24px 0;color:var(--muted);font-size:13px">Nenhum gasto fixo cadastrado.<br>Adicione aluguel, internet, etc.</div>`;
     return;
   }
-
-  const fracs    = splitFracs();
-  const temSplit = PESSOAS.length && PESSOAS.some(p => p.renda > 0);
 
   list.innerHTML = GASTOS_FIXOS.map(g => {
     const splitPills = temSplit ? PESSOAS.map((p, i) => {
