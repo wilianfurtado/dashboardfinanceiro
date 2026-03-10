@@ -1034,16 +1034,17 @@ let URL = localStorage.getItem('cn_url') || '';
 let FILTER = 'Todos';
 let SEARCH = '';
 let SORT = 'default';
-let META   = parseFloat(localStorage.getItem('cn_meta'))   || 0;
-let RENDA  = parseFloat(localStorage.getItem('cn_renda'))  || 0;
 
-// Pessoas: [{nome, renda, cor}] — proporção calculada automaticamente
+// Config — vem do Sheets (aba Config) via doGet; localStorage só como cache offline
+let META    = parseFloat(localStorage.getItem('cn_meta'))  || 0;
+let RENDA   = parseFloat(localStorage.getItem('cn_renda')) || 0;
+
 const PESSOAS_DEFAULT = [
   { nome: 'Eu',  renda: 4500, cor: '#2A6B4E' },
   { nome: 'Ela', renda: 3500, cor: '#2D5FA6' },
 ];
 let PESSOAS = JSON.parse(localStorage.getItem('cn_pessoas') || 'null') || PESSOAS_DEFAULT;
-function savePessoas() { localStorage.setItem('cn_pessoas', JSON.stringify(PESSOAS)); }
+
 // Retorna fração de cada pessoa (array de 0..1)
 function splitFracs() {
   const total = PESSOAS.reduce((s, p) => s + (p.renda || 0), 0);
@@ -1051,21 +1052,38 @@ function splitFracs() {
   return PESSOAS.map(p => (p.renda || 0) / total);
 }
 
-// Gastos fixos: [{id, nome, valor, cor}]
-let GASTOS_FIXOS = JSON.parse(localStorage.getItem('cn_gastos_fixos') || '[]');
-
-// Gastos variáveis: [{id, nome, valor, cor}]
+// Listas — vêm do Sheets; localStorage como cache offline
+let GASTOS_FIXOS     = JSON.parse(localStorage.getItem('cn_gastos_fixos')     || '[]');
 let GASTOS_VARIAVEIS = JSON.parse(localStorage.getItem('cn_gastos_variaveis') || '[]');
+let HISTORICO        = JSON.parse(localStorage.getItem('cn_historico')        || '[]');
 
-// Histórico mensal: [{mes, compras, fixos, variaveis, outros}]
-let HISTORICO = JSON.parse(localStorage.getItem('cn_historico') || '[]');
-
-// Vista atual do gráfico histórico
-let HIST_VIEW = 'total'; // 'total' | 'fixos' | 'compras'
-
+let HIST_VIEW = 'total';
 let chartPago = null, chartCat = null, chartHist = null;
 let undoTimers = {};
 let editPagasCount = 0;
+
+// ─── API HELPER ──────────────────────────────────────────────────────────
+// Envia POST para o Apps Script (no-cors, resultado ignorado pois o script
+// retorna corretamente, mas o browser bloqueia leitura por CORS).
+// Para ações que requerem confirmação, faça fetchData() logo depois.
+function apiPost(params) {
+  return fetch(URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(params),
+  });
+}
+
+// Persiste config (meta + renda + pessoas) na aba Config do Sheets
+function saveConfigToSheets() {
+  return apiPost({ action: 'update_config', meta: META, renda: RENDA, pessoas: PESSOAS });
+}
+
+// Persiste lista completa (fixos | variaveis | historico) na aba correspondente
+function saveListToSheets(target, list) {
+  return apiPost({ action: 'update_list', target, list });
+}
 
 // ─── CORES FIXAS POR CATEGORIA ───────────────────────────────────────────
 // Edite à vontade para adicionar novas categorias.
@@ -1092,6 +1110,7 @@ function catColor(catName) {
 
 // ─── INIT ────────────────────────────────────────────────────────────────
 window.onload = () => {
+  // Renderiza com cache local enquanto carrega do Sheets
   RENDA = PESSOAS.reduce((s, p) => s + (p.renda || 0), 0);
   renderGastosFixos();
   renderGastosVariaveis();
@@ -1109,7 +1128,7 @@ function setSync(state, lbl) {
   document.getElementById('syncLbl').textContent = lbl;
 }
 
-// ─── FETCH ───────────────────────────────────────────────────────────────
+// ─── FETCH — consome o novo formato {items, fixos, variaveis, historico, config} ──
 async function fetchData() {
   setSync('loading', 'Sincronizando…');
   const list = document.getElementById('itemList');
@@ -1118,16 +1137,89 @@ async function fetchData() {
   try {
     const res = await fetch(URL + '?t=' + Date.now());
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    DATA = JSON.parse(await res.text());
-    // Normaliza campos
-    DATA = DATA.map(d => ({ ...d, total: Number(d.total) || 0, parcelas: Number(d.parcelas) || 1, checks: (d.checks || []).map(Boolean) }));
+
+    const payload = JSON.parse(await res.text());
+
+    // ── 1. Itens (aba CasaNova) ──────────────────────────────────────────
+    const rawItems = Array.isArray(payload) ? payload : (payload.items || []);
+    DATA = rawItems.map(d => ({
+      ...d,
+      total: Number(d.total) || 0,
+      parcelas: Number(d.parcelas) || 1,
+      checks: (d.checks || []).map(Boolean),
+    }));
+
+    // ── 2. Listas (Fixos / Variaveis / Historico) ────────────────────────
+    if (payload.fixos !== undefined) {
+      GASTOS_FIXOS = (payload.fixos || []).map((g, i) => ({
+        id:    g.id    || (Date.now() + i),
+        nome:  g.nome  || '',
+        valor: Number(g.valor) || 0,
+        cor:   g.cor   || GF_CORES[i % GF_CORES.length],
+      }));
+      localStorage.setItem('cn_gastos_fixos', JSON.stringify(GASTOS_FIXOS));
+    }
+
+    if (payload.variaveis !== undefined) {
+      GASTOS_VARIAVEIS = (payload.variaveis || []).map((g, i) => ({
+        id:    g.id    || (Date.now() + i + 1000),
+        nome:  g.nome  || '',
+        valor: Number(g.valor) || 0,
+        cor:   g.cor   || GF_CORES[(i + 3) % GF_CORES.length],
+      }));
+      localStorage.setItem('cn_gastos_variaveis', JSON.stringify(GASTOS_VARIAVEIS));
+    }
+
+    if (payload.historico !== undefined) {
+      HISTORICO = (payload.historico || []).map(h => ({
+        mes:       h.mes       || '',
+        compras:   Number(h.compras)   || 0,
+        fixos:     Number(h.fixos)     || 0,
+        variaveis: Number(h.variaveis) || 0,
+        outros:    Number(h.outros)    || 0,
+      }));
+      HISTORICO.sort((a, b) => a.mes.localeCompare(b.mes));
+      localStorage.setItem('cn_historico', JSON.stringify(HISTORICO));
+    }
+
+    // ── 3. Config (aba Config) ───────────────────────────────────────────
+    if (payload.config) {
+      const cfg = payload.config;
+
+      if (cfg.meta !== undefined) {
+        META = parseFloat(cfg.meta) || 0;
+        localStorage.setItem('cn_meta', META);
+      }
+
+      if (cfg.pessoas !== undefined) {
+        try {
+          const p = typeof cfg.pessoas === 'string' ? JSON.parse(cfg.pessoas) : cfg.pessoas;
+          if (Array.isArray(p) && p.length) {
+            PESSOAS = p;
+            RENDA = PESSOAS.reduce((s, p) => s + (p.renda || 0), 0);
+            localStorage.setItem('cn_pessoas', JSON.stringify(PESSOAS));
+            localStorage.setItem('cn_renda', RENDA);
+          }
+        } catch (_) {}
+      } else if (cfg.renda !== undefined) {
+        // Fallback se não tiver pessoas mas tiver renda
+        RENDA = parseFloat(cfg.renda) || 0;
+        localStorage.setItem('cn_renda', RENDA);
+      }
+    }
+
+    // ── 4. Renderiza tudo ────────────────────────────────────────────────
     render();
+    renderGastosFixos();
+    renderGastosVariaveis();
+    renderHistorico();
     renderResumoMes(DATA);
     setSync('live', 'Ao vivo');
     document.getElementById('lastUpd').textContent = 'Atualizado: ' + new Date().toLocaleTimeString('pt-BR').slice(0, 5);
-    // Auto-refresh a cada 90s
+
     clearTimeout(window._refreshTimer);
     window._refreshTimer = setTimeout(fetchData, 90000);
+
   } catch (e) {
     setSync('error', 'Erro de conexão');
     list.innerHTML = `<div class="loader-wrap" style="color:var(--danger)"><p>⚠ Falha ao conectar.<br><small>${e.message}</small></p><br><button class="btn btn-ghost" onclick="openCfg()">⚙ Configurar URL</button></div>`;
@@ -1479,12 +1571,7 @@ function toggle(el, row, idx, val) {
   if (el.classList.contains('saving')) return;
   el.className = 'd saving';
 
-  fetch(URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ action: 'toggle', row: row, colIndex: idx, value: val })
-  }).then(() => {
+  apiPost({ action: 'toggle', row: row, colIndex: idx, value: val }).then(() => {
     const item = DATA.find(i => i.row === row);
     if (item) item.checks[idx] = val;
     render();
@@ -1509,12 +1596,7 @@ function saveItem() {
   const btn = document.getElementById('btnSalvar');
   btn.disabled = true; btn.textContent = 'Salvando…';
 
-  fetch(URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ action: 'add', nome: nome, cat: cat, total: total, parcelas: parc, pagas: pagas })
-  }).then(() => {
+  apiPost({ action: 'add', nome: nome, cat: cat, total: total, parcelas: parc, pagas: pagas }).then(() => {
     toast('✅ Item adicionado!');
     closeModals();
     ['nNome','nValor','nPagas'].forEach(id => document.getElementById(id).value = '');
@@ -1585,11 +1667,7 @@ function saveEdit() {
   // Monta array de checks
   const checks = Array(12).fill(false).map((_, i) => i < pagas);
 
-  fetch(URL, {
-    method: 'POST', mode: 'no-cors',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ action: 'edit', row, nome, cat, total, parcelas: parc, checks })
-  }).then(() => {
+  apiPost({ action: 'edit', row, nome, cat, total, parcelas: parc, checks }).then(() => {
     toast('✅ Item atualizado!');
     closeModals();
     btn.disabled = false; btn.textContent = 'Salvar Alterações';
@@ -1598,23 +1676,6 @@ function saveEdit() {
     toast('❌ Erro ao salvar', 'error');
     btn.disabled = false; btn.textContent = 'Salvar Alterações';
   });
-}
-
-// ─── HELPER: POST via GET (evita problema de CORS com no-cors + body) ────
-function apiCall(params) {
-  const qs = new URLSearchParams(params).toString();
-  // Tenta POST primeiro; se falhar por CORS, fallback para GET com query string
-  return fetch(URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(params)
-  });
-}
-function apiGet(params) {
-  // GET com query string — sempre funciona sem CORS no Apps Script com doGet
-  const qs = new URLSearchParams(params).toString();
-  return fetch(URL + '?' + qs);
 }
 
 // ─── DELETE COM UNDO ──────────────────────────────────────────────────────
@@ -1631,13 +1692,8 @@ function startDelete(row, nome) {
     DATA = DATA.filter(i => i.row !== row);
     delete undoTimers[row];
 
-    // Envia para o Sheets via POST (body JSON)
-    fetch(URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'delete', row: row })
-    }).then(() => {
+    // Envia para o Sheets
+    apiPost({ action: 'delete', row: row }).then(() => {
       toast('🗑 Item removido da planilha');
       fetchData(); // re-sincroniza para confirmar
     }).catch(() => {
@@ -1670,6 +1726,7 @@ function saveMeta() {
   localStorage.setItem('cn_meta', META);
   closeModals();
   renderMeta(DATA);
+  saveConfigToSheets().catch(() => {});   // persiste no Sheets (best-effort)
   toast(META ? `🎯 Meta de ${fmt(META)}/mês salva!` : '🎯 Meta removida');
 }
 function previewMeta(val) {
@@ -1789,21 +1846,25 @@ function saveRenda() {
     renda: parseFloat(document.getElementById('pRenda'+i)?.value) || 0,
   }));
   RENDA = PESSOAS.reduce((s, p) => s + p.renda, 0);
-  savePessoas();
+  // Cache local
+  localStorage.setItem('cn_pessoas', JSON.stringify(PESSOAS));
   localStorage.setItem('cn_renda', RENDA);
+  // Persiste no Sheets (aba Config)
+  saveConfigToSheets().catch(() => {});
   closeModals();
   render();
   toast(`💵 Renda de ${fmt(RENDA)}/mês salva!`);
 }
-
-function previewRenda() {} // legacy noop
 
 // ─── GASTOS FIXOS ────────────────────────────────────────────────────────
 const GF_CORES = ['#2A6B4E','#2D5FA6','#D4720A','#9B5DE5','#C13333','#06B6D4','#F59E0B','#EC4899','#10B981','#6366F1'];
 
 function gfCor(idx) { return GF_CORES[idx % GF_CORES.length]; }
 
-function saveGF() { localStorage.setItem('cn_gastos_fixos', JSON.stringify(GASTOS_FIXOS)); }
+function saveGF() {
+  localStorage.setItem('cn_gastos_fixos', JSON.stringify(GASTOS_FIXOS));
+  saveListToSheets('Fixos', GASTOS_FIXOS).catch(() => {});
+}
 
 function addGastoFixo() {
   const nome  = document.getElementById('gfNome').value.trim();
@@ -1816,7 +1877,8 @@ function addGastoFixo() {
   document.getElementById('gfNome').value  = '';
   document.getElementById('gfValor').value = '';
   renderGastosFixos();
-  renderRenda(DATA); // atualiza orçamento
+  renderRenda(DATA);
+  renderResumoMes();
   toast('✅ Gasto fixo adicionado');
 }
 
@@ -1825,6 +1887,7 @@ function removeGastoFixo(id) {
   saveGF();
   renderGastosFixos();
   renderRenda(DATA);
+  renderResumoMes();
   toast('🗑 Removido');
 }
 
@@ -1888,7 +1951,10 @@ function renderGastosFixos() {
 }
 
 // ─── HISTÓRICO MENSAL ────────────────────────────────────────────────────
-function saveHist() { localStorage.setItem('cn_historico', JSON.stringify(HISTORICO)); }
+function saveHist() {
+  localStorage.setItem('cn_historico', JSON.stringify(HISTORICO));
+  saveListToSheets('Historico', HISTORICO).catch(() => {});
+}
 
 function setHistView(view, btn) {
   HIST_VIEW = view;
@@ -2142,7 +2208,10 @@ function renderResumoMes(data) {
 }
 
 // ─── GASTOS VARIÁVEIS ────────────────────────────────────────────────────
-function saveGV() { localStorage.setItem('cn_gastos_variaveis', JSON.stringify(GASTOS_VARIAVEIS)); }
+function saveGV() {
+  localStorage.setItem('cn_gastos_variaveis', JSON.stringify(GASTOS_VARIAVEIS));
+  saveListToSheets('Variaveis', GASTOS_VARIAVEIS).catch(() => {});
+}
 
 function addGastoVariavel() {
   const nome  = document.getElementById('gvNome').value.trim();
