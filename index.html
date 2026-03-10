@@ -269,8 +269,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
    GASTOS FIXOS + HISTÓRICO
 ═══════════════════════════════════════ */
 .gastos-section{margin-bottom:24px}
-.gastos-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:14px}
-@media(max-width:860px){.gastos-grid{grid-template-columns:1fr}}
+.gastos-grid{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:14px}
+@media(max-width:1100px){.gastos-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:680px){.gastos-grid{grid-template-columns:1fr}}
 
 /* Lista de gastos fixos */
 .gf-list{display:flex;flex-direction:column;gap:6px;margin-top:4px;max-height:320px;overflow-y:auto}
@@ -431,6 +432,29 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           <input class="fi" id="gfNome" placeholder="Nome (ex: Aluguel)" style="flex:2">
           <input class="fi" id="gfValor" type="number" min="0" placeholder="Valor" style="flex:1">
           <button class="gf-add-btn" onclick="addGastoFixo()">+ Add</button>
+        </div>
+      </div>
+
+      <!-- Painel: Gastos Variáveis -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Gastos Variáveis</div>
+            <div class="card-sub">luz, água, mercado…</div>
+          </div>
+        </div>
+        <div class="gf-list" id="gvList"></div>
+        <div class="gf-total-row">
+          <span class="gf-total-lbl">Total Variável / mês</span>
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end">
+            <div id="gvTotalSplit" style="display:flex;gap:10px"></div>
+            <span class="gf-total-val" id="gvTotalVal">R$ 0</span>
+          </div>
+        </div>
+        <div class="gf-add-row">
+          <input class="fi" id="gvNome" placeholder="Nome (ex: Luz)" style="flex:2">
+          <input class="fi" id="gvValor" type="number" min="0" placeholder="Valor" style="flex:1">
+          <button class="gf-add-btn" style="background:var(--warn)" onclick="addGastoVariavel()">+ Add</button>
         </div>
       </div>
 
