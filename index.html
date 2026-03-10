@@ -266,8 +266,30 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .renda-set-btn:hover{background:var(--accent-lt)}
 
 /* ═══════════════════════════════════════
-   GASTOS FIXOS + HISTÓRICO
+   RESUMO DO MÊS
 ═══════════════════════════════════════ */
+.resumo-mes{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-bottom:16px;box-shadow:var(--sh)}
+.resumo-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.resumo-title{font-family:'DM Serif Display',serif;font-size:19px;letter-spacing:-.3px}
+.resumo-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.resumo-notif-btn{font-size:12px;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:5px 13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.2s;white-space:nowrap}
+.resumo-notif-btn:hover{border-color:var(--accent);color:var(--accent)}
+.resumo-notif-btn.ativo{background:var(--accent-lt);color:var(--accent);border-color:var(--accent)}
+.resumo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.resumo-pessoa{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px 16px;position:relative;overflow:hidden}
+.resumo-pessoa::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.resumo-pessoa-nome{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:8px}
+.resumo-pessoa-total{font-family:'DM Serif Display',serif;font-size:26px;letter-spacing:-.5px;line-height:1;margin-bottom:10px}
+.resumo-linhas{display:flex;flex-direction:column;gap:4px}
+.resumo-linha{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.resumo-linha strong{color:var(--text);font-weight:600}
+.resumo-total-col{background:var(--text);color:#fff;border-radius:var(--r-sm);padding:14px 16px}
+.resumo-total-col .resumo-pessoa-nome{color:rgba(255,255,255,.6)}
+.resumo-total-col .resumo-pessoa-total{color:#fff}
+.resumo-total-col .resumo-linha{color:rgba(255,255,255,.6)}
+.resumo-total-col .resumo-linha strong{color:#fff}
+
+
 .gastos-section{margin-bottom:24px}
 .gastos-grid{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:14px}
 @media(max-width:1100px){.gastos-grid{grid-template-columns:1fr 1fr}}
@@ -405,6 +427,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <button class="meta-set-btn" onclick="openMeta()">✏ Editar meta</button>
   </div>
 
+  <!-- RESUMO DO MÊS -->
+  <div class="resumo-mes" id="resumoMes">
+    <div class="resumo-header">
+      <div>
+        <div class="resumo-title">📅 Quanto pagar este mês</div>
+        <div class="resumo-sub" id="resumoSubtitle">—</div>
+      </div>
+      <button class="resumo-notif-btn" id="notifBtn" onclick="toggleNotificacoes()" title="Ativar lembrete mensal">🔔 Lembrete mensal</button>
+    </div>
+    <div class="resumo-grid" id="resumoGrid"></div>
+  </div>
+
   <!-- GASTOS FIXOS + HISTÓRICO -->
   <div class="gastos-section">
     <div class="sec-header" style="margin-bottom:12px">
@@ -468,6 +502,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           <div class="hist-tabs">
             <button class="hist-tab active" onclick="setHistView('total',this)">Total</button>
             <button class="hist-tab" onclick="setHistView('fixos',this)">Fixos</button>
+            <button class="hist-tab" onclick="setHistView('variaveis',this)">Variáveis</button>
             <button class="hist-tab" onclick="setHistView('compras',this)">Compras</button>
           </div>
         </div>
@@ -657,6 +692,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       <div class="fh" id="regFixosHint">Sugerido com base nos gastos fixos cadastrados.</div>
     </div>
     <div class="fg">
+      <label class="fl">Gastos Variáveis do Mês (R$)</label>
+      <input class="fi" type="number" id="regVariaveis" min="0" step="0.01" placeholder="0,00">
+      <div class="fh" id="regVariaveisHint">Baseado nos gastos variáveis cadastrados.</div>
+    </div>
+    <div class="fg">
       <label class="fl">Outros Gastos (R$)</label>
       <input class="fi" type="number" id="regOutros" min="0" step="0.01" placeholder="0,00">
       <div class="fh">Saídas, extras, imprevistos, etc.</div>
@@ -702,7 +742,10 @@ function splitFracs() {
 // Gastos fixos: [{id, nome, valor, cor}]
 let GASTOS_FIXOS = JSON.parse(localStorage.getItem('cn_gastos_fixos') || '[]');
 
-// Histórico mensal: [{mes:'2025-02', compras:1200, fixos:3500, outros:400}]
+// Gastos variáveis: [{id, nome, valor, cor}]
+let GASTOS_VARIAVEIS = JSON.parse(localStorage.getItem('cn_gastos_variaveis') || '[]');
+
+// Histórico mensal: [{mes, compras, fixos, variaveis, outros}]
 let HISTORICO = JSON.parse(localStorage.getItem('cn_historico') || '[]');
 
 // Vista atual do gráfico histórico
@@ -737,10 +780,12 @@ function catColor(catName) {
 
 // ─── INIT ────────────────────────────────────────────────────────────────
 window.onload = () => {
-  // Sincroniza renda total com soma das pessoas
   RENDA = PESSOAS.reduce((s, p) => s + (p.renda || 0), 0);
   renderGastosFixos();
+  renderGastosVariaveis();
   renderHistorico();
+  renderResumoMes();
+  initPWA();
   if (!URL) setTimeout(openCfg, 600);
   else fetchData();
 };
@@ -765,6 +810,7 @@ async function fetchData() {
     // Normaliza campos
     DATA = DATA.map(d => ({ ...d, total: Number(d.total) || 0, parcelas: Number(d.parcelas) || 1, checks: (d.checks || []).map(Boolean) }));
     render();
+    renderResumoMes(DATA);
     setSync('live', 'Ao vivo');
     document.getElementById('lastUpd').textContent = 'Atualizado: ' + new Date().toLocaleTimeString('pt-BR').slice(0, 5);
     // Auto-refresh a cada 90s
@@ -1539,12 +1585,10 @@ function setHistView(view, btn) {
 }
 
 function openRegistroMes() {
-  // Pré-preenche o mês atual
   const now = new Date();
   const mesStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
   document.getElementById('regMes').value = mesStr;
 
-  // Sugere compras com base nos checks deste mês (parcelas marcadas no mês atual)
   const totalParc = DATA.reduce((s, item) => {
     const valParc = item.total / (item.parcelas || 1);
     const pagas = (item.checks || []).filter(Boolean).length;
@@ -1555,33 +1599,38 @@ function openRegistroMes() {
     ? `Sugerido: ${fmt(totalParc)} (baseado nas parcelas marcadas)`
     : 'Baseado nas parcelas marcadas no Sheets.';
 
-  // Sugere fixos com base no cadastro
   const totalFixos = GASTOS_FIXOS.reduce((s, g) => s + g.valor, 0);
   document.getElementById('regFixos').value = totalFixos > 0 ? totalFixos.toFixed(2) : '';
   document.getElementById('regFixosHint').textContent = totalFixos > 0
     ? `Sugerido: ${fmt(totalFixos)} (soma dos gastos fixos)`
     : 'Baseado nos gastos fixos cadastrados.';
 
+  const totalVar = GASTOS_VARIAVEIS.reduce((s, g) => s + g.valor, 0);
+  document.getElementById('regVariaveis').value = totalVar > 0 ? totalVar.toFixed(2) : '';
+  document.getElementById('regVariaveisHint').textContent = totalVar > 0
+    ? `Sugerido: ${fmt(totalVar)} (soma dos gastos variáveis)`
+    : 'Baseado nos gastos variáveis cadastrados.';
+
   document.getElementById('regOutros').value = '';
   document.getElementById('regPreview').style.display = 'none';
   document.getElementById('registroOverlay').classList.add('open');
 
-  // Atualiza preview ao vivo
-  ['regCompras','regFixos','regOutros','regMes'].forEach(id => {
+  ['regCompras','regFixos','regVariaveis','regOutros','regMes'].forEach(id => {
     document.getElementById(id).oninput = updateRegPreview;
   });
   updateRegPreview();
 }
 
 function updateRegPreview() {
-  const compras = parseFloat(document.getElementById('regCompras').value) || 0;
-  const fixos   = parseFloat(document.getElementById('regFixos').value)   || 0;
-  const outros  = parseFloat(document.getElementById('regOutros').value)  || 0;
-  const total   = compras + fixos + outros;
-  const prev    = document.getElementById('regPreview');
+  const compras   = parseFloat(document.getElementById('regCompras').value)   || 0;
+  const fixos     = parseFloat(document.getElementById('regFixos').value)     || 0;
+  const variaveis = parseFloat(document.getElementById('regVariaveis').value) || 0;
+  const outros    = parseFloat(document.getElementById('regOutros').value)    || 0;
+  const total     = compras + fixos + variaveis + outros;
+  const prev      = document.getElementById('regPreview');
   if (!total) { prev.style.display = 'none'; return; }
-  const saldo   = RENDA - total;
-  const ok      = saldo >= 0;
+  const saldo = RENDA - total;
+  const ok    = saldo >= 0;
   prev.style.display = '';
   prev.innerHTML = `
     Total do mês: <strong>${fmt(total)}</strong><br>
@@ -1590,15 +1639,14 @@ function updateRegPreview() {
 }
 
 function saveRegistroMes() {
-  const mes     = document.getElementById('regMes').value;
-  const compras = parseFloat(document.getElementById('regCompras').value) || 0;
-  const fixos   = parseFloat(document.getElementById('regFixos').value)   || 0;
-  const outros  = parseFloat(document.getElementById('regOutros').value)  || 0;
+  const mes       = document.getElementById('regMes').value;
+  const compras   = parseFloat(document.getElementById('regCompras').value)   || 0;
+  const fixos     = parseFloat(document.getElementById('regFixos').value)     || 0;
+  const variaveis = parseFloat(document.getElementById('regVariaveis').value) || 0;
+  const outros    = parseFloat(document.getElementById('regOutros').value)    || 0;
   if (!mes) { toast('⚠ Selecione o mês', 'warn'); return; }
-  // Remove entrada anterior do mesmo mês se existir
   HISTORICO = HISTORICO.filter(h => h.mes !== mes);
-  HISTORICO.push({ mes, compras, fixos, outros });
-  // Ordena cronologicamente
+  HISTORICO.push({ mes, compras, fixos, variaveis, outros });
   HISTORICO.sort((a, b) => a.mes.localeCompare(b.mes));
   saveHist();
   closeModals();
@@ -1643,7 +1691,7 @@ function renderHistorico() {
   if (HIST_VIEW === 'total') {
     datasets = [{
       label: 'Total',
-      data: hist.map(h => h.compras + h.fixos + h.outros),
+      data: hist.map(h => h.compras + h.fixos + (h.variaveis||0) + h.outros),
       borderColor: '#2A6B4E',
       backgroundColor: 'rgba(42,107,78,.10)',
       fill: true,
@@ -1659,6 +1707,14 @@ function renderHistorico() {
       backgroundColor: 'rgba(45,95,166,.10)',
       fill: true, tension: .35, pointRadius: 4, pointBackgroundColor: '#2D5FA6',
     }];
+  } else if (HIST_VIEW === 'variaveis') {
+    datasets = [{
+      label: 'Gastos Variáveis',
+      data: hist.map(h => h.variaveis || 0),
+      borderColor: '#D4720A',
+      backgroundColor: 'rgba(212,114,10,.10)',
+      fill: true, tension: .35, pointRadius: 4, pointBackgroundColor: '#D4720A',
+    }];
   } else {
     datasets = [
       {
@@ -1671,9 +1727,9 @@ function renderHistorico() {
       {
         label: 'Outros',
         data: hist.map(h => h.outros),
-        borderColor: '#D4720A',
-        backgroundColor: 'rgba(212,114,10,.08)',
-        fill: true, tension: .35, pointRadius: 4, pointBackgroundColor: '#D4720A',
+        borderColor: '#9B5DE5',
+        backgroundColor: 'rgba(155,93,229,.08)',
+        fill: true, tension: .35, pointRadius: 4, pointBackgroundColor: '#9B5DE5',
       }
     ];
   }
@@ -1708,6 +1764,226 @@ function renderHistorico() {
       }
     }
   });
+}
+
+// ─── RESUMO DO MÊS ───────────────────────────────────────────────────────
+function renderResumoMes(data) {
+  data = data || DATA;
+  const fracs    = splitFracs();
+  const temSplit = PESSOAS.length > 0 && PESSOAS.some(p => p.renda > 0);
+
+  // Parcelas que vencem este mês (itens com ao menos 1 parcela pendente)
+  let parcelas = 0;
+  data.forEach(item => {
+    const valParc = item.total / (item.parcelas || 1);
+    const pagas   = (item.checks || []).filter(Boolean).length;
+    if (pagas < item.parcelas) parcelas += valParc;
+  });
+
+  const totalFixos     = GASTOS_FIXOS.reduce((s, g) => s + g.valor, 0);
+  const totalVariaveis = GASTOS_VARIAVEIS.reduce((s, g) => s + g.valor, 0);
+  const totalMes       = parcelas + totalFixos + totalVariaveis;
+
+  const now = new Date();
+  const mesNome = now.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  document.getElementById('resumoSubtitle').textContent =
+    mesNome.charAt(0).toUpperCase() + mesNome.slice(1) + ' · estimativa';
+
+  const grid = document.getElementById('resumoGrid');
+
+  // Colunas por pessoa
+  const pessoasCols = temSplit ? PESSOAS.map((p, i) => {
+    const frac     = fracs[i];
+    const pParc    = parcelas * frac;
+    const pFixos   = totalFixos * frac;
+    const pVar     = totalVariaveis * frac;
+    const pTotal   = pParc + pFixos + pVar;
+    const initials = p.nome.slice(0, 2).toUpperCase();
+    return `<div class="resumo-pessoa" style="--rc:${p.cor}">
+      <div style="position:absolute;top:0;left:0;bottom:0;width:3px;background:${p.cor};border-radius:3px 0 0 3px"></div>
+      <div class="resumo-pessoa-nome">
+        <div class="split-avatar" style="background:${p.cor};width:18px;height:18px;font-size:8px">${initials}</div>
+        ${p.nome}
+      </div>
+      <div class="resumo-pessoa-total">${fmt(pTotal)}</div>
+      <div class="resumo-linhas">
+        <div class="resumo-linha"><span>🏠 Parcelas casa</span><strong>${fmt(pParc)}</strong></div>
+        <div class="resumo-linha"><span>📌 Fixos</span><strong>${fmt(pFixos)}</strong></div>
+        <div class="resumo-linha"><span>⚡ Variáveis</span><strong>${fmt(pVar)}</strong></div>
+      </div>
+    </div>`;
+  }).join('') : '';
+
+  // Coluna total geral
+  const totalCol = `<div class="resumo-pessoa resumo-total-col">
+    <div class="resumo-pessoa-nome">🧮 Total do casal</div>
+    <div class="resumo-pessoa-total">${fmt(totalMes)}</div>
+    <div class="resumo-linhas">
+      <div class="resumo-linha"><span>🏠 Parcelas casa</span><strong>${fmt(parcelas)}</strong></div>
+      <div class="resumo-linha"><span>📌 Fixos</span><strong>${fmt(totalFixos)}</strong></div>
+      <div class="resumo-linha"><span>⚡ Variáveis</span><strong>${fmt(totalVariaveis)}</strong></div>
+    </div>
+  </div>`;
+
+  grid.innerHTML = pessoasCols + totalCol;
+}
+
+// ─── GASTOS VARIÁVEIS ────────────────────────────────────────────────────
+function saveGV() { localStorage.setItem('cn_gastos_variaveis', JSON.stringify(GASTOS_VARIAVEIS)); }
+
+function addGastoVariavel() {
+  const nome  = document.getElementById('gvNome').value.trim();
+  const valor = parseFloat(document.getElementById('gvValor').value) || 0;
+  if (!nome)    { toast('⚠ Nome é obrigatório', 'warn'); return; }
+  if (valor<=0) { toast('⚠ Informe um valor', 'warn'); return; }
+  GASTOS_VARIAVEIS.push({ id: Date.now(), nome, valor, cor: gfCor(GASTOS_VARIAVEIS.length) });
+  saveGV();
+  document.getElementById('gvNome').value  = '';
+  document.getElementById('gvValor').value = '';
+  renderGastosVariaveis();
+  renderResumoMes();
+  renderRenda(DATA);
+  toast('✅ Gasto variável adicionado');
+}
+
+function removeGastoVariavel(id) {
+  GASTOS_VARIAVEIS = GASTOS_VARIAVEIS.filter(g => g.id !== id);
+  saveGV();
+  renderGastosVariaveis();
+  renderResumoMes();
+  renderRenda(DATA);
+  toast('🗑 Removido');
+}
+
+function renderGastosVariaveis() {
+  const list  = document.getElementById('gvList');
+  const total = GASTOS_VARIAVEIS.reduce((s, g) => s + g.valor, 0);
+  document.getElementById('gvTotalVal').textContent = fmt(total);
+
+  const fracs    = splitFracs();
+  const temSplit = PESSOAS.length > 0 && PESSOAS.some(p => p.renda > 0);
+
+  const splitEl = document.getElementById('gvTotalSplit');
+  if (splitEl) {
+    if (temSplit && total > 0) {
+      splitEl.style.display = 'flex';
+      splitEl.innerHTML = PESSOAS.map((p, i) => `
+        <div style="display:flex;align-items:center;gap:5px">
+          <div class="split-avatar" style="background:${p.cor};width:20px;height:20px;font-size:9px;flex-shrink:0">${p.nome.slice(0,2).toUpperCase()}</div>
+          <div>
+            <span style="display:block;font-size:9px;color:var(--muted);line-height:1">${p.nome}</span>
+            <span style="display:block;font-family:'DM Serif Display',serif;font-size:14px;line-height:1.1;color:${p.cor}">${fmt(total * fracs[i])}</span>
+          </div>
+        </div>`).join('');
+    } else {
+      splitEl.style.display = 'none';
+      splitEl.innerHTML = '';
+    }
+  }
+
+  if (!GASTOS_VARIAVEIS.length) {
+    list.innerHTML = `<div style="text-align:center;padding:24px 0;color:var(--muted);font-size:13px">Nenhum gasto variável cadastrado.<br>Adicione luz, água, mercado, etc.</div>`;
+    return;
+  }
+
+  list.innerHTML = GASTOS_VARIAVEIS.map(g => {
+    const splitPills = temSplit ? PESSOAS.map((p, i) => {
+      const val      = g.valor * fracs[i];
+      const initials = p.nome.slice(0, 2).toUpperCase();
+      return `<div class="gf-split-pill">
+        <div class="gf-split-av" style="background:${p.cor}">${initials}</div>
+        <div class="gf-split-info">
+          <span class="gf-split-name">${p.nome}</span>
+          <span class="gf-split-val">${fmt(val)}</span>
+        </div>
+      </div>`;
+    }).join('') : '';
+
+    return `<div class="gf-row">
+      <div class="gf-dot" style="background:${g.cor}"></div>
+      <div class="gf-main">
+        <div class="gf-top">
+          <span class="gf-nome">${g.nome}</span>
+          <span class="gf-val">${fmt(g.valor)}</span>
+        </div>
+        ${temSplit ? `<div class="gf-split">${splitPills}</div>` : ''}
+      </div>
+      <button class="gf-del" onclick="removeGastoVariavel(${g.id})" title="Remover">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ─── PWA + NOTIFICAÇÕES ──────────────────────────────────────────────────
+function initPWA() {
+  // Atualiza visual do botão conforme permissão atual
+  const btn = document.getElementById('notifBtn');
+  if (!('Notification' in window)) { btn.style.display = 'none'; return; }
+  const ativo = localStorage.getItem('cn_notif') === '1';
+  btn.classList.toggle('ativo', ativo && Notification.permission === 'granted');
+  if (ativo) btn.textContent = '🔔 Lembrete ativo';
+
+  // Agenda verificação mensal se já foi autorizado
+  if (ativo && Notification.permission === 'granted') scheduleMonthlyCheck();
+}
+
+async function toggleNotificacoes() {
+  if (!('Notification' in window)) { toast('⚠ Notificações não suportadas neste browser', 'warn'); return; }
+
+  const jaAtivo = localStorage.getItem('cn_notif') === '1' && Notification.permission === 'granted';
+  if (jaAtivo) {
+    // Desativar
+    localStorage.setItem('cn_notif', '0');
+    const btn = document.getElementById('notifBtn');
+    btn.classList.remove('ativo');
+    btn.textContent = '🔔 Lembrete mensal';
+    toast('🔕 Lembrete desativado');
+    return;
+  }
+
+  // Solicitar permissão
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') { toast('⚠ Permissão de notificação negada', 'warn'); return; }
+
+  localStorage.setItem('cn_notif', '1');
+  const btn = document.getElementById('notifBtn');
+  btn.classList.add('ativo');
+  btn.textContent = '🔔 Lembrete ativo';
+  toast('✅ Lembrete mensal ativado! Você será notificado no dia 1 de cada mês.');
+  scheduleMonthlyCheck();
+
+  // Dispara uma notificação de teste imediata
+  new Notification('Casa Nova 🏠', {
+    body: 'Lembretes mensais ativados! Você será avisado no início de cada mês.',
+    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text y="52" font-size="52">🏠</text></svg>'
+  });
+}
+
+function scheduleMonthlyCheck() {
+  // Verifica uma vez por hora se chegou o dia 1 do mês
+  setInterval(() => {
+    const now  = new Date();
+    const key  = `cn_notif_sent_${now.getFullYear()}_${now.getMonth()}`;
+    const sent = localStorage.getItem(key);
+    if (now.getDate() === 1 && !sent && Notification.permission === 'granted' && localStorage.getItem('cn_notif') === '1') {
+      // Calcula o total do mês
+      let parcelas = 0;
+      DATA.forEach(item => {
+        const valParc = item.total / (item.parcelas || 1);
+        const pagas   = (item.checks || []).filter(Boolean).length;
+        if (pagas < item.parcelas) parcelas += valParc;
+      });
+      const totalFixos     = GASTOS_FIXOS.reduce((s, g) => s + g.valor, 0);
+      const totalVariaveis = GASTOS_VARIAVEIS.reduce((s, g) => s + g.valor, 0);
+      const total          = parcelas + totalFixos + totalVariaveis;
+
+      const mesNome = now.toLocaleDateString('pt-BR', { month: 'long' });
+      new Notification('Casa Nova 🏠 — ' + mesNome.charAt(0).toUpperCase() + mesNome.slice(1), {
+        body: `Você tem ${fmt(total)} para pagar este mês.\nParcelas: ${fmt(parcelas)} · Fixos: ${fmt(totalFixos)} · Variáveis: ${fmt(totalVariaveis)}`,
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text y="52" font-size="52">🏠</text></svg>'
+      });
+      localStorage.setItem(key, '1');
+    }
+  }, 60 * 60 * 1000); // checa a cada hora
 }
 
 // ─── UTILS ───────────────────────────────────────────────────────────────
