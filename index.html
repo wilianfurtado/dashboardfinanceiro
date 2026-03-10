@@ -635,6 +635,211 @@ body::before{
   .meta-bar{flex-direction:column;align-items:flex-start;gap:10px}
   .panel{padding:24px}
 }
+
+/* =======================================================
+   MOBILE OPTIMIZATION
+   ======================================================= */
+
+@media (max-width: 768px){
+
+/* ---------------------------
+   TOPBAR
+--------------------------- */
+
+.topbar{
+  flex-wrap:wrap;
+  height:auto;
+  padding:12px 16px;
+  gap:10px;
+}
+
+.topbar-l{
+  width:100%;
+  justify-content:space-between;
+}
+
+.topbar-r{
+  width:100%;
+  justify-content:flex-end;
+  gap:6px;
+}
+
+.search-wrap{
+  order:3;
+  width:100%;
+  max-width:100%;
+}
+
+
+/* ---------------------------
+   HERO HEADER
+--------------------------- */
+
+.hero-shell{
+  padding:20px;
+}
+
+.hero-title{
+  font-size:20px;
+}
+
+.hero-sub{
+  font-size:13px;
+}
+
+
+/* ---------------------------
+   KPI GRID
+--------------------------- */
+
+.kpis{
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+
+.kpi{
+  padding:16px;
+}
+
+.kpi .value{
+  font-size:20px;
+}
+
+.kpi .label{
+  font-size:12px;
+}
+
+
+/* ---------------------------
+   CHARTS
+--------------------------- */
+
+.charts{
+  grid-template-columns:1fr;
+  gap:16px;
+}
+
+.chart-wrap{
+  height:260px;
+}
+
+
+/* ---------------------------
+   CARDS
+--------------------------- */
+
+.card{
+  padding:18px;
+  border-radius:18px;
+}
+
+.card-title{
+  font-size:16px;
+}
+
+
+/* ---------------------------
+   FILTER BAR
+--------------------------- */
+
+.filters-bar{
+  gap:6px;
+}
+
+.pill-filter{
+  font-size:11px;
+  padding:6px 12px;
+}
+
+
+/* ---------------------------
+   ITEMS LIST
+--------------------------- */
+
+.item-card{
+  grid-template-columns:1fr;
+  gap:12px;
+  padding:16px;
+}
+
+.progress-col{
+  min-width:100%;
+}
+
+.item-actions{
+  justify-content:flex-end;
+}
+
+.dots{
+  justify-content:flex-start;
+}
+
+
+/* ---------------------------
+   BUTTONS
+--------------------------- */
+
+.btn{
+  padding:6px 10px;
+  font-size:12px;
+  min-height:36px;
+}
+
+
+/* ---------------------------
+   MODAL
+--------------------------- */
+
+.panel{
+  max-width:100%;
+  border-radius:16px;
+  padding:22px;
+}
+
+
+/* ---------------------------
+   HERO PERFORMANCE
+--------------------------- */
+
+.hero-shell{
+  backdrop-filter:none;
+}
+
+
+/* ---------------------------
+   GENERAL SPACING
+--------------------------- */
+
+body{
+  padding-bottom:env(safe-area-inset-bottom);
+}
+
+}
+
+
+/* =======================================================
+   SMALL MOBILE (IPHONE SE)
+   ======================================================= */
+
+@media (max-width:480px){
+
+.kpis{
+  grid-template-columns:1fr;
+}
+
+.hero-title{
+  font-size:18px;
+}
+
+.kpi .value{
+  font-size:18px;
+}
+
+.btn{
+  font-size:11px;
+}
+
+}
 </style>
 </head>
 <body>
