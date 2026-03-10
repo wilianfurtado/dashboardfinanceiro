@@ -273,14 +273,22 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 @media(max-width:860px){.gastos-grid{grid-template-columns:1fr}}
 
 /* Lista de gastos fixos */
-.gf-list{display:flex;flex-direction:column;gap:6px;margin-top:4px;max-height:260px;overflow-y:auto}
+.gf-list{display:flex;flex-direction:column;gap:6px;margin-top:4px;max-height:320px;overflow-y:auto}
 .gf-list::-webkit-scrollbar{width:4px}.gf-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
-.gf-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r-sm);background:var(--bg);border:1px solid var(--border);transition:.15s}
+.gf-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-sm);background:var(--bg);border:1px solid var(--border);transition:.15s}
 .gf-row:hover{border-color:var(--muted2)}
-.gf-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.gf-nome{flex:1;font-size:13px;font-weight:500}
+.gf-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:2px;align-self:flex-start}
+.gf-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.gf-top{display:flex;align-items:center;gap:8px}
+.gf-nome{font-size:13px;font-weight:500;flex:1}
 .gf-val{font-family:'DM Serif Display',serif;font-size:14px;flex-shrink:0}
-.gf-del{background:none;border:none;cursor:pointer;color:var(--muted2);font-size:13px;padding:2px 4px;border-radius:4px;transition:.15s;flex-shrink:0}
+.gf-split{display:flex;gap:8px;flex-wrap:wrap}
+.gf-split-pill{display:inline-flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:3px 9px 3px 5px}
+.gf-split-av{width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;flex-shrink:0}
+.gf-split-info{display:flex;flex-direction:column;line-height:1.15}
+.gf-split-name{font-size:9px;color:var(--muted);font-weight:600}
+.gf-split-val{font-size:11px;font-weight:600;font-family:'DM Serif Display',serif}
+.gf-del{background:none;border:none;cursor:pointer;color:var(--muted2);font-size:13px;padding:2px 4px;border-radius:4px;transition:.15s;flex-shrink:0;align-self:flex-start}
 .gf-del:hover{color:var(--danger);background:var(--danger-lt)}
 .gf-total-row{display:flex;justify-content:space-between;align-items:center;padding:10px 10px 2px;border-top:1px solid var(--border);margin-top:6px}
 .gf-total-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
@@ -289,6 +297,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .gf-add-row .fi{padding:8px 11px;font-size:13px}
 .gf-add-btn{background:var(--accent);color:#fff;border:none;border-radius:var(--r-sm);padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;transition:.2s;flex-shrink:0}
 .gf-add-btn:hover{background:var(--accent-dk)}
+.gf-split-row{display:flex;gap:10px;width:100%;padding:6px 0 2px 26px;border-top:1px dashed var(--border);margin-top:2px}
+.gf-split-item{display:flex;align-items:center;gap:5px}
 
 /* Histórico mensal */
 .hist-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
@@ -1442,14 +1452,34 @@ function renderGastosFixos() {
     return;
   }
 
-  list.innerHTML = GASTOS_FIXOS.map(g => `
-    <div class="gf-row">
+  const fracs    = splitFracs();
+  const temSplit = PESSOAS.length && PESSOAS.some(p => p.renda > 0);
+
+  list.innerHTML = GASTOS_FIXOS.map(g => {
+    const splitPills = temSplit ? PESSOAS.map((p, i) => {
+      const val      = g.valor * fracs[i];
+      const initials = p.nome.slice(0, 2).toUpperCase();
+      return `<div class="gf-split-pill">
+        <div class="gf-split-av" style="background:${p.cor}">${initials}</div>
+        <div class="gf-split-info">
+          <span class="gf-split-name">${p.nome}</span>
+          <span class="gf-split-val">${fmt(val)}</span>
+        </div>
+      </div>`;
+    }).join('') : '';
+
+    return `<div class="gf-row">
       <div class="gf-dot" style="background:${g.cor}"></div>
-      <span class="gf-nome">${g.nome}</span>
-      <span class="gf-val">${fmt(g.valor)}</span>
+      <div class="gf-main">
+        <div class="gf-top">
+          <span class="gf-nome">${g.nome}</span>
+          <span class="gf-val">${fmt(g.valor)}</span>
+        </div>
+        ${temSplit ? `<div class="gf-split">${splitPills}</div>` : ''}
+      </div>
       <button class="gf-del" onclick="removeGastoFixo(${g.id})" title="Remover">✕</button>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 // ─── HISTÓRICO MENSAL ────────────────────────────────────────────────────
