@@ -143,7 +143,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 .item-list{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
 
-.item-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 22px;display:grid;grid-template-columns:1fr auto auto auto auto auto;align-items:center;gap:18px;transition:.2s;cursor:default;position:relative}
+.item-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 22px;display:grid;grid-template-columns:1fr auto auto auto auto auto auto;align-items:center;gap:18px;transition:.2s;cursor:default;position:relative}
 .item-card:hover{box-shadow:var(--sh);transform:translateY(-1px)}
 .item-card.deleting{opacity:.4;transform:scale(.98);pointer-events:none}
 @media(max-width:960px){.item-card{grid-template-columns:1fr 1fr;gap:12px}}
@@ -185,6 +185,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 /* Actions col */
 .item-actions{display:flex;gap:4px;align-items:center}
+
+/* ─── Split proporcional no card ─── */
+.split-col{display:flex;flex-direction:column;gap:5px;min-width:148px}
+.split-row{display:flex;align-items:center;gap:7px}
+.split-avatar{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:0}
+.split-info{display:flex;flex-direction:column;flex:1;min-width:0}
+.split-name{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.split-val{font-size:13px;font-weight:600;font-family:'DM Serif Display',serif;line-height:1.1}
+.split-val.done{color:var(--accent)}
+.split-val.pending{color:var(--warn)}
+.split-pct{font-size:10px;color:var(--muted2);flex-shrink:0}
 
 /* ═══════════════════════════════════════
    MODAL / OVERLAY
@@ -572,20 +583,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
-<!-- MODAL: RENDA MENSAL -->
+<!-- MODAL: RENDA MENSAL / DIVISÃO -->
 <div class="overlay" id="rendaOverlay">
-  <div class="panel">
-    <h2>Renda Mensal</h2>
-    <p class="panel-sub">Informe a renda mensal combinada de vocês dois. O dashboard mostra quanto está comprometido com as parcelas e o que sobra livre.</p>
-    <div class="fg">
-      <label class="fl">Renda Mensal Total (R$)</label>
-      <input class="fi" type="number" id="rendaInput" placeholder="Ex: 8000" min="0" step="100" oninput="previewRenda(this.value)">
-      <div class="fh">Some os salários dos dois para ter o panorama completo.</div>
-    </div>
-    <div class="meta-preview" id="rendaPreview" style="display:none"></div>
+  <div class="panel" style="max-width:520px">
+    <h2>Renda & Divisão</h2>
+    <p class="panel-sub">Informe o nome e a renda de cada pessoa. A divisão de cada compra é calculada automaticamente de forma proporcional.</p>
+
+    <div id="pessoasForm"></div>
+
+    <div class="meta-preview" id="rendaPreview" style="display:none;margin-top:14px"></div>
     <div class="pa">
       <button class="btn btn-ghost" onclick="closeModals()">Cancelar</button>
-      <button class="btn btn-accent" onclick="saveRenda()">Salvar Renda</button>
+      <button class="btn btn-accent" onclick="saveRenda()">Salvar</button>
     </div>
   </div>
 </div>
@@ -638,6 +647,20 @@ let SORT = 'default';
 let META   = parseFloat(localStorage.getItem('cn_meta'))   || 0;
 let RENDA  = parseFloat(localStorage.getItem('cn_renda'))  || 0;
 
+// Pessoas: [{nome, renda, cor}] — proporção calculada automaticamente
+const PESSOAS_DEFAULT = [
+  { nome: 'Eu',  renda: 4500, cor: '#2A6B4E' },
+  { nome: 'Ela', renda: 3500, cor: '#2D5FA6' },
+];
+let PESSOAS = JSON.parse(localStorage.getItem('cn_pessoas') || 'null') || PESSOAS_DEFAULT;
+function savePessoas() { localStorage.setItem('cn_pessoas', JSON.stringify(PESSOAS)); }
+// Retorna fração de cada pessoa (array de 0..1)
+function splitFracs() {
+  const total = PESSOAS.reduce((s, p) => s + (p.renda || 0), 0);
+  if (!total) return PESSOAS.map(() => 1 / PESSOAS.length);
+  return PESSOAS.map(p => (p.renda || 0) / total);
+}
+
 // Gastos fixos: [{id, nome, valor, cor}]
 let GASTOS_FIXOS = JSON.parse(localStorage.getItem('cn_gastos_fixos') || '[]');
 
@@ -676,6 +699,8 @@ function catColor(catName) {
 
 // ─── INIT ────────────────────────────────────────────────────────────────
 window.onload = () => {
+  // Sincroniza renda total com soma das pessoas
+  RENDA = PESSOAS.reduce((s, p) => s + (p.renda || 0), 0);
   renderGastosFixos();
   renderHistorico();
   if (!URL) setTimeout(openCfg, 600);
@@ -896,6 +921,45 @@ function renderMeta(data) {
   document.getElementById('metaRight').textContent = `Meta: ${fmt(META)} (${pctMeta}%)`;
 }
 
+// ─── SPLIT PROPORCIONAL ──────────────────────────────────────────────────
+function buildSplitCol(item) {
+  const fracs = splitFracs();
+  // Mostramos split apenas se houver 2+ pessoas configuradas com renda
+  if (!PESSOAS.length || PESSOAS.every(p => !p.renda)) return '<div></div>';
+
+  const valParc    = item.total / (item.parcelas || 1);
+  const pagas      = (item.checks || []).filter(Boolean).length;
+  const quitado    = pagas >= item.parcelas;
+
+  const rows = PESSOAS.map((p, i) => {
+    const frac = fracs[i];
+    const pctLabel = Math.round(frac * 100) + '%';
+
+    // Valor total da pessoa neste item
+    const valTotal  = item.total * frac;
+    // Quanto a pessoa já pagou (proporcional às parcelas pagas)
+    const valPago   = valParc * pagas * frac;
+    // Quanto ainda deve (restante proporcional)
+    const valRest   = valTotal - valPago;
+
+    const initials = p.nome.slice(0, 2).toUpperCase();
+    const cls      = quitado ? 'done' : 'pending';
+    const display  = quitado ? fmt(valPago) : fmt(valRest);
+    const tip      = quitado ? 'quitado' : 'restante';
+
+    return `<div class="split-row">
+      <div class="split-avatar" style="background:${p.cor}">${initials}</div>
+      <div class="split-info">
+        <span class="split-name">${p.nome}</span>
+        <span class="split-val ${cls}">${display}</span>
+      </div>
+      <span class="split-pct">${pctLabel}</span>
+    </div>`;
+  }).join('');
+
+  return `<div class="split-col">${rows}</div>`;
+}
+
 // ─── LISTA DE ITENS ───────────────────────────────────────────────────────
 function renderList(items) {
   const list = document.getElementById('itemList');
@@ -966,7 +1030,10 @@ function renderList(items) {
         <div style="font-size:11px;color:var(--muted);margin-top:5px">${fmt(restante)} rest.</div>
       </div>
 
-      <!-- Col 5: Progresso -->
+      <!-- Col 5: Divisão proporcional -->
+      ${buildSplitCol(item)}
+
+      <!-- Col 6: Progresso -->
       <div class="progress-col">
         <div class="prog-track"><div class="prog-fill" style="width:0%;background:${barColor}" id="fill-${item.row}"></div></div>
         <div class="prog-labels"><span>${fmtShort(calcPago(item))} pagos</span><span>${p}%</span></div>
@@ -1266,35 +1333,74 @@ function renderRenda(data) {
 }
 
 function openRenda() {
-  document.getElementById('rendaInput').value = RENDA || '';
+  renderPessoasForm();
   document.getElementById('rendaPreview').style.display = 'none';
   document.getElementById('rendaOverlay').classList.add('open');
 }
-function saveRenda() {
-  RENDA = parseFloat(document.getElementById('rendaInput').value) || 0;
-  localStorage.setItem('cn_renda', RENDA);
-  closeModals();
-  renderRenda(DATA);
-  toast(RENDA ? `💵 Renda de ${fmt(RENDA)}/mês salva!` : '💵 Renda removida');
+
+function renderPessoasForm() {
+  const fracs = splitFracs();
+  const totalRenda = PESSOAS.reduce((s, p) => s + (p.renda || 0), 0);
+  document.getElementById('pessoasForm').innerHTML = PESSOAS.map((p, i) => `
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px 16px;margin-bottom:10px;display:grid;grid-template-columns:auto 1fr 1fr auto;gap:10px;align-items:center">
+      <div style="width:32px;height:32px;border-radius:50%;background:${p.cor};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0">${p.nome.slice(0,2).toUpperCase()}</div>
+      <div>
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:4px">Nome</div>
+        <input class="fi" style="padding:7px 10px;font-size:13px" id="pNome${i}" value="${p.nome}" placeholder="Nome" oninput="livePreviewRenda()">
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:4px">Renda (R$)</div>
+        <input class="fi" style="padding:7px 10px;font-size:13px" type="number" min="0" id="pRenda${i}" value="${p.renda || ''}" placeholder="0" oninput="livePreviewRenda()">
+      </div>
+      <div style="text-align:center;min-width:42px">
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:6px">%</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:16px;color:${p.cor}" id="pPct${i}">${Math.round(fracs[i]*100)}%</div>
+      </div>
+    </div>
+  `).join('') + `<div style="font-size:12px;color:var(--muted);margin-top:4px;padding:0 4px">Renda combinada: <strong style="color:var(--text)">${fmt(totalRenda)}</strong></div>`;
 }
-function previewRenda(val) {
-  const v = parseFloat(val) || 0;
+
+function livePreviewRenda() {
+  // Recalcula % ao vivo enquanto o usuário digita
+  const rendas = PESSOAS.map((_, i) => parseFloat(document.getElementById('pRenda'+i)?.value) || 0);
+  const total  = rendas.reduce((s, r) => s + r, 0);
+  rendas.forEach((r, i) => {
+    const pct = total ? Math.round((r / total) * 100) : 0;
+    const el = document.getElementById('pPct'+i);
+    if (el) el.textContent = pct + '%';
+  });
+
+  // Preview de saldo
   const prev = document.getElementById('rendaPreview');
-  if (!v || !DATA.length) { prev.style.display = 'none'; return; }
+  if (!total) { prev.style.display = 'none'; return; }
   let comprometido = 0;
   DATA.forEach(item => {
     const valParc = item.total / (item.parcelas || 1);
     if ((item.checks||[]).filter(Boolean).length < item.parcelas) comprometido += valParc;
   });
-  const saldo = v - comprometido;
+  const totalFixos = GASTOS_FIXOS.reduce((s, g) => s + g.valor, 0);
+  const saldo = total - comprometido - totalFixos;
   const ok = saldo >= 0;
-  const pct = Math.round((comprometido / v) * 100);
   prev.style.display = '';
-  prev.innerHTML = `
-    Comprometido este mês: <strong>${fmt(comprometido)}</strong> (${pct}% da renda)<br>
-    Saldo livre: <strong style="color:${ok?'var(--accent)':'var(--danger)'}">${ok ? fmt(saldo) : '⚠ deficit de ' + fmt(Math.abs(saldo))}</strong>
-  `;
+  prev.innerHTML = `Renda total: <strong>${fmt(total)}</strong> &nbsp;·&nbsp; Comprometido: <strong>${fmt(comprometido + totalFixos)}</strong><br>
+    Saldo livre: <strong style="color:${ok?'var(--accent)':'var(--danger)'}">${ok ? fmt(saldo) : '⚠ deficit de '+fmt(Math.abs(saldo))}</strong>`;
 }
+
+function saveRenda() {
+  PESSOAS = PESSOAS.map((p, i) => ({
+    ...p,
+    nome:  document.getElementById('pNome'+i)?.value.trim()  || p.nome,
+    renda: parseFloat(document.getElementById('pRenda'+i)?.value) || 0,
+  }));
+  RENDA = PESSOAS.reduce((s, p) => s + p.renda, 0);
+  savePessoas();
+  localStorage.setItem('cn_renda', RENDA);
+  closeModals();
+  render();
+  toast(`💵 Renda de ${fmt(RENDA)}/mês salva!`);
+}
+
+function previewRenda() {} // legacy noop
 
 // ─── GASTOS FIXOS ────────────────────────────────────────────────────────
 const GF_CORES = ['#2A6B4E','#2D5FA6','#D4720A','#9B5DE5','#C13333','#06B6D4','#F59E0B','#EC4899','#10B981','#6366F1'];
