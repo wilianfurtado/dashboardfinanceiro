@@ -2129,74 +2129,57 @@ function renderHistorico() {
   let datasets = [];
 
   if (HIST_VIEW === 'total') {
-    datasets = [{
-      label: 'Total',
-      data: hist.map(h => h.compras + h.fixos + (h.variaveis||0) + h.outros),
-      borderColor: '#2A6B4E',
-      backgroundColor: 'rgba(42,107,78,.10)',
-      fill: true, tension: .35, pointRadius: 4, pointBackgroundColor: '#2A6B4E',
-    }];
-  } else if (HIST_VIEW === 'fixos') {
-    datasets = [{
-      label: 'Gastos Fixos',
-      data: hist.map(h => h.fixos),
-      borderColor: '#2D5FA6',
-      backgroundColor: 'rgba(45,95,166,.10)',
-      fill: true, tension: .35, pointRadius: 4, pointBackgroundColor: '#2D5FA6',
-    }];
-  } else if (HIST_VIEW === 'variaveis') {
-    datasets = [{
-      label: 'Gastos Variáveis',
-      data: hist.map(h => h.variaveis || 0),
-      borderColor: '#D4720A',
-      backgroundColor: 'rgba(212,114,10,.10)',
-      fill: true, tension: .35, pointRadius: 4, pointBackgroundColor: '#D4720A',
-    }];
-  } else {
+    // Visão Empilhada para o Total
     datasets = [
-      {
-        label: 'Compras da Casa',
-        data: hist.map(h => h.compras),
-        borderColor: '#2A6B4E',
-        backgroundColor: 'rgba(42,107,78,.10)',
-        fill: true, tension: .35, pointRadius: 4, pointBackgroundColor: '#2A6B4E',
-      },
-      {
-        label: 'Outros',
-        data: hist.map(h => h.outros),
-        borderColor: '#9B5DE5',
-        backgroundColor: 'rgba(155,93,229,.08)',
-        fill: true, tension: .35, pointRadius: 4, pointBackgroundColor: '#9B5DE5',
-      }
+      { label: 'Fixos', data: hist.map(h => h.fixos), backgroundColor: '#2D5FA6', stack: 'stack0' },
+      { label: 'Variáveis', data: hist.map(h => h.variaveis || 0), backgroundColor: '#D4720A', stack: 'stack0' },
+      { label: 'Compras Casa', data: hist.map(h => h.compras), backgroundColor: '#2A6B4E', stack: 'stack0' },
+      { label: 'Outros', data: hist.map(h => h.outros), backgroundColor: '#9B5DE5', stack: 'stack0' }
     ];
+  } else {
+    // Visão Individual (conforme a aba selecionada)
+    const mapping = {
+      'fixos': { lbl: 'Gastos Fixos', key: 'fixos', color: '#2D5FA6' },
+      'variaveis': { lbl: 'Gastos Variáveis', key: 'variaveis', color: '#D4720A' },
+      'compras': { lbl: 'Compras Casa', key: 'compras', color: '#2A6B4E' }
+    };
+    const cfg = mapping[HIST_VIEW];
+    datasets = [{
+      label: cfg.lbl,
+      data: hist.map(h => h[cfg.key] || 0),
+      backgroundColor: cfg.color,
+      borderRadius: 4
+    }];
   }
 
-  if (RENDA && HIST_VIEW === 'total') {
+  // Adiciona linha de renda como overlay (muito útil para ver se "sobrou" mês no fim do dinheiro)
+  if (RENDA) {
     datasets.push({
-      label: 'Renda',
+      label: 'Renda Total',
       data: hist.map(() => RENDA),
-      borderColor: '#C13333',
-      borderDash: [5, 4],
-      borderWidth: 1.5,
-      pointRadius: 0,
+      borderColor: isDark ? '#e85858' : '#C13333',
+      borderWidth: 2,
+      borderDash: [5, 5],
+      type: 'line', // Mix de barras com linha
       fill: false,
-      tension: 0,
+      pointRadius: 0,
+      order: -1 // Garante que a linha fique na frente
     });
   }
 
   chartHist = new Chart(canvas.getContext('2d'), {
-    type: 'line',
+    type: 'bar',
     data: { labels, datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 10, padding: 10 } },
-        tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${fmt(c.raw)}` } }
+        legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 10 }, boxWidth: 8, usePointStyle: true } },
+        tooltip: { mode: 'index', intersect: false }
       },
       scales: {
-        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 } } },
-        y: { ticks: { font: { family: 'DM Sans', size: 11 }, callback: v => fmtShort(v) }, grid: { color: gridColor } }
+        x: { stacked: true, grid: { display: false } },
+        y: { stacked: true, grid: { color: gridColor }, ticks: { callback: v => 'R$ ' + v } }
       }
     }
   });
