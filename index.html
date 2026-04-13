@@ -33,6 +33,7 @@
   --warn:#e68d2a; --warn-lt:#402812;
   --danger:#e85858; --danger-lt:#3d1a1a;
   --blue:#518bea; --blue-lt:#1a2b47;
+  --purple:#a78bfa; --purple-lt:#2e1f5e;
   --sh:0 1px 2px rgba(0,0,0,.3),0 4px 20px rgba(0,0,0,.4);
   --sh-md:0 4px 24px rgba(0,0,0,.5);
   --sh-lg:0 12px 48px rgba(0,0,0,.6);
@@ -741,7 +742,6 @@ body::before{
     <button class="gas-add-btn" onclick="openGasModal()">+ Registrar Abastecimento</button>
   </div>
 
-  <!-- KPIs -->
   <div class="gas-kpis">
     <div class="kpi" style="--kc:var(--warn)"><div class="kpi-ico-wrap">⛽</div><div class="kpi-lbl">Gasto no Mês</div><div class="kpi-val" id="gk0">—</div><div class="kpi-sub" id="gk0s">este mês</div></div>
     <div class="kpi" style="--kc:var(--accent)"><div class="kpi-ico-wrap">📏</div><div class="kpi-lbl">Média Km/L</div><div class="kpi-val" id="gk1">—</div><div class="kpi-sub" id="gk1s">últimos abastecimentos</div></div>
@@ -750,7 +750,6 @@ body::before{
   </div>
 
   <div class="gas-grid">
-    <!-- Abastecimentos -->
     <div class="card">
       <div class="card-head">
         <div><div class="card-title">Abastecimentos</div><div class="card-sub" id="gasListSub">todos os registros</div></div>
@@ -760,20 +759,19 @@ body::before{
       </div>
     </div>
 
-    <!-- Média e Tanque -->
     <div class="card">
       <div class="card-head">
         <div><div class="card-title">Desempenho</div><div class="card-sub">média e eficiência</div></div>
       </div>
-      <div class="gas-tanque-wrap" id="gasTanqueWrap">
+      <div class="gas-tanque-wrap">
         <div class="gas-tanque-icon">⛽</div>
         <div class="gas-tanque-info">
-          <div class="gas-tanque-lbl">Estimativa de Tanque</div>
-          <div class="gas-tanque-bar"><div class="gas-tanque-fill" id="gasTanqueFill" style="width:50%;background:var(--warn)"></div></div>
+          <div class="gas-tanque-lbl">Último Abastecimento</div>
+          <div class="gas-tanque-bar"><div class="gas-tanque-fill" id="gasTanqueFill" style="width:40%;background:var(--warn)"></div></div>
           <div class="gas-tanque-sub" id="gasTanqueSub">Insira pelo menos 2 abastecimentos</div>
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:8px" id="gasMediaCards">
+      <div style="display:flex;flex-direction:column;gap:8px">
         <div class="gas-abast-row" style="grid-template-columns:auto 1fr;cursor:default">
           <div class="gas-abast-num" style="background:var(--warn-lt);color:var(--warn)">📊</div>
           <div class="gas-abast-info"><div class="gas-abast-date">Média geral</div><div class="gas-abast-km" id="gasMediaGeral">—<span>km/L</span></div></div>
@@ -789,7 +787,6 @@ body::before{
       </div>
     </div>
 
-    <!-- Análise Mês a Mês -->
     <div class="card">
       <div class="card-head">
         <div><div class="card-title">Análise Mensal</div><div class="card-sub">histórico de gastos</div></div>
@@ -803,13 +800,12 @@ body::before{
     </div>
   </div>
 
-  <!-- Tabela mensal detalhada -->
   <div>
     <div class="sec-header">
       <div class="sec-title">Resumo por Mês</div>
     </div>
     <div class="card" style="overflow-x:auto">
-      <table class="gas-mes-table" id="gasMesTable">
+      <table class="gas-mes-table">
         <thead>
           <tr>
             <th>Mês</th>
@@ -2501,12 +2497,15 @@ function toast(msg, type = 'default') {
 // ═══════════════════════════════════════
 function switchTab(tab) {
   const isCasa = tab === 'casa';
-  document.getElementById('mainCasa').style.display  = isCasa ? '' : 'none';
-  document.getElementById('mainGas').style.display   = isCasa ? 'none' : '';
-  document.getElementById('filtersBar').style.display = isCasa ? '' : 'none';
+  const elCasa = document.getElementById('mainCasa');
+  const elGas  = document.getElementById('mainGas');
+  const elFilt = document.getElementById('filtersBar');
+  if (elCasa) elCasa.style.display = isCasa ? 'block' : 'none';
+  if (elGas)  elGas.style.display  = isCasa ? 'none' : 'block';
+  if (elFilt) elFilt.style.display = isCasa ? 'flex' : 'none';
   document.getElementById('navCasa').classList.toggle('active', isCasa);
   document.getElementById('navGas').classList.toggle('active', !isCasa);
-  if (!isCasa) renderGas();
+  if (!isCasa) { setTimeout(() => { try { renderGas(); } catch(e){ console.error('renderGas error:', e); } }, 50); }
 }
 
 // ═══════════════════════════════════════
