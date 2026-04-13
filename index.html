@@ -418,6 +418,82 @@ body::before{
 ::-webkit-scrollbar-thumb:hover{background:var(--muted)}
 
 /* ═══════════════════════════════════════
+   NAV TABS (Abas principais)
+═══════════════════════════════════════ */
+.main-nav{display:flex;gap:4px;padding:0 28px 0;border-bottom:1px solid rgba(255,255,255,.12);background:transparent;overflow-x:auto;}
+.main-nav::-webkit-scrollbar{display:none}
+.main-nav-tab{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:rgba(255,255,255,.55);background:none;border:none;border-bottom:2px solid transparent;padding:10px 14px 8px;cursor:pointer;white-space:nowrap;transition:.2s;display:flex;align-items:center;gap:6px;}
+.main-nav-tab:hover{color:rgba(255,255,255,.85)}
+.main-nav-tab.active{color:#fff;border-bottom-color:#fff;font-weight:600;}
+
+.tab-page{display:none}
+.tab-page.active{display:block}
+
+/* ═══════════════════════════════════════
+   GASOLINA SECTION
+═══════════════════════════════════════ */
+.gas-grid{display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:14px;margin-bottom:24px}
+@media(max-width:1100px){.gas-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:680px){.gas-grid{grid-template-columns:1fr}}
+
+.gas-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.gas-kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.gas-kpis{grid-template-columns:1fr 1fr}}
+
+.gas-abast-list{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow-y:auto;margin-top:8px}
+.gas-abast-list::-webkit-scrollbar{width:4px}.gas-abast-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+.gas-abast-row{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 14px;display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:10px;transition:.15s;position:relative;}
+.gas-abast-row:hover{border-color:var(--muted2)}
+.gas-abast-num{width:26px;height:26px;border-radius:50%;background:var(--accent-lt);color:var(--accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.gas-abast-info{min-width:0}
+.gas-abast-date{font-size:11px;color:var(--muted);margin-bottom:2px}
+.gas-abast-km{font-size:13px;font-weight:600}
+.gas-abast-km span{font-size:11px;font-weight:400;color:var(--muted);margin-left:4px}
+.gas-abast-vals{text-align:right;flex-shrink:0}
+.gas-abast-price{font-family:'DM Serif Display',serif;font-size:15px}
+.gas-abast-litros{font-size:11px;color:var(--muted);margin-top:1px}
+.gas-media-badge{background:var(--blue-lt);color:var(--blue);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0;white-space:nowrap}
+.gas-media-badge.boa{background:var(--accent-lt);color:var(--accent)}
+.gas-media-badge.ruim{background:var(--danger-lt);color:var(--danger)}
+
+.gas-chart-wrap{position:relative;height:200px;margin-top:4px}
+
+.gas-mes-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.gas-mes-tab{font-size:12px;padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:.2s;font-family:'DM Sans',sans-serif}
+.gas-mes-tab.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+
+.gas-mes-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+.gas-mes-table th{text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);padding:0 10px 10px;border-bottom:1px solid var(--border)}
+.gas-mes-table td{padding:10px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.gas-mes-table tr:last-child td{border-bottom:none}
+.gas-mes-table tr:hover td{background:var(--bg)}
+.gas-mes-val{font-family:'DM Serif Display',serif;font-size:15px}
+.gas-mes-sub{font-size:11px;color:var(--muted)}
+.gas-trend{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:2px 7px;border-radius:10px}
+.gas-trend.up{background:var(--danger-lt);color:var(--danger)}
+.gas-trend.down{background:var(--accent-lt);color:var(--accent)}
+.gas-trend.eq{background:var(--bg);color:var(--muted)}
+
+.gas-add-btn{background:var(--accent);color:#fff;border:none;border-radius:var(--r-sm);padding:9px 16px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.2s;margin-top:10px}
+.gas-add-btn:hover{background:var(--accent-dk);transform:translateY(-1px)}
+
+.gas-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
+.gas-empty big{font-size:36px;display:block;margin-bottom:10px;opacity:.4}
+
+.gas-del-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:4px 6px;border-radius:6px;transition:.15s;line-height:1}
+.gas-del-btn:hover{background:var(--danger-lt);color:var(--danger)}
+
+/* Tanque visual */
+.gas-tanque-wrap{display:flex;align-items:center;gap:12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px 16px;margin-bottom:14px}
+.gas-tanque-icon{font-size:28px;flex-shrink:0}
+.gas-tanque-info{flex:1}
+.gas-tanque-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:5px}
+.gas-tanque-bar{height:10px;background:var(--surface);border:1px solid var(--border);border-radius:99px;overflow:hidden;margin-bottom:4px}
+.gas-tanque-fill{height:100%;border-radius:99px;transition:width .8s cubic-bezier(.4,0,.2,1);}
+.gas-tanque-sub{font-size:11px;color:var(--muted)}
+
+/* ═══════════════════════════════════════
    MOBILE TWEAKS
 ═══════════════════════════════════════ */
 @media(max-width:768px){
@@ -497,12 +573,16 @@ body::before{
     </div>
   </header>
 
+  <div class="main-nav">
+    <button class="main-nav-tab active" id="navCasa" onclick="switchTab('casa')">🏠 Casa Nova</button>
+    <button class="main-nav-tab" id="navGas" onclick="switchTab('gas')">⛽ Gasolina</button>
+  </div>
   <div class="filters-bar" id="filtersBar">
     <div class="pill-filter active" onclick="setFilter('Todos')">Todos</div>
   </div>
 </div>
 
-<main class="main">
+<main class="main" id="mainCasa">
   <div class="renda-bar" id="rendaBar" style="display:none">
     <span class="renda-bar-label">💵 Orçamento</span>
     <div class="renda-slots">
@@ -654,7 +734,101 @@ body::before{
       <div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div>
     </div>
   </div>
+
+<main class="main" id="mainGas" style="display:none">
+  <div class="sec-header" style="margin-bottom:20px">
+    <div class="sec-title">⛽ Controle de Gasolina</div>
+    <button class="gas-add-btn" onclick="openGasModal()">+ Registrar Abastecimento</button>
+  </div>
+
+  <!-- KPIs -->
+  <div class="gas-kpis">
+    <div class="kpi" style="--kc:var(--warn)"><div class="kpi-ico-wrap">⛽</div><div class="kpi-lbl">Gasto no Mês</div><div class="kpi-val" id="gk0">—</div><div class="kpi-sub" id="gk0s">este mês</div></div>
+    <div class="kpi" style="--kc:var(--accent)"><div class="kpi-ico-wrap">📏</div><div class="kpi-lbl">Média Km/L</div><div class="kpi-val" id="gk1">—</div><div class="kpi-sub" id="gk1s">últimos abastecimentos</div></div>
+    <div class="kpi" style="--kc:var(--blue)"><div class="kpi-ico-wrap">💧</div><div class="kpi-lbl">Litros no Mês</div><div class="kpi-val" id="gk2">—</div><div class="kpi-sub" id="gk2s">este mês</div></div>
+    <div class="kpi" style="--kc:var(--purple)"><div class="kpi-ico-wrap">🛣️</div><div class="kpi-lbl">Km Rodados</div><div class="kpi-val" id="gk3">—</div><div class="kpi-sub" id="gk3s">este mês (estimado)</div></div>
+  </div>
+
+  <div class="gas-grid">
+    <!-- Abastecimentos -->
+    <div class="card">
+      <div class="card-head">
+        <div><div class="card-title">Abastecimentos</div><div class="card-sub" id="gasListSub">todos os registros</div></div>
+      </div>
+      <div class="gas-abast-list" id="gasAbastList">
+        <div class="gas-empty"><big>⛽</big>Nenhum abastecimento registrado.<br>Clique em + Registrar para começar.</div>
+      </div>
+    </div>
+
+    <!-- Média e Tanque -->
+    <div class="card">
+      <div class="card-head">
+        <div><div class="card-title">Desempenho</div><div class="card-sub">média e eficiência</div></div>
+      </div>
+      <div class="gas-tanque-wrap" id="gasTanqueWrap">
+        <div class="gas-tanque-icon">⛽</div>
+        <div class="gas-tanque-info">
+          <div class="gas-tanque-lbl">Estimativa de Tanque</div>
+          <div class="gas-tanque-bar"><div class="gas-tanque-fill" id="gasTanqueFill" style="width:50%;background:var(--warn)"></div></div>
+          <div class="gas-tanque-sub" id="gasTanqueSub">Insira pelo menos 2 abastecimentos</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px" id="gasMediaCards">
+        <div class="gas-abast-row" style="grid-template-columns:auto 1fr;cursor:default">
+          <div class="gas-abast-num" style="background:var(--warn-lt);color:var(--warn)">📊</div>
+          <div class="gas-abast-info"><div class="gas-abast-date">Média geral</div><div class="gas-abast-km" id="gasMediaGeral">—<span>km/L</span></div></div>
+        </div>
+        <div class="gas-abast-row" style="grid-template-columns:auto 1fr;cursor:default">
+          <div class="gas-abast-num" style="background:var(--blue-lt);color:var(--blue)">📅</div>
+          <div class="gas-abast-info"><div class="gas-abast-date">Média este mês</div><div class="gas-abast-km" id="gasMediaMes">—<span>km/L</span></div></div>
+        </div>
+        <div class="gas-abast-row" style="grid-template-columns:auto 1fr;cursor:default">
+          <div class="gas-abast-num" style="background:var(--accent-lt);color:var(--accent)">💰</div>
+          <div class="gas-abast-info"><div class="gas-abast-date">Custo médio por km</div><div class="gas-abast-km" id="gasCustoKm">—<span>R$/km</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Análise Mês a Mês -->
+    <div class="card">
+      <div class="card-head">
+        <div><div class="card-title">Análise Mensal</div><div class="card-sub">histórico de gastos</div></div>
+        <div class="gas-mes-tabs">
+          <button class="gas-mes-tab active" onclick="setGasView('gasto',this)">Gasto</button>
+          <button class="gas-mes-tab" onclick="setGasView('media',this)">Média km/L</button>
+          <button class="gas-mes-tab" onclick="setGasView('litros',this)">Litros</button>
+        </div>
+      </div>
+      <div class="gas-chart-wrap"><canvas id="cGas"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Tabela mensal detalhada -->
+  <div>
+    <div class="sec-header">
+      <div class="sec-title">Resumo por Mês</div>
+    </div>
+    <div class="card" style="overflow-x:auto">
+      <table class="gas-mes-table" id="gasMesTable">
+        <thead>
+          <tr>
+            <th>Mês</th>
+            <th>Abastecimentos</th>
+            <th>Total Gasto</th>
+            <th>Litros</th>
+            <th>Km Rodados</th>
+            <th>Média km/L</th>
+            <th>vs. Mês Ant.</th>
+          </tr>
+        </thead>
+        <tbody id="gasMesTbody">
+          <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Nenhum dado ainda</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </main>
+
 
 <button class="fab" onclick="openAdd()" aria-label="Adicionar Novo Gasto">+</button>
 
@@ -835,6 +1009,48 @@ body::before{
     <div class="gd-actions">
       <button class="btn btn-accent" id="gdSaveBtn" onclick="saveGastoDetail()" style="display:none">Salvar Alterações</button>
       <button class="btn btn-danger-soft" id="gdDelBtn" onclick="deleteGastoDetail()">🗑 Remover</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- GASOLINA MODAL -->
+<div class="overlay" id="gasOverlay">
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-ico">⛽</span>
+      <h2>Registrar Abastecimento</h2>
+      <p class="panel-sub">Insira os dados do abastecimento para calcular o consumo.</p>
+    </div>
+    <div class="fg">
+      <label class="fl">Data</label>
+      <input class="fi" type="date" id="gasData">
+    </div>
+    <div class="row-2">
+      <div class="fg">
+        <label class="fl">Quilometragem atual (km)</label>
+        <input class="fi" type="number" id="gasKm" min="0" step="1" placeholder="Ex: 45320">
+        <div class="fh">KM do odômetro agora</div>
+      </div>
+      <div class="fg">
+        <label class="fl">Litros abastecidos</label>
+        <input class="fi" type="number" id="gasLitros" min="0" step="0.01" placeholder="Ex: 40.5">
+      </div>
+    </div>
+    <div class="row-2">
+      <div class="fg">
+        <label class="fl">Valor total pago (R$)</label>
+        <input class="fi" type="number" id="gasValor" min="0" step="0.01" placeholder="Ex: 280,00">
+      </div>
+      <div class="fg">
+        <label class="fl">Posto / Combustível</label>
+        <input class="fi" id="gasPosto" placeholder="Ex: Ipiranga — Gasolina">
+      </div>
+    </div>
+    <div class="meta-preview" id="gasPreview" style="display:none"></div>
+    <div class="pa">
+      <button class="btn btn-ghost-light" style="flex:1" onclick="closeModals()">Cancelar</button>
+      <button class="btn btn-accent" style="flex:1" onclick="saveGasAbast()">Salvar</button>
     </div>
   </div>
 </div>
@@ -2277,6 +2493,419 @@ function toast(msg, type = 'default') {
   el.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+
+// ═══════════════════════════════════════
+//  TAB NAVIGATION
+// ═══════════════════════════════════════
+function switchTab(tab) {
+  const isCasa = tab === 'casa';
+  document.getElementById('mainCasa').style.display  = isCasa ? '' : 'none';
+  document.getElementById('mainGas').style.display   = isCasa ? 'none' : '';
+  document.getElementById('filtersBar').style.display = isCasa ? '' : 'none';
+  document.getElementById('navCasa').classList.toggle('active', isCasa);
+  document.getElementById('navGas').classList.toggle('active', !isCasa);
+  if (!isCasa) renderGas();
+}
+
+// ═══════════════════════════════════════
+//  GASOLINA — STATE
+// ═══════════════════════════════════════
+let GAS_ABASTECIMENTOS = JSON.parse(localStorage.getItem('cn_gas_abast') || '[]');
+let GAS_VIEW = 'gasto';
+let chartGas = null;
+
+function saveGasLocal() {
+  localStorage.setItem('cn_gas_abast', JSON.stringify(GAS_ABASTECIMENTOS));
+}
+
+// ═══════════════════════════════════════
+//  GASOLINA — MODAL
+// ═══════════════════════════════════════
+function openGasModal() {
+  const overlay = document.getElementById('gasOverlay');
+  overlay.classList.add('open');
+  // Default date = today
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('gasData').value = today;
+  document.getElementById('gasKm').value = '';
+  document.getElementById('gasLitros').value = '';
+  document.getElementById('gasValor').value = '';
+  document.getElementById('gasPosto').value = '';
+  document.getElementById('gasPreview').style.display = 'none';
+  // Pre-fill KM with last odometer if available
+  if (GAS_ABASTECIMENTOS.length > 0) {
+    const last = GAS_ABASTECIMENTOS[GAS_ABASTECIMENTOS.length - 1];
+    document.getElementById('gasKm').placeholder = 'Último: ' + last.km + ' km';
+  }
+  // Live preview
+  ['gasKm','gasLitros','gasValor'].forEach(id => {
+    document.getElementById(id).addEventListener('input', gasPreviewUpdate);
+  });
+  setTimeout(() => document.getElementById('gasKm').focus(), 100);
+}
+
+function gasPreviewUpdate() {
+  const km     = parseFloat(document.getElementById('gasKm').value);
+  const litros = parseFloat(document.getElementById('gasLitros').value);
+  const valor  = parseFloat(document.getElementById('gasValor').value);
+  const prev   = document.getElementById('gasPreview');
+
+  if (!km || !litros || !valor) { prev.style.display = 'none'; return; }
+
+  const precoL = valor / litros;
+  const last   = GAS_ABASTECIMENTOS.length > 0 ? GAS_ABASTECIMENTOS[GAS_ABASTECIMENTOS.length - 1] : null;
+  let mediaHtml = '';
+
+  if (last) {
+    const kmRodados = km - last.km;
+    if (kmRodados > 0) {
+      const media = kmRodados / last.litros;
+      mediaHtml = '<br><strong>Média calculada:</strong> ' + media.toFixed(1) + ' km/L (rodou ' + kmRodados + ' km com ' + last.litros + ' L)';
+    }
+  }
+
+  prev.style.display = 'block';
+  prev.innerHTML = '<strong>Preço por litro:</strong> R$ ' + precoL.toFixed(3) + mediaHtml;
+}
+
+function saveGasAbast() {
+  const km     = parseFloat(document.getElementById('gasKm').value);
+  const litros = parseFloat(document.getElementById('gasLitros').value);
+  const valor  = parseFloat(document.getElementById('gasValor').value);
+  const data   = document.getElementById('gasData').value;
+  const posto  = document.getElementById('gasPosto').value.trim();
+
+  if (!km || !litros || !valor || !data) {
+    toast('⚠ Preencha todos os campos obrigatórios', 'warn'); return;
+  }
+
+  const last = GAS_ABASTECIMENTOS.length > 0
+    ? GAS_ABASTECIMENTOS[GAS_ABASTECIMENTOS.length - 1]
+    : null;
+
+  let mediaKmL = null;
+  if (last && km > last.km && last.litros > 0) {
+    mediaKmL = (km - last.km) / last.litros;
+  }
+
+  GAS_ABASTECIMENTOS.push({
+    id: Date.now(),
+    data,
+    km,
+    litros,
+    valor,
+    posto,
+    mediaKmL,
+  });
+
+  // Sort by date
+  GAS_ABASTECIMENTOS.sort((a,b) => a.data.localeCompare(b.data));
+  saveGasLocal();
+  closeModals();
+  renderGas();
+  toast('✅ Abastecimento registrado!');
+}
+
+// ═══════════════════════════════════════
+//  GASOLINA — DELETE
+// ═══════════════════════════════════════
+function deleteGasAbast(id) {
+  GAS_ABASTECIMENTOS = GAS_ABASTECIMENTOS.filter(a => a.id !== id);
+  // Recalculate medias for all entries
+  recalcGasMedias();
+  saveGasLocal();
+  renderGas();
+  toast('🗑 Abastecimento removido');
+}
+
+function recalcGasMedias() {
+  for (let i = 0; i < GAS_ABASTECIMENTOS.length; i++) {
+    if (i === 0) { GAS_ABASTECIMENTOS[i].mediaKmL = null; continue; }
+    const prev = GAS_ABASTECIMENTOS[i-1];
+    const curr = GAS_ABASTECIMENTOS[i];
+    if (curr.km > prev.km && prev.litros > 0) {
+      curr.mediaKmL = (curr.km - prev.km) / prev.litros;
+    } else {
+      curr.mediaKmL = null;
+    }
+  }
+}
+
+// ═══════════════════════════════════════
+//  GASOLINA — RENDER
+// ═══════════════════════════════════════
+function setGasView(view, btn) {
+  GAS_VIEW = view;
+  document.querySelectorAll('.gas-mes-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderGasChart();
+}
+
+function renderGas() {
+  renderGasKpis();
+  renderGasList();
+  renderGasMedia();
+  renderGasChart();
+  renderGasMesTable();
+}
+
+function getMesKey(data) {
+  return data.slice(0,7); // YYYY-MM
+}
+
+function getMesLabel(key) {
+  const [y, m] = key.split('-');
+  const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  return months[parseInt(m)-1] + '/' + y.slice(2);
+}
+
+function getThisMonthKey() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
+
+function groupByMes() {
+  const map = {};
+  GAS_ABASTECIMENTOS.forEach(a => {
+    const k = getMesKey(a.data);
+    if (!map[k]) map[k] = { abast: [], totalValor: 0, totalLitros: 0, medias: [] };
+    map[k].abast.push(a);
+    map[k].totalValor  += a.valor;
+    map[k].totalLitros += a.litros;
+    if (a.mediaKmL) map[k].medias.push(a.mediaKmL);
+  });
+  // Km rodados: diff between first and last km of month (or from prev month last km)
+  Object.keys(map).sort().forEach((k, idx, arr) => {
+    const grupo = map[k];
+    const kms = grupo.abast.map(a => a.km);
+    const minKm = Math.min(...kms);
+    const maxKm = Math.max(...kms);
+    // Try to get starting KM from last abast of prev month
+    if (idx > 0) {
+      const prevK = arr[idx-1];
+      const prevAbast = map[prevK].abast;
+      const prevLastKm = prevAbast[prevAbast.length-1].km;
+      grupo.kmRodados = maxKm - prevLastKm;
+    } else {
+      grupo.kmRodados = maxKm - minKm;
+    }
+    grupo.mediaKmL = grupo.medias.length ? grupo.medias.reduce((s,v)=>s+v,0)/grupo.medias.length : null;
+  });
+  return map;
+}
+
+function renderGasKpis() {
+  const mesKey = getThisMonthKey();
+  const map    = groupByMes();
+  const mes    = map[mesKey];
+
+  // KPI 0: gasto mês
+  document.getElementById('gk0').textContent = mes ? fmtGas(mes.totalValor) : 'R$ 0';
+  document.getElementById('gk0s').textContent = mes ? mes.abast.length + ' abastecimento(s)' : 'sem registros';
+
+  // KPI 1: média km/L geral
+  const todasMedias = GAS_ABASTECIMENTOS.filter(a=>a.mediaKmL).map(a=>a.mediaKmL);
+  const mediaGeral  = todasMedias.length ? todasMedias.reduce((s,v)=>s+v,0)/todasMedias.length : null;
+  document.getElementById('gk1').textContent = mediaGeral ? mediaGeral.toFixed(1) + ' km/L' : '—';
+  document.getElementById('gk1s').textContent = todasMedias.length ? 'em ' + todasMedias.length + ' cálculo(s)' : 'aguardando dados';
+
+  // KPI 2: litros mês
+  document.getElementById('gk2').textContent = mes ? mes.totalLitros.toFixed(1) + ' L' : '0 L';
+  document.getElementById('gk2s').textContent = mes ? fmtGas(mes.totalLitros > 0 ? mes.totalValor/mes.totalLitros : 0) + '/L médio' : 'sem registros';
+
+  // KPI 3: km rodados estimado no mês
+  document.getElementById('gk3').textContent = mes && mes.kmRodados > 0 ? mes.kmRodados + ' km' : '—';
+  document.getElementById('gk3s').textContent = mes ? 'no mês de ' + getMesLabel(mesKey) : 'sem dados';
+}
+
+function renderGasList() {
+  const list = document.getElementById('gasAbastList');
+  if (GAS_ABASTECIMENTOS.length === 0) {
+    list.innerHTML = '<div class="gas-empty"><big>⛽</big>Nenhum abastecimento registrado.<br>Clique em + Registrar para começar.</div>';
+    document.getElementById('gasListSub').textContent = 'nenhum registro';
+    return;
+  }
+
+  // Show most recent first
+  const sorted = [...GAS_ABASTECIMENTOS].reverse();
+  document.getElementById('gasListSub').textContent = sorted.length + ' abastecimento(s)';
+
+  list.innerHTML = sorted.map((a, idx) => {
+    const num     = GAS_ABASTECIMENTOS.length - idx;
+    const dateStr = a.data.split('-').reverse().join('/');
+    const mediaHtml = a.mediaKmL
+      ? '<span class="gas-media-badge ' + (a.mediaKmL >= 12 ? 'boa' : a.mediaKmL < 9 ? 'ruim' : '') + '">' + a.mediaKmL.toFixed(1) + ' km/L</span>'
+      : '<span class="gas-media-badge">1º reg.</span>';
+    const posto = a.posto ? ' · ' + a.posto : '';
+    return `<div class="gas-abast-row">
+      <div class="gas-abast-num">${num}</div>
+      <div class="gas-abast-info">
+        <div class="gas-abast-date">${dateStr}${posto}</div>
+        <div class="gas-abast-km">${a.km.toLocaleString('pt-BR')}<span>km</span></div>
+      </div>
+      <div class="gas-abast-vals">
+        <div class="gas-abast-price">${fmtGas(a.valor)}</div>
+        <div class="gas-abast-litros">${a.litros.toFixed(2)} L · R$ ${(a.valor/a.litros).toFixed(3)}/L</div>
+      </div>
+      ${mediaHtml}
+      <button class="gas-del-btn" onclick="deleteGasAbast(${a.id})" title="Remover">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function renderGasMedia() {
+  const todasMedias = GAS_ABASTECIMENTOS.filter(a=>a.mediaKmL).map(a=>a.mediaKmL);
+  const mediaGeral  = todasMedias.length ? todasMedias.reduce((s,v)=>s+v,0)/todasMedias.length : null;
+
+  const mesKey    = getThisMonthKey();
+  const mediaMes  = GAS_ABASTECIMENTOS.filter(a=>getMesKey(a.data)===mesKey&&a.mediaKmL).map(a=>a.mediaKmL);
+  const mediaM    = mediaMes.length ? mediaMes.reduce((s,v)=>s+v,0)/mediaMes.length : null;
+
+  // Custo por km
+  let custoKm = null;
+  if (mediaGeral && GAS_ABASTECIMENTOS.length > 1) {
+    const totalV = GAS_ABASTECIMENTOS.reduce((s,a)=>s+a.valor,0);
+    const totalL = GAS_ABASTECIMENTOS.reduce((s,a)=>s+a.litros,0);
+    const precoL = totalV / totalL;
+    custoKm = precoL / (mediaGeral || 1);
+  }
+
+  document.getElementById('gasMediaGeral').innerHTML = mediaGeral
+    ? '<b>' + mediaGeral.toFixed(1) + '</b><span>km/L</span>'
+    : '—<span>km/L</span>';
+  document.getElementById('gasMediaMes').innerHTML = mediaM
+    ? '<b>' + mediaM.toFixed(1) + '</b><span>km/L</span>'
+    : '—<span>km/L</span>';
+  document.getElementById('gasCustoKm').innerHTML = custoKm
+    ? '<b>R$ ' + custoKm.toFixed(3) + '</b><span>R$/km</span>'
+    : '—<span>R$/km</span>';
+
+  // Tanque estimado
+  const sub   = document.getElementById('gasTanqueSub');
+  const fill  = document.getElementById('gasTanqueFill');
+  if (GAS_ABASTECIMENTOS.length >= 2 && mediaGeral) {
+    const last = GAS_ABASTECIMENTOS[GAS_ABASTECIMENTOS.length-1];
+    const kmDesde = null; // We cant know without current odometer
+    fill.style.width = '60%';
+    fill.style.background = 'var(--warn)';
+    sub.textContent = 'Último: ' + last.km.toLocaleString('pt-BR') + ' km · ' + last.litros.toFixed(1) + ' L abastecidos';
+  } else {
+    fill.style.width = '30%';
+    fill.style.background = 'var(--muted2)';
+    sub.textContent = GAS_ABASTECIMENTOS.length === 0
+      ? 'Nenhum registro ainda'
+      : 'Insira pelo menos 2 abastecimentos para calcular';
+  }
+}
+
+function renderGasChart() {
+  const map  = groupByMes();
+  const keys = Object.keys(map).sort();
+
+  if (keys.length === 0) {
+    if (chartGas) { chartGas.destroy(); chartGas = null; }
+    return;
+  }
+
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const gridCol = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+  const textCol = isDark ? '#99958d' : '#737069';
+
+  const labels = keys.map(getMesLabel);
+  let data, label, color, unit;
+
+  if (GAS_VIEW === 'gasto') {
+    data  = keys.map(k => parseFloat(map[k].totalValor.toFixed(2)));
+    label = 'Gasto (R$)';
+    color = '#e68d2a';
+    unit  = 'R$';
+  } else if (GAS_VIEW === 'media') {
+    data  = keys.map(k => map[k].mediaKmL ? parseFloat(map[k].mediaKmL.toFixed(2)) : 0);
+    label = 'Média (km/L)';
+    color = '#3cb080';
+    unit  = 'km/L';
+  } else {
+    data  = keys.map(k => parseFloat(map[k].totalLitros.toFixed(2)));
+    label = 'Litros (L)';
+    color = '#518bea';
+    unit  = 'L';
+  }
+
+  const ctx = document.getElementById('cGas').getContext('2d');
+  if (chartGas) chartGas.destroy();
+  chartGas = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label,
+        data,
+        backgroundColor: color + '99',
+        borderColor: color,
+        borderWidth: 2,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => unit === 'R$'
+              ? 'R$ ' + ctx.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:2})
+              : ctx.parsed.y.toFixed(2) + ' ' + unit
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: gridCol }, ticks: { color: textCol, font: { size: 11 } } },
+        y: { grid: { color: gridCol }, ticks: { color: textCol, font: { size: 11 } } },
+      }
+    }
+  });
+}
+
+function renderGasMesTable() {
+  const map  = groupByMes();
+  const keys = Object.keys(map).sort().reverse();
+  const tbody = document.getElementById('gasMesTbody');
+
+  if (keys.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Nenhum dado ainda</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = keys.map((k, idx) => {
+    const g       = map[k];
+    const prevKey = keys[idx+1];
+    const prev    = prevKey ? map[prevKey] : null;
+    let trendHtml = '<span class="gas-trend eq">—</span>';
+    if (prev) {
+      const diff = g.totalValor - prev.totalValor;
+      const pct  = prev.totalValor > 0 ? Math.abs(diff/prev.totalValor*100).toFixed(0) : 0;
+      if (diff > 0.5)       trendHtml = '<span class="gas-trend up">▲ ' + pct + '%</span>';
+      else if (diff < -0.5) trendHtml = '<span class="gas-trend down">▼ ' + pct + '%</span>';
+    }
+    const media = g.mediaKmL ? g.mediaKmL.toFixed(1) + ' km/L' : '—';
+    const km    = g.kmRodados > 0 ? g.kmRodados.toLocaleString('pt-BR') + ' km' : '—';
+    return `<tr>
+      <td><div class="gas-mes-val">${getMesLabel(k)}</div></td>
+      <td><div class="gas-mes-sub">${g.abast.length}x</div></td>
+      <td><div class="gas-mes-val">${fmtGas(g.totalValor)}</div></td>
+      <td><div class="gas-mes-sub">${g.totalLitros.toFixed(1)} L</div></td>
+      <td><div class="gas-mes-sub">${km}</div></td>
+      <td><div class="gas-mes-sub">${media}</div></td>
+      <td>${trendHtml}</td>
+    </tr>`;
+  }).join('');
+}
+
+function fmtGas(v) {
+  return 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 document.querySelectorAll('.overlay').forEach(o => {
