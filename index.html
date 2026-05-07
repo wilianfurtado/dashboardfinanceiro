@@ -1362,6 +1362,67 @@ body::before{
 </div>
 
 <script>
+
+// ═══════════════════════════════════════════════════════════════════
+//  APPS SCRIPT — adicione estas funções ao seu Google Apps Script
+//  (Extensions > Apps Script no Google Sheets)
+// ═══════════════════════════════════════════════════════════════════
+/*
+  Adicione ao final do seu Apps Script existente:
+
+  function ensureSheet(name) {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    return ss.getSheetByName(name) || ss.insertSheet(name);
+  }
+
+  // No doPost, adicione estes cases ao switch/if existente:
+  // case 'save_gas':
+  //   saveJsonSheet('Gasolina', data.data); break;
+  // case 'save_p_items':
+  //   saveJsonSheet('P_' + data.user + '_Itens', data.data); break;
+  // case 'save_p_fixos':
+  //   saveJsonSheet('P_' + data.user + '_Fixos', data.data); break;
+  // case 'save_p_variaveis':
+  //   saveJsonSheet('P_' + data.user + '_Variaveis', data.data); break;
+  // case 'save_p_historico':
+  //   saveJsonSheet('P_' + data.user + '_Historico', data.data); break;
+  // case 'save_p_config':
+  //   saveJsonSheet('P_' + data.user + '_Config', [{ renda: data.renda, meta: data.meta }]); break;
+
+  function saveJsonSheet(sheetName, dataArray) {
+    const sheet = ensureSheet(sheetName);
+    sheet.clearContents();
+    if (!dataArray || !dataArray.length) return;
+    const keys = Object.keys(dataArray[0]);
+    sheet.appendRow(keys);
+    dataArray.forEach(row => sheet.appendRow(keys.map(k => {
+      const v = row[k];
+      return (Array.isArray(v) || typeof v === 'object') ? JSON.stringify(v) : (v ?? '');
+    })));
+  }
+
+  // No doGet, adicione ao payload retornado:
+  // gasolina:    readJsonSheet('Gasolina'),
+  // pessoal:     readPersonalData(),   (opcional — ver abaixo)
+
+  function readJsonSheet(sheetName) {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sh = ss.getSheetByName(sheetName);
+    if (!sh) return [];
+    const rows = sh.getDataRange().getValues();
+    if (rows.length < 2) return [];
+    const headers = rows[0];
+    return rows.slice(1).map(r => {
+      const obj = {};
+      headers.forEach((h, i) => {
+        try { obj[h] = JSON.parse(r[i]); } catch { obj[h] = r[i]; }
+      });
+      return obj;
+    });
+  }
+*/
+// ═══════════════════════════════════════════════════════════════════
+
 // DARK MODE INIT
 function initTheme() {
     if (localStorage.getItem('cn_theme') === 'dark' || (!localStorage.getItem('cn_theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -1486,6 +1547,7 @@ async function fetchData() {
         nome:  g.nome  || '',
         valor: Number(g.valor) || 0,
         cor:   g.cor   || gfCor(i),
+        data:  g.data  || '',
       }));
       localStorage.setItem('cn_gastos_fixos', JSON.stringify(GASTOS_FIXOS));
     }
@@ -1496,6 +1558,7 @@ async function fetchData() {
         nome:  g.nome  || '',
         valor: Number(g.valor) || 0,
         cor:   g.cor   || gfCor(i + 3),
+        data:  g.data  || '',
       }));
       localStorage.setItem('cn_gastos_variaveis', JSON.stringify(GASTOS_VARIAVEIS));
     }
@@ -2247,7 +2310,7 @@ function renderGastosFixos() {
     }).join('') : '';
     const dataLabel = g.data ? new Date(g.data + 'T12:00:00').toLocaleDateString('pt-BR', {day:'2-digit',month:'short',year:'numeric'}) : '';
 
-    return `<div class="gf-row" onclick="openGastoDetail('fixo', ${g.id})">
+    return `<div class="gf-row" onclick="openGastoDetail('fixo', ${g.id}, ${GASTOS_FIXOS.indexOf(g)})">
       <div class="gf-dot" style="background:${g.cor}"></div>
       <div class="gf-main">
         <div class="gf-top">
@@ -2306,7 +2369,7 @@ function renderGastosVariaveis() {
     }).join('') : '';
     const dataLabel = g.data ? new Date(g.data + 'T12:00:00').toLocaleDateString('pt-BR', {day:'2-digit',month:'short',year:'numeric'}) : '';
 
-    return `<div class="gf-row" onclick="openGastoDetail('variavel', ${g.id})">
+    return `<div class="gf-row" onclick="openGastoDetail('variavel', ${g.id}, ${GASTOS_VARIAVEIS.indexOf(g)})">
       <div class="gf-dot" style="background:${g.cor}"></div>
       <div class="gf-main">
         <div class="gf-top">
@@ -2324,12 +2387,16 @@ function renderGastosVariaveis() {
 let _gdType = null; 
 let _gdId = null;
 
-function openGastoDetail(tipo, id) {
+function openGastoDetail(tipo, id, idx) {
   _gdType = tipo;
   _gdId = id;
   const list = tipo === 'fixo' ? GASTOS_FIXOS : GASTOS_VARIAVEIS;
-  const g = list.find(x => x.id === id);
+  let g = list.find(x => x.id === id);
+  // fallback to index if id lookup fails (items from Sheets may have regenerated ids)
+  if (!g && idx !== undefined) g = list[idx];
   if (!g) return;
+  // ensure consistent id
+  if (!g.id || g.id !== id) { g.id = id; _gdId = id; }
 
   const tipoLabel = tipo === 'fixo' ? 'Gasto Fixo' : 'Gasto Variável';
   const tipoEmoji = tipo === 'fixo' ? '📌' : '⚡';
@@ -2797,6 +2864,7 @@ let chartGas = null;
 
 function saveGasLocal() {
   localStorage.setItem('cn_gas_abast', JSON.stringify(GAS_ABASTECIMENTOS));
+  if (URL) apiPost({ action: 'save_gas', data: GAS_ABASTECIMENTOS }).catch(() => {});
 }
 
 // ═══════════════════════════════════════
@@ -3353,10 +3421,22 @@ function pLoadState() {
   P_RENDA            = parseFloat(localStorage.getItem(pKey('renda')))   || 0;
 }
 
-function pSaveItems()     { localStorage.setItem(pKey('items'),    JSON.stringify(P_DATA)); }
-function pSaveFixos()     { localStorage.setItem(pKey('fixos'),    JSON.stringify(P_GASTOS_FIXOS)); }
-function pSaveVariaveis() { localStorage.setItem(pKey('variaveis'),JSON.stringify(P_GASTOS_VARIAVEIS)); }
-function pSaveHistorico() { localStorage.setItem(pKey('historico'),JSON.stringify(P_HISTORICO)); }
+function pSaveItems() {
+  localStorage.setItem(pKey('items'), JSON.stringify(P_DATA));
+  if (URL && CURRENT_USER) apiPost({ action: 'save_p_items', user: CURRENT_USER.name, data: P_DATA }).catch(() => {});
+}
+function pSaveFixos() {
+  localStorage.setItem(pKey('fixos'), JSON.stringify(P_GASTOS_FIXOS));
+  if (URL && CURRENT_USER) apiPost({ action: 'save_p_fixos', user: CURRENT_USER.name, data: P_GASTOS_FIXOS }).catch(() => {});
+}
+function pSaveVariaveis() {
+  localStorage.setItem(pKey('variaveis'), JSON.stringify(P_GASTOS_VARIAVEIS));
+  if (URL && CURRENT_USER) apiPost({ action: 'save_p_variaveis', user: CURRENT_USER.name, data: P_GASTOS_VARIAVEIS }).catch(() => {});
+}
+function pSaveHistorico() {
+  localStorage.setItem(pKey('historico'), JSON.stringify(P_HISTORICO));
+  if (URL && CURRENT_USER) apiPost({ action: 'save_p_historico', user: CURRENT_USER.name, data: P_HISTORICO }).catch(() => {});
+}
 
 // ─── HELPERS ─────────────────────────────────────────────────
 function pCalcPago(item) {
@@ -3505,6 +3585,7 @@ function pOpenRenda() {
 function pSaveRenda() {
   P_RENDA = parseFloat(document.getElementById('pRendaInput').value)||0;
   localStorage.setItem(pKey('renda'), P_RENDA);
+  if (URL && CURRENT_USER) apiPost({ action: 'save_p_config', user: CURRENT_USER.name, renda: P_RENDA, meta: P_META }).catch(() => {});
   closeModals();
   pRenderResumoMes();
   toast('✅ Renda pessoal salva');
@@ -3516,6 +3597,7 @@ function pOpenMeta() {
 function pSaveMeta() {
   P_META = parseFloat(document.getElementById('pMetaInput').value)||0;
   localStorage.setItem(pKey('meta'), P_META);
+  if (URL && CURRENT_USER) apiPost({ action: 'save_p_config', user: CURRENT_USER.name, renda: P_RENDA, meta: P_META }).catch(() => {});
   closeModals();
   pRenderResumoMes();
   toast('✅ Meta pessoal salva');
