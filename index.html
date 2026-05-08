@@ -1530,11 +1530,18 @@ async function fetchData() {
   if (DATA.length === 0) list.innerHTML = `<div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div>`;
 
   try {
-    const res = await fetch(URL + '?t=' + Date.now());
+    // 1. Passa o nome do usuário na requisição para o Google Apps Script
+    let fetchUrl = URL + '?t=' + Date.now();
+    if (typeof CURRENT_USER !== 'undefined' && CURRENT_USER && CURRENT_USER.name) {
+      fetchUrl += '&user=' + encodeURIComponent(CURRENT_USER.name);
+    }
+
+    const res = await fetch(fetchUrl);
     if (!res.ok) throw new Error('HTTP ' + res.status);
 
     const payload = JSON.parse(await res.text());
 
+    // --- DADOS DA CASA (Conjuntos) ---
     const rawItems = Array.isArray(payload) ? payload : (payload.items || []);
     DATA = rawItems.map(d => ({
       ...d,
@@ -1597,6 +1604,50 @@ async function fetchData() {
         RENDA = parseFloat(cfg.renda) || 0;
         localStorage.setItem('cn_renda', RENDA);
       }
+    }
+
+    // --- DADOS DE GASOLINA (Aba Compartilhada) ---
+    if (payload.gasolina !== undefined) {
+      GAS_ABASTECIMENTOS = (payload.gasolina || []).map(g => ({
+        id: Number(g.id) || Date.now(),
+        data: g.data || '',
+        km: Number(g.km) || 0,
+        litros: Number(g.litros) || 0,
+        valor: Number(g.valor) || 0,
+        posto: g.posto || '',
+        mediaKmL: g.mediaKmL ? Number(g.mediaKmL) : null
+      }));
+      localStorage.setItem('cn_gas_abast', JSON.stringify(GAS_ABASTECIMENTOS));
+      try { renderGas(); } catch(e){} // Atualiza os visuais da aba gasolina
+    }
+
+    // --- DADOS PESSOAIS ---
+    if (payload.pessoal !== undefined) {
+      P_DATA = (payload.pessoal.items || []).map(d => ({
+        ...d,
+        total: Number(d.total) || 0,
+        parcelas: Number(d.parcelas) || 1,
+        checks: (d.checks || []).map(Boolean),
+      }));
+      P_GASTOS_FIXOS = (payload.pessoal.fixos || []).map(g => ({ ...g, valor: Number(g.valor) }));
+      P_GASTOS_VARIAVEIS = (payload.pessoal.variaveis || []).map(g => ({ ...g, valor: Number(g.valor) }));
+      P_HISTORICO = (payload.pessoal.historico || []).map(h => ({
+        mes: h.mes, compras: Number(h.compras)||0, fixos: Number(h.fixos)||0, variaveis: Number(h.variaveis)||0, outros: Number(h.outros)||0
+      }));
+
+      if (payload.pessoal.config && payload.pessoal.config.length > 0) {
+        P_RENDA = parseFloat(payload.pessoal.config[0].renda) || 0;
+        P_META = parseFloat(payload.pessoal.config[0].meta) || 0;
+      }
+
+      localStorage.setItem(pKey('items'), JSON.stringify(P_DATA));
+      localStorage.setItem(pKey('fixos'), JSON.stringify(P_GASTOS_FIXOS));
+      localStorage.setItem(pKey('variaveis'), JSON.stringify(P_GASTOS_VARIAVEIS));
+      localStorage.setItem(pKey('historico'), JSON.stringify(P_HISTORICO));
+      localStorage.setItem(pKey('renda'), P_RENDA);
+      localStorage.setItem(pKey('meta'), P_META);
+      
+      try { pRender(); } catch(e){} // Atualiza os visuais da aba pessoal
     }
 
     render();
