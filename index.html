@@ -833,7 +833,9 @@ body::before{
   <div class="gas-grid">
     <div class="card">
       <div class="card-head">
-        <div><div class="card-title">Abastecimentos</div><div class="card-sub" id="gasListSub">todos os registros</div></div>
+        <div><div class="card-title">Abastecimentos</div><div class="card-sub" id="gasListSub">este mês</div></div>
+        <select id="gasMesFiltro" onchange="renderGasList()" style="font-family:'DM Sans',sans-serif;font-size:12px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:20px;padding:4px 10px;cursor:pointer;outline:none">
+        </select>
       </div>
       <div class="gas-abast-list" id="gasAbastList">
         <div class="gas-empty"><big>⛽</big>Nenhum abastecimento registrado.<br>Clique em + Registrar para começar.</div>
@@ -2952,6 +2954,13 @@ function saveGasAbast() {
   saveGasLocal();
   closeModals();
   renderGas();
+  // Auto-select the month of the newly added record
+  const select = document.getElementById('gasMesFiltro');
+  if (select) {
+    const newMes = getMesKey(GAS_ABASTECIMENTOS[GAS_ABASTECIMENTOS.length - 1].data);
+    select.value = newMes;
+    renderGasList();
+  }
   toast('✅ Abastecimento registrado!');
 }
 
@@ -3068,20 +3077,62 @@ function renderGasKpis() {
 }
 
 function renderGasList() {
-  const list = document.getElementById('gasAbastList');
+  const list    = document.getElementById('gasAbastList');
+  const select  = document.getElementById('gasMesFiltro');
+
   if (GAS_ABASTECIMENTOS.length === 0) {
     list.innerHTML = '<div class="gas-empty"><big>⛽</big>Nenhum abastecimento registrado.<br>Clique em + Registrar para começar.</div>';
     document.getElementById('gasListSub').textContent = 'nenhum registro';
+    if (select) select.innerHTML = '';
     return;
   }
 
-  // Show most recent first
-  const sorted = [...GAS_ABASTECIMENTOS].reverse();
-  document.getElementById('gasListSub').textContent = sorted.length + ' abastecimento(s)';
+  // Build list of available months from all records
+  const allMonths = [...new Set(GAS_ABASTECIMENTOS.map(a => getMesKey(a.data)))]
+    .sort().reverse(); // most recent first
 
-  list.innerHTML = sorted.map((a, idx) => {
-    const num     = GAS_ABASTECIMENTOS.length - idx;
-    const dateStr = a.data.split('-').reverse().join('/');
+  // Populate selector if needed (only rebuild when months change)
+  if (select) {
+    const currentOptions = [...select.options].map(o => o.value);
+    const needsRebuild = JSON.stringify(currentOptions) !== JSON.stringify(allMonths);
+    if (needsRebuild) {
+      const prevVal = select.value;
+      select.innerHTML = allMonths.map(k =>
+        `<option value="${k}">${getMesLabel(k)}</option>`
+      ).join('');
+      // Restore previous selection or default to current month
+      const thisMonth = getThisMonthKey();
+      if (prevVal && allMonths.includes(prevVal)) {
+        select.value = prevVal;
+      } else if (allMonths.includes(thisMonth)) {
+        select.value = thisMonth;
+      } else {
+        select.value = allMonths[0]; // most recent
+      }
+    }
+  }
+
+  // Filter by selected month
+  const selectedMes = select ? select.value : getThisMonthKey();
+  const filtered = GAS_ABASTECIMENTOS
+    .filter(a => getMesKey(a.data) === selectedMes)
+    .slice() // copy
+    .reverse(); // most recent first within month
+
+  const subLabel = document.getElementById('gasListSub');
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="gas-empty"><big>📅</big>Nenhum abastecimento em ' + getMesLabel(selectedMes) + '.</div>';
+    subLabel.textContent = 'nenhum neste mês';
+    return;
+  }
+
+  subLabel.textContent = filtered.length + ' abastecimento(s) em ' + getMesLabel(selectedMes);
+
+  // Global sequence number for this month (1, 2, 3...)
+  list.innerHTML = filtered.map((a, idx) => {
+    const num      = filtered.length - idx; // count down within month
+    const dateStr  = a.data.split('-').reverse().join('/');
     const mediaHtml = a.mediaKmL
       ? '<span class="gas-media-badge ' + (a.mediaKmL >= 12 ? 'boa' : a.mediaKmL < 9 ? 'ruim' : '') + '">' + a.mediaKmL.toFixed(1) + ' km/L</span>'
       : '<span class="gas-media-badge">1º reg.</span>';
