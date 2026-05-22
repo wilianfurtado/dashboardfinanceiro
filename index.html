@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>🏠 Casa Nova — Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -89,7 +89,7 @@ body::before{
   border-radius:10px;
   display:flex;align-items:center;justify-content:center;
   font-size:18px;
-  backdrop-filter:blur(8px);
+  
 }
 .brand-name{font-family:'DM Serif Display',serif;font-size:19px;letter-spacing:-.3px;color:#fff;}
 
@@ -195,7 +195,7 @@ body::before{
 @media(max-width:1100px){.charts{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){.charts{grid-template-columns:1fr}}
 
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;box-shadow:var(--sh);transition:box-shadow .2s,transform .2s;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;box-shadow:var(--sh);transition:box-shadow .2s,transform .2s;;contain:layout style;}
 .card:hover{box-shadow:var(--sh-md);}
 .card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
 .card-title{font-family:'DM Serif Display',serif;font-size:18px;letter-spacing:-.3px}
@@ -219,7 +219,7 @@ body::before{
 
 /* ITEM LIST */
 .item-list{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
-.item-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 22px;display:grid;grid-template-columns:1fr auto auto auto auto auto auto;align-items:center;gap:18px;transition:transform .2s,box-shadow .2s,border-color .2s;cursor:default;position:relative;animation:fadeUp .4s ease both;}
+.item-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 22px;display:grid;grid-template-columns:1fr auto auto auto auto auto auto;align-items:center;gap:18px;transition:transform .2s,box-shadow .2s,border-color .2s;cursor:default;position:relative;animation:fadeUp .4s ease both;contain:layout style;}
 .item-card:hover{box-shadow:var(--sh-md);transform:translateY(-2px);border-color:var(--muted2);}
 .item-card.deleting{opacity:.4;transform:scale(.98);pointer-events:none}
 @media(max-width:960px){.item-card{grid-template-columns:1fr 1fr;gap:12px}}
@@ -354,9 +354,9 @@ body::before{
 .hist-empty{text-align:center;padding:32px 0;color:var(--muted);font-size:13px}
 
 /* MODAIS */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:16px;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:16px;}
 .overlay.open{opacity:1;pointer-events:all}
-.panel{background:var(--surface);border-radius:var(--r);padding:36px;width:100%;max-width:480px;box-shadow:var(--sh-lg);transform:translateY(20px) scale(.98);transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-height:92vh;overflow-y:auto;border:1px solid var(--border);}
+.panel{background:var(--surface);border-radius:var(--r);will-change:transform;padding:36px;width:100%;max-width:480px;box-shadow:var(--sh-lg);transform:translateY(20px) scale(.98);transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-height:92vh;overflow-y:auto;border:1px solid var(--border);}
 .overlay.open .panel{transform:translateY(0) scale(1)}
 .panel h2{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:6px;letter-spacing:-.3px;}
 .panel-sub{color:var(--muted);font-size:13px;margin-bottom:22px;line-height:1.7}
@@ -387,7 +387,7 @@ body::before{
 .empty-search big{font-size:40px;display:block;margin-bottom:12px;opacity:.35}
 
 /* Gasto Detail Overlay */
-.gd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);z-index:250;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:16px}
+.gd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:250;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:16px}
 .gd-overlay.open{opacity:1;pointer-events:all}
 .gd-panel{background:var(--surface);border-radius:var(--r);padding:0;width:100%;max-width:400px;box-shadow:var(--sh-lg);transform:translateY(20px) scale(.96);transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-height:90vh;overflow-y:auto;border:1px solid var(--border)}
 .gd-overlay.open .gd-panel{transform:translateY(0) scale(1)}
@@ -442,7 +442,7 @@ body::before{
 @media(max-width:900px){.gas-kpis{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:480px){.gas-kpis{grid-template-columns:1fr 1fr}}
 
-.gas-abast-list{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow-y:auto;margin-top:8px}
+.gas-abast-list{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow-y:auto;margin-top:8px;-webkit-overflow-scrolling:touch;touch-action:pan-y;}
 .gas-abast-list::-webkit-scrollbar{width:4px}.gas-abast-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 
 .gas-abast-row{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 14px;display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:10px;transition:.15s;position:relative;}
@@ -624,6 +624,28 @@ body::before{
 .p-panel-header .panel-sub{color:rgba(255,255,255,.68)}
 .personal-badge{display:inline-flex;align-items:center;gap:5px;background:var(--blue-lt);color:var(--blue);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.3px}
 
+
+/* ── MOBILE PERFORMANCE ── */
+@media(max-width:768px){
+  .card,.kpi,.item-card,.gas-abast-row{box-shadow:none!important}
+  .hero-shell{box-shadow:0 1px 0 var(--border)}
+}
+@media(max-width:768px){
+  .item-card,.kpi,.card,.gf-row,.gas-abast-row,.resumo-pessoa{
+    animation:none!important;
+    transition:none!important;
+  }
+  .kpi-val{animation:none!important}
+  .skel-card::after{animation:none!important}
+  .ai-panel::before,.ai-general-panel::before{animation:none!important}
+  .sync-dot.live,.sync-dot.loading{animation:none!important}
+  * { -webkit-tap-highlight-color: transparent; }
+  html,body { overscroll-behavior: none; }
+  .overlay,.gd-overlay{
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+  }
+}
 </style>
 </head>
 <body>
@@ -1695,7 +1717,13 @@ function togglePerson(idx) {
 }
 
 // ─── RENDER ENGINE ───────────────────────────────────────────────────────
+let _lastRenderHash = '';
 function render() {
+  // Skip re-render if data hasn't changed (mobile perf)
+  const hash = JSON.stringify([DATA, FILTER, SEARCH, SORT, ACTIVE_PERSON]);
+  if (hash === _lastRenderHash) return;
+  _lastRenderHash = hash;
+
   const frac = ACTIVE_PERSON !== null ? splitFracs()[ACTIVE_PERSON] : 1;
 
   // 1. Filtrar + Buscar
@@ -1992,7 +2020,7 @@ function renderList(items, frac = 1) {
         <button class="btn-icon" onclick="startDelete(${item.row}, '${escJs(item.nome)}')" title="Excluir">🗑️</button>
       </div>
     `;
-    card.style.animationDelay = Math.min(cardIdx * 0.04, 0.4) + 's';
+    // animation-delay removed for mobile performance
     list.appendChild(card);
     requestAnimationFrame(() => setTimeout(() => {
       const fill = document.getElementById('fill-' + item.row);
@@ -2020,8 +2048,13 @@ function clearSearch() {
   document.getElementById('searchClear').style.display = 'none';
   render();
 }
-function setFilter(c) { FILTER = c; render(); }
-function setSort(v) { SORT = v; render(); }
+let _renderTimer = null;
+function debouncedRender() {
+  if (_renderTimer) clearTimeout(_renderTimer);
+  _renderTimer = setTimeout(render, 60);
+}
+function setFilter(c) { FILTER = c; debouncedRender(); }
+function setSort(v)   { SORT = v;   debouncedRender(); }
 
 function toggle(el, row, idx, val) {
   if (el.classList.contains('saving')) return;
@@ -3072,6 +3105,8 @@ function setGasView(view, btn) {
 }
 
 function renderGas() {
+  const el = document.getElementById('mainGas');
+  if (!el || el.style.display === 'none') return; // skip if tab hidden
   renderGasKpis();
   renderGasList();
   renderGasMedia();
@@ -3876,6 +3911,8 @@ function pToggleCheck(idx, checkIdx) {
 
 // ─── RENDER PESSOAL COMPLETO ──────────────────────────────────
 function pRender() {
+  const el = document.getElementById('mainPessoal');
+  if (!el || el.style.display === 'none') return; // skip if tab hidden
   pRenderKpis();
   pRenderItems();
   pRenderCharts();
@@ -3920,7 +3957,7 @@ function pRenderItems() {
       : pct>0
       ? `<span class="badge bg-warn">${pct}% pago</span>`
       : `<span class="badge bg-red">Em aberto</span>`;
-    return `<div class="item-card" style="animation-delay:${idx*0.03}s">
+    return `<div class="item-card" >
       <div><div class="i-name">${item.nome}</div><div class="i-cat"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};margin-right:5px"></span>${item.cat}</div></div>
       <div class="i-price"><div class="i-price-val">${fmt(item.total)}</div><div class="i-price-sub">${item.parcelas}x ${fmt(valParc)}</div></div>
       <div class="dots">${dots}</div>
@@ -4039,6 +4076,12 @@ window.onload = () => {
   }
 };
 
+
+
+// Passive touch listeners for smooth scroll on mobile
+document.addEventListener('touchstart', ()=>{}, {passive:true});
+document.addEventListener('touchmove',  ()=>{}, {passive:true});
+window.addEventListener('scroll',       ()=>{}, {passive:true});
 
 document.querySelectorAll('.overlay').forEach(o => {
   o.addEventListener('click', e => { if (e.target === o) closeModals(); });
