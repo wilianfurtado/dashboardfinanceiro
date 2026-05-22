@@ -1468,6 +1468,58 @@ body::before{
 */
 // ═══════════════════════════════════════════════════════════════════
 
+
+// ═══════════════════════════════════════════════════════════════
+//  DATE UTILITIES — fuso horário seguro
+//  Problema: new Date('2026-05-16') → UTC midnight → vira 15/05 no BR
+//  Solução: sempre parsear como local usando split manual
+// ═══════════════════════════════════════════════════════════════
+
+// Converte 'YYYY-MM-DD' em Date local (sem problema de UTC)
+function parseLocalDate(str) {
+  if (!str || typeof str !== 'string') return null;
+  // Remove qualquer sufixo de hora/timezone se vier do Sheets
+  const clean = str.split('T')[0].split(' ')[0];
+  const parts = clean.split('-');
+  if (parts.length !== 3) return null;
+  const [y, m, d] = parts.map(Number);
+  if (!y || !m || !d) return null;
+  return new Date(y, m - 1, d); // local time, sem UTC
+}
+
+// Formata 'YYYY-MM-DD' → '16/05/2026'
+function fmtDateBR(str) {
+  if (!str) return '';
+  const clean = str.split('T')[0].split(' ')[0];
+  const parts = clean.split('-');
+  if (parts.length !== 3) return str; // fallback: retorna original
+  const [y, m, d] = parts;
+  return d.padStart(2,'0') + '/' + m.padStart(2,'0') + '/' + y;
+}
+
+// Formata 'YYYY-MM-DD' → '16 de maio de 2026'
+function fmtDateLong(str) {
+  const d = parseLocalDate(str);
+  if (!d) return 'Não registrada';
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+
+// Formata 'YYYY-MM-DD' → '16/mai/2026'
+function fmtDateShort(str) {
+  const d = parseLocalDate(str);
+  if (!d) return '';
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+// Retorna hoje como 'YYYY-MM-DD' (fuso local)
+function todayISO() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+
 // DARK MODE INIT
 function initTheme() {
     if (localStorage.getItem('cn_theme') === 'dark' || (!localStorage.getItem('cn_theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -1599,7 +1651,7 @@ async function fetchData() {
         nome:  g.nome  || '',
         valor: Number(g.valor) || 0,
         cor:   g.cor   || gfCor(i),
-        data:  g.data  || '',
+        data:  (g.data || '').split('T')[0].split(' ')[0],
       }));
       localStorage.setItem('cn_gastos_fixos', JSON.stringify(GASTOS_FIXOS));
     }
@@ -1610,14 +1662,14 @@ async function fetchData() {
         nome:  g.nome  || '',
         valor: Number(g.valor) || 0,
         cor:   g.cor   || gfCor(i + 3),
-        data:  g.data  || '',
+        data:  (g.data || '').split('T')[0].split(' ')[0],
       }));
       localStorage.setItem('cn_gastos_variaveis', JSON.stringify(GASTOS_VARIAVEIS));
     }
 
     if (payload.historico !== undefined) {
       HISTORICO = (payload.historico || []).map(h => ({
-        mes:       h.mes       || '',
+        mes:       (h.mes || '').split('T')[0].split(' ')[0].slice(0,7),
         compras:   Number(h.compras)   || 0,
         fixos:     Number(h.fixos)     || 0,
         variaveis: Number(h.variaveis) || 0,
@@ -1653,7 +1705,7 @@ async function fetchData() {
     if (payload.gasolina !== undefined) {
       GAS_ABASTECIMENTOS = (payload.gasolina || []).map(g => ({
         id: Number(g.id) || Date.now(),
-        data: g.data || '',
+        data: (g.data || '').split('T')[0].split(' ')[0], // normalize ISO → YYYY-MM-DD
         km: Number(g.km) || 0,
         litros: Number(g.litros) || 0,
         valor: Number(g.valor) || 0,
@@ -2345,7 +2397,7 @@ function addGastoFixo() {
   if (!nome)    { toast('⚠ Nome é obrigatório', 'warn'); return; }
   if (valor<=0) { toast('⚠ Informe um valor', 'warn'); return; }
   const id = Date.now();
-  const data = new Date().toISOString().slice(0, 10);
+  const data = todayISO();
   GASTOS_FIXOS.push({ id, nome, valor, cor: gfCor(GASTOS_FIXOS.length), data });
   saveGF();
   document.getElementById('gfNome').value  = '';
@@ -2361,7 +2413,7 @@ function addGastoVariavel() {
   const valor = parseFloat(document.getElementById('gvValor').value) || 0;
   if (!nome)    { toast('⚠ Nome é obrigatório', 'warn'); return; }
   if (valor<=0) { toast('⚠ Informe um valor', 'warn'); return; }
-  const data = new Date().toISOString().slice(0, 10);
+  const data = todayISO();
   GASTOS_VARIAVEIS.push({ id: Date.now(), nome, valor, cor: gfCor(GASTOS_VARIAVEIS.length), data });
   saveGV();
   document.getElementById('gvNome').value  = '';
@@ -2415,7 +2467,7 @@ function renderGastosFixos() {
         </div>
       </div>`;
     }).join('') : '';
-    const dataLabel = g.data ? new Date(g.data + 'T12:00:00').toLocaleDateString('pt-BR', {day:'2-digit',month:'short',year:'numeric'}) : '';
+    const dataLabel = g.data ? fmtDateShort(g.data) : '';
 
     return `<div class="gf-row" onclick="openGastoDetail('fixo', ${g.id}, ${GASTOS_FIXOS.indexOf(g)})">
       <div class="gf-dot" style="background:${g.cor}"></div>
@@ -2474,7 +2526,7 @@ function renderGastosVariaveis() {
         </div>
       </div>`;
     }).join('') : '';
-    const dataLabel = g.data ? new Date(g.data + 'T12:00:00').toLocaleDateString('pt-BR', {day:'2-digit',month:'short',year:'numeric'}) : '';
+    const dataLabel = g.data ? fmtDateShort(g.data) : '';
 
     return `<div class="gf-row" onclick="openGastoDetail('variavel', ${g.id}, ${GASTOS_VARIAVEIS.indexOf(g)})">
       <div class="gf-dot" style="background:${g.cor}"></div>
@@ -2515,7 +2567,7 @@ function openGastoDetail(tipo, id, idx) {
 
   const fracs = splitFracs();
   const temSplit = PESSOAS.length > 0 && PESSOAS.some(p => p.renda > 0);
-  const dataFormatada = g.data ? new Date(g.data + 'T12:00:00').toLocaleDateString('pt-BR', {day:'2-digit', month:'long', year:'numeric'}) : 'Não registrada';
+  const dataFormatada = g.data ? fmtDateLong(g.data) : 'Não registrada';
 
   let splitHTML = '';
   if (temSplit) {
@@ -2981,7 +3033,7 @@ function openGasModal() {
   const overlay = document.getElementById('gasOverlay');
   overlay.classList.add('open');
   // Default date = today
-  const today = new Date().toISOString().slice(0,10);
+  const today = todayISO();
   document.getElementById('gasData').value = today;
   document.getElementById('gasKm').value = '';
   document.getElementById('gasLitros').value = '';
@@ -3115,18 +3167,23 @@ function renderGas() {
 }
 
 function getMesKey(data) {
-  return data.slice(0,7); // YYYY-MM
+  if (!data) return '';
+  // Strip time portion if full ISO string stored (e.g. from Sheets)
+  const clean = data.split('T')[0].split(' ')[0];
+  return clean.slice(0, 7); // YYYY-MM
 }
 
 function getMesLabel(key) {
+  if (!key || !key.includes('-')) return key || '—';
   const [y, m] = key.split('-');
   const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  return months[parseInt(m)-1] + '/' + y.slice(2);
+  const mIdx = parseInt(m) - 1;
+  if (mIdx < 0 || mIdx > 11) return key;
+  return months[mIdx] + '/' + y.slice(2);
 }
 
 function getThisMonthKey() {
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+  return todayISO().slice(0, 7); // YYYY-MM from local date
 }
 
 function groupByMes() {
@@ -3239,7 +3296,7 @@ function renderGasList() {
   // Global sequence number for this month (1, 2, 3...)
   list.innerHTML = filtered.map((a, idx) => {
     const num      = filtered.length - idx; // count down within month
-    const dateStr  = a.data.split('-').reverse().join('/');
+    const dateStr  = fmtDateBR(a.data);
     const mediaHtml = a.mediaKmL
       ? '<span class="gas-media-badge ' + (a.mediaKmL >= 12 ? 'boa' : a.mediaKmL < 9 ? 'ruim' : '') + '">' + a.mediaKmL.toFixed(1) + ' km/L</span>'
       : '<span class="gas-media-badge">1º reg.</span>';
@@ -3692,7 +3749,7 @@ function pRenderHistorico() {
     return;
   }
 
-  const labels = sorted.map(h => { const [y,m]=h.mes.split('-'); return ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][+m-1]+'/'+y.slice(2); });
+  const labels = sorted.map(h => getMesLabel(h.mes));
   const datasets = P_HIST_VIEW === 'total'
     ? [{ label:'Total', data: sorted.map(h=>(h.compras||0)+(h.fixos||0)+(h.variaveis||0)+(h.outros||0)), backgroundColor:'#518bea99', borderColor:'#518bea', borderWidth:2, borderRadius:6 }]
     : P_HIST_VIEW === 'fixos'
@@ -3709,8 +3766,8 @@ function pRenderHistorico() {
 
 function pOpenRegistroMes() {
   document.getElementById('pRegistroOverlay').classList.add('open');
-  const now = new Date();
-  document.getElementById('pRegMes').value = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  const _todayParts = todayISO().split('-');
+  document.getElementById('pRegMes').value = _todayParts[0]+'-'+_todayParts[1];
   const fixosT = P_GASTOS_FIXOS.reduce((s,g)=>s+g.valor,0);
   const varT   = P_GASTOS_VARIAVEIS.reduce((s,g)=>s+g.valor,0);
   const compT  = P_DATA.reduce((s,i)=>s+(i.total/(i.parcelas||1)),0);
