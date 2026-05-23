@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>🏠 Casa Nova — Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -89,7 +89,7 @@ body::before{
   border-radius:10px;
   display:flex;align-items:center;justify-content:center;
   font-size:18px;
-  
+  backdrop-filter:blur(8px);
 }
 .brand-name{font-family:'DM Serif Display',serif;font-size:19px;letter-spacing:-.3px;color:#fff;}
 
@@ -195,7 +195,7 @@ body::before{
 @media(max-width:1100px){.charts{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){.charts{grid-template-columns:1fr}}
 
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;box-shadow:var(--sh);transition:box-shadow .2s,transform .2s;;contain:layout style;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;box-shadow:var(--sh);transition:box-shadow .2s,transform .2s;}
 .card:hover{box-shadow:var(--sh-md);}
 .card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
 .card-title{font-family:'DM Serif Display',serif;font-size:18px;letter-spacing:-.3px}
@@ -219,7 +219,7 @@ body::before{
 
 /* ITEM LIST */
 .item-list{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
-.item-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 22px;display:grid;grid-template-columns:1fr auto auto auto auto auto auto;align-items:center;gap:18px;transition:transform .2s,box-shadow .2s,border-color .2s;cursor:default;position:relative;animation:fadeUp .4s ease both;contain:layout style;}
+.item-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 22px;display:grid;grid-template-columns:1fr auto auto auto auto auto auto;align-items:center;gap:18px;transition:transform .2s,box-shadow .2s,border-color .2s;cursor:default;position:relative;animation:fadeUp .4s ease both;}
 .item-card:hover{box-shadow:var(--sh-md);transform:translateY(-2px);border-color:var(--muted2);}
 .item-card.deleting{opacity:.4;transform:scale(.98);pointer-events:none}
 @media(max-width:960px){.item-card{grid-template-columns:1fr 1fr;gap:12px}}
@@ -354,9 +354,9 @@ body::before{
 .hist-empty{text-align:center;padding:32px 0;color:var(--muted);font-size:13px}
 
 /* MODAIS */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:16px;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:16px;}
 .overlay.open{opacity:1;pointer-events:all}
-.panel{background:var(--surface);border-radius:var(--r);will-change:transform;padding:36px;width:100%;max-width:480px;box-shadow:var(--sh-lg);transform:translateY(20px) scale(.98);transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-height:92vh;overflow-y:auto;border:1px solid var(--border);}
+.panel{background:var(--surface);border-radius:var(--r);padding:36px;width:100%;max-width:480px;box-shadow:var(--sh-lg);transform:translateY(20px) scale(.98);transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-height:92vh;overflow-y:auto;border:1px solid var(--border);}
 .overlay.open .panel{transform:translateY(0) scale(1)}
 .panel h2{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:6px;letter-spacing:-.3px;}
 .panel-sub{color:var(--muted);font-size:13px;margin-bottom:22px;line-height:1.7}
@@ -387,7 +387,7 @@ body::before{
 .empty-search big{font-size:40px;display:block;margin-bottom:12px;opacity:.35}
 
 /* Gasto Detail Overlay */
-.gd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:250;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:16px}
+.gd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);z-index:250;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:16px}
 .gd-overlay.open{opacity:1;pointer-events:all}
 .gd-panel{background:var(--surface);border-radius:var(--r);padding:0;width:100%;max-width:400px;box-shadow:var(--sh-lg);transform:translateY(20px) scale(.96);transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-height:90vh;overflow-y:auto;border:1px solid var(--border)}
 .gd-overlay.open .gd-panel{transform:translateY(0) scale(1)}
@@ -442,7 +442,7 @@ body::before{
 @media(max-width:900px){.gas-kpis{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:480px){.gas-kpis{grid-template-columns:1fr 1fr}}
 
-.gas-abast-list{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow-y:auto;margin-top:8px;-webkit-overflow-scrolling:touch;touch-action:pan-y;}
+.gas-abast-list{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow-y:auto;margin-top:8px}
 .gas-abast-list::-webkit-scrollbar{width:4px}.gas-abast-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 
 .gas-abast-row{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 14px;display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:10px;transition:.15s;position:relative;}
@@ -625,27 +625,79 @@ body::before{
 .personal-badge{display:inline-flex;align-items:center;gap:5px;background:var(--blue-lt);color:var(--blue);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.3px}
 
 
-/* ── MOBILE PERFORMANCE ── */
-@media(max-width:768px){
-  .card,.kpi,.item-card,.gas-abast-row{box-shadow:none!important}
-  .hero-shell{box-shadow:0 1px 0 var(--border)}
-}
-@media(max-width:768px){
-  .item-card,.kpi,.card,.gf-row,.gas-abast-row,.resumo-pessoa{
-    animation:none!important;
-    transition:none!important;
-  }
-  .kpi-val{animation:none!important}
-  .skel-card::after{animation:none!important}
-  .ai-panel::before,.ai-general-panel::before{animation:none!important}
-  .sync-dot.live,.sync-dot.loading{animation:none!important}
-  * { -webkit-tap-highlight-color: transparent; }
-  html,body { overscroll-behavior: none; }
-  .overlay,.gd-overlay{
-    backdrop-filter:none!important;
-    -webkit-backdrop-filter:none!important;
-  }
-}
+/* ═══════════════════════════════════════
+   SIMULADOR
+═══════════════════════════════════════ */
+.sim-form-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:16px}
+@media(max-width:768px){.sim-form-grid{grid-template-columns:1fr 1fr;}}
+.sim-add-btn{background:var(--accent);color:#fff;border:none;border-radius:var(--r-sm);padding:9px 16px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;transition:.2s;height:38px}
+.sim-add-btn:hover{background:var(--accent-dk);transform:translateY(-1px)}
+.sim-items-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.sim-item-row{display:grid;grid-template-columns:1fr auto auto auto;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 14px}
+.sim-item-name{font-size:13px;font-weight:600}
+.sim-item-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.sim-item-val{font-family:'DM Serif Display',serif;font-size:16px;text-align:right}
+.sim-item-parc{font-size:11px;color:var(--muted);text-align:right}
+.sim-del-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:4px 6px;border-radius:6px;transition:.15s}
+.sim-del-btn:hover{background:var(--danger-lt);color:var(--danger)}
+
+.sim-timeline{display:flex;flex-direction:column;gap:0}
+.sim-month-row{display:grid;grid-template-columns:90px 1fr auto;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.sim-month-row:last-child{border-bottom:none}
+.sim-month-row.current-month{background:var(--accent-lt);margin:0 -16px;padding:10px 16px;border-radius:var(--r-sm);border-bottom:none}
+.sim-month-lbl{font-size:12px;font-weight:600;color:var(--muted)}
+.sim-month-lbl.current{color:var(--accent);font-weight:700}
+.sim-month-bar-wrap{height:8px;background:var(--surface);border-radius:99px;overflow:hidden;border:1px solid var(--border)}
+.sim-month-bar-fill{height:100%;border-radius:99px;transition:width .6s ease}
+.sim-month-val{font-family:'DM Serif Display',serif;font-size:14px;white-space:nowrap;text-align:right;min-width:80px}
+.sim-month-items{font-size:10px;color:var(--muted);margin-top:2px;grid-column:2 / -1}
+
+.sim-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:680px){.sim-summary-grid{grid-template-columns:1fr 1fr}}
+.sim-kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px 16px}
+.sim-kpi-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px}
+.sim-kpi-val{font-family:'DM Serif Display',serif;font-size:22px}
+.sim-kpi-sub{font-size:11px;color:var(--muted);margin-top:3px}
+
+.sim-impact-bar{height:14px;background:var(--surface);border:1px solid var(--border);border-radius:99px;overflow:hidden;margin:8px 0;display:flex}
+.sim-impact-seg{height:100%;transition:width .5s ease;position:relative}
+.sim-impact-seg:first-child{border-radius:99px 0 0 99px}
+.sim-impact-seg:last-child{border-radius:0 99px 99px 0}
+.sim-impact-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px}
+.sim-impact-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.sim-impact-lbl{font-size:11px;color:var(--muted)}
+
+/* ── Total Pessoal Card ── */
+.total-pessoal-card{background:linear-gradient(135deg,var(--surface),var(--bg));border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;margin-bottom:20px}
+.tp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.tp-title{font-family:'DM Serif Display',serif;font-size:20px}
+.tp-total{font-family:'DM Serif Display',serif;font-size:28px;color:var(--text)}
+.tp-sub{font-size:12px;color:var(--muted);margin-top:2px}
+
+.tp-section{margin-bottom:14px}
+.tp-section-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.tp-section-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.tp-item-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
+.tp-item-row:last-child{border-bottom:none}
+.tp-item-name{flex:1;font-size:13px}
+.tp-item-val{font-size:13px;font-weight:600;text-align:right;white-space:nowrap}
+.tp-item-share{font-size:11px;color:var(--muted);text-align:right;white-space:nowrap;min-width:36px}
+.tp-share-input{width:48px;font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px 5px;color:var(--text);text-align:center;font-family:'DM Sans',sans-serif}
+.tp-share-input:focus{outline:none;border-color:var(--blue)}
+
+.tp-total-row{display:flex;align-items:baseline;justify-content:space-between;padding:12px 0 0;margin-top:4px;border-top:2px solid var(--border)}
+.tp-total-lbl{font-size:13px;font-weight:600}
+.tp-total-val{font-family:'DM Serif Display',serif;font-size:24px}
+
+.tp-chart-wrap{height:160px;margin-top:8px}
+.tp-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.tp-compare-cell{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;text-align:center}
+.tp-compare-cell-lbl{font-size:10px;color:var(--muted);margin-bottom:4px}
+.tp-compare-cell-val{font-family:'DM Serif Display',serif;font-size:16px}
+.tp-compare-diff{font-size:11px;margin-top:3px;font-weight:600}
+.tp-compare-diff.up{color:var(--danger)}
+.tp-compare-diff.down{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -699,6 +751,7 @@ body::before{
     <button class="main-nav-tab active" id="navCasa" onclick="switchTab('casa')">🏠 Casa Nova</button>
     <button class="main-nav-tab" id="navPessoal" onclick="switchTab('pessoal')" style="display:none">👤 <span id="navPessoalLabel">Meu Painel</span></button>
     <button class="main-nav-tab" id="navGas" onclick="switchTab('gas')">⛽ Gasolina</button>
+    <button class="main-nav-tab" id="navSim" onclick="switchTab('sim')" style="display:none">🧮 Simulador</button>
   </div>
   <div class="filters-bar" id="filtersBar">
     <div class="pill-filter active" onclick="setFilter('Todos')">Todos</div>
@@ -954,6 +1007,57 @@ body::before{
 <!-- ═══ PAINEL PESSOAL ═══ -->
 <div class="main" id="mainPessoal" style="display:none">
 
+  <!-- Card Total Pessoal -->
+  <div class="total-pessoal-card" id="tpCard">
+    <div class="tp-header">
+      <div>
+        <div class="tp-title">💰 Meu Custo Real Mensal</div>
+        <div class="tp-sub">Gastos pessoais + minha parte nos gastos do casal</div>
+      </div>
+      <div style="text-align:right">
+        <div class="tp-total" id="tpTotalVal">—</div>
+        <div class="tp-sub" id="tpTotalSub">calculando…</div>
+      </div>
+    </div>
+
+    <!-- Seção: Pessoais -->
+    <div class="tp-section">
+      <div class="tp-section-lbl">👤 Meus gastos pessoais</div>
+      <div id="tpPessoalRows"></div>
+    </div>
+
+    <!-- Seção: Casal (com % configurável por item) -->
+    <div class="tp-section">
+      <div class="tp-section-lbl" style="justify-content:space-between">
+        <span style="display:flex;align-items:center;gap:6px">🏠 Gastos do casal <span style="font-size:10px;color:var(--muted);font-weight:400">(% = minha parte)</span></span>
+        <button onclick="tpSaveShares()" style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:2px 10px;font-size:11px;font-family:'DM Sans',sans-serif;cursor:pointer">Salvar %</button>
+      </div>
+      <div id="tpCasalRows"></div>
+    </div>
+
+    <!-- Simulação integrada -->
+    <div class="tp-section" id="tpSimSection" style="display:none">
+      <div class="tp-section-lbl">🧮 + Simulação ativa</div>
+      <div id="tpSimRows"></div>
+    </div>
+
+    <!-- Total -->
+    <div class="tp-total-row">
+      <span class="tp-total-lbl">Total estimado / mês</span>
+      <span class="tp-total-val" id="tpGrandTotal">—</span>
+    </div>
+
+    <!-- Comparativo mês a mês -->
+    <div style="margin-top:14px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px">Comparativo mês a mês</div>
+      <div class="tp-compare" id="tpCompare">
+        <div class="tp-compare-cell"><div class="tp-compare-cell-lbl">Mês anterior</div><div class="tp-compare-cell-val" id="tpPrevMonth">—</div><div class="tp-compare-diff" id="tpPrevDiff"></div></div>
+        <div class="tp-compare-cell"><div class="tp-compare-cell-lbl">Este mês</div><div class="tp-compare-cell-val" id="tpThisMonth">—</div><div class="tp-compare-diff" id="tpThisDiff" style="color:var(--muted)">atual</div></div>
+      </div>
+      <div class="tp-chart-wrap"><canvas id="tpChart"></canvas></div>
+    </div>
+  </div>
+
   <!-- Renda pessoal -->
   <div class="renda-bar" id="pRendaBar" style="display:none">
     <span class="renda-bar-label">💵 Renda Pessoal</span>
@@ -1072,6 +1176,62 @@ body::before{
         Nenhuma compra pessoal registrada.
       </div>
     </div>
+  </div>
+</div>
+
+
+<!-- ═══ SIMULADOR DE PARCELAS ═══ -->
+<div class="main" id="mainSim" style="display:none">
+
+  <div style="margin-bottom:20px">
+    <div style="font-family:'DM Serif Display',serif;font-size:28px;margin-bottom:4px">🧮 Simulador de Compras</div>
+    <div style="font-size:13px;color:var(--muted)">Simule o impacto de novas compras no seu orçamento mensal</div>
+  </div>
+
+  <!-- Formulário -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-head"><div><div class="card-title">Nova Simulação</div><div class="card-sub">Adicione itens para simular</div></div></div>
+    <div class="sim-form-grid">
+      <div class="fg" style="margin:0"><label class="fl">Nome do item</label><input class="fi" id="simNome" placeholder="Ex: Sofá, TV, Notebook…"></div>
+      <div class="fg" style="margin:0"><label class="fl">Valor total (R$)</label><input class="fi" type="number" id="simValor" min="0" step="0.01" placeholder="0,00"></div>
+      <div class="fg" style="margin:0"><label class="fl">Parcelas</label><input class="fi" type="number" id="simParc" min="1" max="72" value="12"></div>
+      <div class="fg" style="margin:0"><label class="fl">Início</label><input class="fi" type="month" id="simInicio"></div>
+      <button class="sim-add-btn" onclick="simAddItem()">+ Adicionar</button>
+    </div>
+    <div class="sim-items-list" id="simItemsList">
+      <div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Nenhum item adicionado. Preencha os campos acima.</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="sim-add-btn" onclick="simRender()" style="background:var(--blue)">📊 Simular</button>
+      <button class="sim-add-btn" onclick="simClear()" style="background:var(--surface);color:var(--text);border:1px solid var(--border)">🗑 Limpar tudo</button>
+      <button class="sim-add-btn" onclick="simSendToPessoal()" style="background:var(--purple);display:none" id="simSendBtn">↗ Ver impacto no Meu Painel</button>
+    </div>
+  </div>
+
+  <!-- KPIs da simulação -->
+  <div class="sim-summary-grid" id="simKpis" style="display:none">
+    <div class="sim-kpi"><div class="sim-kpi-lbl">Total Simulado</div><div class="sim-kpi-val" id="simKTotal">—</div><div class="sim-kpi-sub" id="simKTotalSub"></div></div>
+    <div class="sim-kpi"><div class="sim-kpi-lbl">Parcela Mensal</div><div class="sim-kpi-val" id="simKMes">—</div><div class="sim-kpi-sub" id="simKMesSub">este mês</div></div>
+    <div class="sim-kpi"><div class="sim-kpi-lbl">Duração</div><div class="sim-kpi-val" id="simKDur">—</div><div class="sim-kpi-sub">meses de pagamento</div></div>
+    <div class="sim-kpi"><div class="sim-kpi-lbl">Término</div><div class="sim-kpi-val" id="simKFim">—</div><div class="sim-kpi-sub">último pagamento</div></div>
+  </div>
+
+  <!-- Impacto no orçamento -->
+  <div class="card" id="simImpactoCard" style="display:none;margin-bottom:20px">
+    <div class="card-head"><div><div class="card-title">Impacto no Orçamento</div><div class="card-sub">como a simulação afeta seu mês</div></div></div>
+    <div id="simImpactoBody"></div>
+  </div>
+
+  <!-- Timeline mensal -->
+  <div class="card" id="simTimelineCard" style="display:none">
+    <div class="card-head">
+      <div><div class="card-title">Cronograma de Pagamentos</div><div class="card-sub" id="simTimelineSub">mês a mês</div></div>
+      <div style="display:flex;gap:6px">
+        <button class="gas-mes-tab active" id="simViewAll" onclick="simSetView('all',this)">Todos os meses</button>
+        <button class="gas-mes-tab" id="simViewYear" onclick="simSetView('year',this)">Próx. 12 meses</button>
+      </div>
+    </div>
+    <div id="simTimeline" class="sim-timeline"></div>
   </div>
 </div>
 
@@ -1408,6 +1568,45 @@ body::before{
 
 <script>
 
+// ═══════════════════════════════════════════════════════════════
+//  DATE UTILITIES — fuso horário seguro
+// ═══════════════════════════════════════════════════════════════
+function parseLocalDate(str) {
+  if (!str || typeof str !== 'string') return null;
+  const clean = str.split('T')[0].split(' ')[0];
+  const parts = clean.split('-');
+  if (parts.length !== 3) return null;
+  const [y, m, d] = parts.map(Number);
+  if (!y || !m || !d) return null;
+  return new Date(y, m - 1, d);
+}
+function fmtDateBR(str) {
+  if (!str) return '';
+  const clean = str.split('T')[0].split(' ')[0];
+  const parts = clean.split('-');
+  if (parts.length !== 3) return str;
+  const [y, m, d] = parts;
+  return d.padStart(2,'0') + '/' + m.padStart(2,'0') + '/' + y;
+}
+function fmtDateLong(str) {
+  const d = parseLocalDate(str);
+  if (!d) return 'Não registrada';
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+function fmtDateShort(str) {
+  const d = parseLocalDate(str);
+  if (!d) return '';
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+function todayISO() {
+  const d   = new Date();
+  const y   = d.getFullYear();
+  const m   = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+
+
 // ═══════════════════════════════════════════════════════════════════
 //  APPS SCRIPT — adicione estas funções ao seu Google Apps Script
 //  (Extensions > Apps Script no Google Sheets)
@@ -1467,58 +1666,6 @@ body::before{
   }
 */
 // ═══════════════════════════════════════════════════════════════════
-
-
-// ═══════════════════════════════════════════════════════════════
-//  DATE UTILITIES — fuso horário seguro
-//  Problema: new Date('2026-05-16') → UTC midnight → vira 15/05 no BR
-//  Solução: sempre parsear como local usando split manual
-// ═══════════════════════════════════════════════════════════════
-
-// Converte 'YYYY-MM-DD' em Date local (sem problema de UTC)
-function parseLocalDate(str) {
-  if (!str || typeof str !== 'string') return null;
-  // Remove qualquer sufixo de hora/timezone se vier do Sheets
-  const clean = str.split('T')[0].split(' ')[0];
-  const parts = clean.split('-');
-  if (parts.length !== 3) return null;
-  const [y, m, d] = parts.map(Number);
-  if (!y || !m || !d) return null;
-  return new Date(y, m - 1, d); // local time, sem UTC
-}
-
-// Formata 'YYYY-MM-DD' → '16/05/2026'
-function fmtDateBR(str) {
-  if (!str) return '';
-  const clean = str.split('T')[0].split(' ')[0];
-  const parts = clean.split('-');
-  if (parts.length !== 3) return str; // fallback: retorna original
-  const [y, m, d] = parts;
-  return d.padStart(2,'0') + '/' + m.padStart(2,'0') + '/' + y;
-}
-
-// Formata 'YYYY-MM-DD' → '16 de maio de 2026'
-function fmtDateLong(str) {
-  const d = parseLocalDate(str);
-  if (!d) return 'Não registrada';
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
-}
-
-// Formata 'YYYY-MM-DD' → '16/mai/2026'
-function fmtDateShort(str) {
-  const d = parseLocalDate(str);
-  if (!d) return '';
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
-}
-
-// Retorna hoje como 'YYYY-MM-DD' (fuso local)
-function todayISO() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return y + '-' + m + '-' + day;
-}
 
 // DARK MODE INIT
 function initTheme() {
@@ -1651,7 +1798,7 @@ async function fetchData() {
         nome:  g.nome  || '',
         valor: Number(g.valor) || 0,
         cor:   g.cor   || gfCor(i),
-        data:  (g.data || '').split('T')[0].split(' ')[0],
+        data:  g.data  || '',
       }));
       localStorage.setItem('cn_gastos_fixos', JSON.stringify(GASTOS_FIXOS));
     }
@@ -1662,14 +1809,14 @@ async function fetchData() {
         nome:  g.nome  || '',
         valor: Number(g.valor) || 0,
         cor:   g.cor   || gfCor(i + 3),
-        data:  (g.data || '').split('T')[0].split(' ')[0],
+        data:  g.data  || '',
       }));
       localStorage.setItem('cn_gastos_variaveis', JSON.stringify(GASTOS_VARIAVEIS));
     }
 
     if (payload.historico !== undefined) {
       HISTORICO = (payload.historico || []).map(h => ({
-        mes:       (h.mes || '').split('T')[0].split(' ')[0].slice(0,7),
+        mes:       h.mes       || '',
         compras:   Number(h.compras)   || 0,
         fixos:     Number(h.fixos)     || 0,
         variaveis: Number(h.variaveis) || 0,
@@ -1705,7 +1852,7 @@ async function fetchData() {
     if (payload.gasolina !== undefined) {
       GAS_ABASTECIMENTOS = (payload.gasolina || []).map(g => ({
         id: Number(g.id) || Date.now(),
-        data: (g.data || '').split('T')[0].split(' ')[0], // normalize ISO → YYYY-MM-DD
+        data: g.data || '',
         km: Number(g.km) || 0,
         litros: Number(g.litros) || 0,
         valor: Number(g.valor) || 0,
@@ -1769,13 +1916,7 @@ function togglePerson(idx) {
 }
 
 // ─── RENDER ENGINE ───────────────────────────────────────────────────────
-let _lastRenderHash = '';
 function render() {
-  // Skip re-render if data hasn't changed (mobile perf)
-  const hash = JSON.stringify([DATA, FILTER, SEARCH, SORT, ACTIVE_PERSON]);
-  if (hash === _lastRenderHash) return;
-  _lastRenderHash = hash;
-
   const frac = ACTIVE_PERSON !== null ? splitFracs()[ACTIVE_PERSON] : 1;
 
   // 1. Filtrar + Buscar
@@ -2072,7 +2213,7 @@ function renderList(items, frac = 1) {
         <button class="btn-icon" onclick="startDelete(${item.row}, '${escJs(item.nome)}')" title="Excluir">🗑️</button>
       </div>
     `;
-    // animation-delay removed for mobile performance
+    card.style.animationDelay = Math.min(cardIdx * 0.04, 0.4) + 's';
     list.appendChild(card);
     requestAnimationFrame(() => setTimeout(() => {
       const fill = document.getElementById('fill-' + item.row);
@@ -2100,13 +2241,8 @@ function clearSearch() {
   document.getElementById('searchClear').style.display = 'none';
   render();
 }
-let _renderTimer = null;
-function debouncedRender() {
-  if (_renderTimer) clearTimeout(_renderTimer);
-  _renderTimer = setTimeout(render, 60);
-}
-function setFilter(c) { FILTER = c; debouncedRender(); }
-function setSort(v)   { SORT = v;   debouncedRender(); }
+function setFilter(c) { FILTER = c; render(); }
+function setSort(v) { SORT = v; render(); }
 
 function toggle(el, row, idx, val) {
   if (el.classList.contains('saving')) return;
@@ -2397,7 +2533,7 @@ function addGastoFixo() {
   if (!nome)    { toast('⚠ Nome é obrigatório', 'warn'); return; }
   if (valor<=0) { toast('⚠ Informe um valor', 'warn'); return; }
   const id = Date.now();
-  const data = todayISO();
+  const data = new Date().toISOString().slice(0, 10);
   GASTOS_FIXOS.push({ id, nome, valor, cor: gfCor(GASTOS_FIXOS.length), data });
   saveGF();
   document.getElementById('gfNome').value  = '';
@@ -2413,7 +2549,7 @@ function addGastoVariavel() {
   const valor = parseFloat(document.getElementById('gvValor').value) || 0;
   if (!nome)    { toast('⚠ Nome é obrigatório', 'warn'); return; }
   if (valor<=0) { toast('⚠ Informe um valor', 'warn'); return; }
-  const data = todayISO();
+  const data = new Date().toISOString().slice(0, 10);
   GASTOS_VARIAVEIS.push({ id: Date.now(), nome, valor, cor: gfCor(GASTOS_VARIAVEIS.length), data });
   saveGV();
   document.getElementById('gvNome').value  = '';
@@ -2467,7 +2603,7 @@ function renderGastosFixos() {
         </div>
       </div>`;
     }).join('') : '';
-    const dataLabel = g.data ? fmtDateShort(g.data) : '';
+    const dataLabel = g.data ? new Date(g.data + 'T12:00:00').toLocaleDateString('pt-BR', {day:'2-digit',month:'short',year:'numeric'}) : '';
 
     return `<div class="gf-row" onclick="openGastoDetail('fixo', ${g.id}, ${GASTOS_FIXOS.indexOf(g)})">
       <div class="gf-dot" style="background:${g.cor}"></div>
@@ -2526,7 +2662,7 @@ function renderGastosVariaveis() {
         </div>
       </div>`;
     }).join('') : '';
-    const dataLabel = g.data ? fmtDateShort(g.data) : '';
+    const dataLabel = g.data ? new Date(g.data + 'T12:00:00').toLocaleDateString('pt-BR', {day:'2-digit',month:'short',year:'numeric'}) : '';
 
     return `<div class="gf-row" onclick="openGastoDetail('variavel', ${g.id}, ${GASTOS_VARIAVEIS.indexOf(g)})">
       <div class="gf-dot" style="background:${g.cor}"></div>
@@ -2567,7 +2703,7 @@ function openGastoDetail(tipo, id, idx) {
 
   const fracs = splitFracs();
   const temSplit = PESSOAS.length > 0 && PESSOAS.some(p => p.renda > 0);
-  const dataFormatada = g.data ? fmtDateLong(g.data) : 'Não registrada';
+  const dataFormatada = g.data ? new Date(g.data + 'T12:00:00').toLocaleDateString('pt-BR', {day:'2-digit', month:'long', year:'numeric'}) : 'Não registrada';
 
   let splitHTML = '';
   if (temSplit) {
@@ -3033,7 +3169,7 @@ function openGasModal() {
   const overlay = document.getElementById('gasOverlay');
   overlay.classList.add('open');
   // Default date = today
-  const today = todayISO();
+  const today = new Date().toISOString().slice(0,10);
   document.getElementById('gasData').value = today;
   document.getElementById('gasKm').value = '';
   document.getElementById('gasLitros').value = '';
@@ -3157,8 +3293,6 @@ function setGasView(view, btn) {
 }
 
 function renderGas() {
-  const el = document.getElementById('mainGas');
-  if (!el || el.style.display === 'none') return; // skip if tab hidden
   renderGasKpis();
   renderGasList();
   renderGasMedia();
@@ -3167,23 +3301,18 @@ function renderGas() {
 }
 
 function getMesKey(data) {
-  if (!data) return '';
-  // Strip time portion if full ISO string stored (e.g. from Sheets)
-  const clean = data.split('T')[0].split(' ')[0];
-  return clean.slice(0, 7); // YYYY-MM
+  return data.slice(0,7); // YYYY-MM
 }
 
 function getMesLabel(key) {
-  if (!key || !key.includes('-')) return key || '—';
   const [y, m] = key.split('-');
   const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  const mIdx = parseInt(m) - 1;
-  if (mIdx < 0 || mIdx > 11) return key;
-  return months[mIdx] + '/' + y.slice(2);
+  return months[parseInt(m)-1] + '/' + y.slice(2);
 }
 
 function getThisMonthKey() {
-  return todayISO().slice(0, 7); // YYYY-MM from local date
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
 }
 
 function groupByMes() {
@@ -3296,7 +3425,7 @@ function renderGasList() {
   // Global sequence number for this month (1, 2, 3...)
   list.innerHTML = filtered.map((a, idx) => {
     const num      = filtered.length - idx; // count down within month
-    const dateStr  = fmtDateBR(a.data);
+    const dateStr  = a.data.split('-').reverse().join('/');
     const mediaHtml = a.mediaKmL
       ? '<span class="gas-media-badge ' + (a.mediaKmL >= 12 ? 'boa' : a.mediaKmL < 9 ? 'ruim' : '') + '">' + a.mediaKmL.toFixed(1) + ' km/L</span>'
       : '<span class="gas-media-badge">1º reg.</span>';
@@ -3592,6 +3721,7 @@ function onAuthSuccess() {
   // Show "Meu Painel" tab with user's name
   const navP = document.getElementById('navPessoal');
   navP.style.display = 'flex';
+  document.getElementById('navSim')?.style && (document.getElementById('navSim').style.display = 'flex');
   document.getElementById('navPessoalLabel').textContent = CURRENT_USER.name;
 
   // Show "Novo Gasto" button on casa tab
@@ -3599,6 +3729,9 @@ function onAuthSuccess() {
 
   // Load personal data
   pLoadState();
+  // Set sim inicio default (safe here, after DOM ready + auth)
+  const _si = document.getElementById('simInicio');
+  if (_si && !_si.value) _si.value = todayISO().slice(0,7);
 
   // Show personal badge
   document.getElementById('pPersonalBadge').textContent = '👤 ' + CURRENT_USER.name;
@@ -3749,7 +3882,7 @@ function pRenderHistorico() {
     return;
   }
 
-  const labels = sorted.map(h => getMesLabel(h.mes));
+  const labels = sorted.map(h => { const [y,m]=h.mes.split('-'); return ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][+m-1]+'/'+y.slice(2); });
   const datasets = P_HIST_VIEW === 'total'
     ? [{ label:'Total', data: sorted.map(h=>(h.compras||0)+(h.fixos||0)+(h.variaveis||0)+(h.outros||0)), backgroundColor:'#518bea99', borderColor:'#518bea', borderWidth:2, borderRadius:6 }]
     : P_HIST_VIEW === 'fixos'
@@ -3766,8 +3899,8 @@ function pRenderHistorico() {
 
 function pOpenRegistroMes() {
   document.getElementById('pRegistroOverlay').classList.add('open');
-  const _todayParts = todayISO().split('-');
-  document.getElementById('pRegMes').value = _todayParts[0]+'-'+_todayParts[1];
+  const now = new Date();
+  document.getElementById('pRegMes').value = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
   const fixosT = P_GASTOS_FIXOS.reduce((s,g)=>s+g.valor,0);
   const varT   = P_GASTOS_VARIAVEIS.reduce((s,g)=>s+g.valor,0);
   const compT  = P_DATA.reduce((s,i)=>s+(i.total/(i.parcelas||1)),0);
@@ -3968,8 +4101,8 @@ function pToggleCheck(idx, checkIdx) {
 
 // ─── RENDER PESSOAL COMPLETO ──────────────────────────────────
 function pRender() {
-  const el = document.getElementById('mainPessoal');
-  if (!el || el.style.display === 'none') return; // skip if tab hidden
+  const _el = document.getElementById('mainPessoal');
+  if (_el && _el.style.display === 'none') return;
   pRenderKpis();
   pRenderItems();
   pRenderCharts();
@@ -3977,6 +4110,7 @@ function pRender() {
   pRenderGastosVariaveis();
   pRenderHistorico();
   pRenderResumoMes();
+  try { tpRender(); } catch(e) { console.error('tpRender:', e); }
 }
 
 function pRenderKpis() {
@@ -4014,7 +4148,7 @@ function pRenderItems() {
       : pct>0
       ? `<span class="badge bg-warn">${pct}% pago</span>`
       : `<span class="badge bg-red">Em aberto</span>`;
-    return `<div class="item-card" >
+    return `<div class="item-card" style="animation-delay:${idx*0.03}s">
       <div><div class="i-name">${item.nome}</div><div class="i-cat"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};margin-right:5px"></span>${item.cat}</div></div>
       <div class="i-price"><div class="i-price-val">${fmt(item.total)}</div><div class="i-price-sub">${item.parcelas}x ${fmt(valParc)}</div></div>
       <div class="dots">${dots}</div>
@@ -4096,16 +4230,19 @@ function switchTab(tab) {
   const isCasa    = tab === 'casa';
   const isPessoal = tab === 'pessoal';
   const isGas     = tab === 'gas';
+  const isSim     = tab === 'sim';
 
   const elCasa    = document.getElementById('mainCasa');
   const elPessoal = document.getElementById('mainPessoal');
   const elGas     = document.getElementById('mainGas');
+  const elSim     = document.getElementById('mainSim');
   const elFilt    = document.getElementById('filtersBar');
   const elFab     = document.querySelector('.fab');
 
   if (elCasa)    elCasa.style.display    = isCasa    ? 'block' : 'none';
   if (elPessoal) elPessoal.style.display = isPessoal ? 'block' : 'none';
   if (elGas)     elGas.style.display     = isGas     ? 'block' : 'none';
+  if (elSim)     elSim.style.display     = isSim     ? 'block' : 'none';
   if (elFilt)    elFilt.style.display    = isCasa    ? 'flex'  : 'none';
   if (elFab)     elFab.style.display     = isCasa    ? 'flex'  : 'none';
   if (document.getElementById('btnNovoGasto'))
@@ -4113,11 +4250,19 @@ function switchTab(tab) {
 
   document.getElementById('navCasa').classList.toggle('active', isCasa);
   document.getElementById('navGas').classList.toggle('active', isGas);
-  const navP = document.getElementById('navPessoal');
-  if (navP) navP.classList.toggle('active', isPessoal);
+  const navP   = document.getElementById('navPessoal');
+  const navSim = document.getElementById('navSim');
+  if (navP)   navP.classList.toggle('active', isPessoal);
+  if (navSim) navSim.classList.toggle('active', isSim);
 
   if (isGas)     setTimeout(()=>{ try{renderGas();}catch(e){console.error(e);} }, 50);
   if (isPessoal) setTimeout(()=>{ try{pRender();}catch(e){console.error(e);} }, 50);
+  if (isSim)     setTimeout(()=>{ try{
+    const si = document.getElementById('simInicio');
+    if (si && !si.value) si.value = todayISO().slice(0,7);
+    simRenderList();
+    if(SIM_ITEMS.length) simRender();
+  }catch(e){console.error(e);} }, 50);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -4134,11 +4279,453 @@ window.onload = () => {
 };
 
 
+// ═══════════════════════════════════════════════════════════════
+//  SIMULADOR DE COMPRAS
+// ═══════════════════════════════════════════════════════════════
+let SIM_ITEMS  = [];
+let SIM_VIEW   = 'all';
 
-// Passive touch listeners for smooth scroll on mobile
-document.addEventListener('touchstart', ()=>{}, {passive:true});
-document.addEventListener('touchmove',  ()=>{}, {passive:true});
-window.addEventListener('scroll',       ()=>{}, {passive:true});
+function simAddItem() {
+  const nome  = document.getElementById('simNome').value.trim();
+  const valor = parseFloat(document.getElementById('simValor').value);
+  const parc  = parseInt(document.getElementById('simParc').value) || 12;
+  const inicio= document.getElementById('simInicio').value || todayISO().slice(0,7);
+
+  if (!nome || !valor) { toast('⚠ Preencha nome e valor', 'warn'); return; }
+
+  SIM_ITEMS.push({ id: Date.now(), nome, valor, parcelas: parc, inicio });
+
+  document.getElementById('simNome').value  = '';
+  document.getElementById('simValor').value = '';
+  document.getElementById('simParc').value  = '12';
+
+  simRenderList();
+  simRender();
+}
+
+function simRemoveItem(id) {
+  SIM_ITEMS = SIM_ITEMS.filter(i => i.id !== id);
+  simRenderList();
+  simRender();
+}
+
+function simClear() {
+  SIM_ITEMS = [];
+  simRenderList();
+  document.getElementById('simKpis').style.display         = 'none';
+  document.getElementById('simImpactoCard').style.display  = 'none';
+  document.getElementById('simTimelineCard').style.display = 'none';
+  document.getElementById('simSendBtn').style.display      = 'none';
+  tpRefreshSim();
+}
+
+function simSetView(v, btn) {
+  SIM_VIEW = v;
+  document.querySelectorAll('#mainSim .gas-mes-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  simRenderTimeline();
+}
+
+function simRenderList() {
+  const list = document.getElementById('simItemsList');
+  if (!SIM_ITEMS.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Nenhum item adicionado.</div>';
+    return;
+  }
+  list.innerHTML = SIM_ITEMS.map(item => {
+    const parcVal = item.valor / item.parcelas;
+    const [y, m]  = item.inicio.split('-');
+    const meses   = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    const inicioFmt = meses[+m-1] + '/' + y.slice(2);
+    return `<div class="sim-item-row">
+      <div>
+        <div class="sim-item-name">${item.nome}</div>
+        <div class="sim-item-sub">Início: ${inicioFmt} · ${item.parcelas}x de ${fmt(parcVal)}</div>
+      </div>
+      <div>
+        <div class="sim-item-val">${fmt(item.valor)}</div>
+        <div class="sim-item-parc">${fmt(parcVal)}/mês</div>
+      </div>
+      <button class="sim-del-btn" onclick="simRemoveItem(${item.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// Build month-by-month map: YYYY-MM → total parcela daquele mês
+function simBuildMonthMap() {
+  const map = {};
+  SIM_ITEMS.forEach(item => {
+    const [y0, m0] = item.inicio.split('-').map(Number);
+    const parcVal  = item.valor / item.parcelas;
+    for (let i = 0; i < item.parcelas; i++) {
+      const dt  = new Date(y0, m0 - 1 + i, 1);
+      const key = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0');
+      if (!map[key]) map[key] = { total: 0, items: [] };
+      map[key].total += parcVal;
+      map[key].items.push({ nome: item.nome, val: parcVal });
+    }
+  });
+  return map;
+}
+
+function simRender() {
+  if (!SIM_ITEMS.length) return;
+
+  const map    = simBuildMonthMap();
+  const keys   = Object.keys(map).sort();
+  const thisM  = todayISO().slice(0,7);
+  const values = keys.map(k => map[k].total);
+  const maxVal = Math.max(...values) || 1;
+
+  // KPIs
+  const totalGeral = SIM_ITEMS.reduce((s,i) => s + i.valor, 0);
+  const thisMonVal = map[thisM]?.total || 0;
+  const durMeses   = keys.length;
+  const lastKey    = keys[keys.length - 1] || thisM;
+  const [ly, lm]   = lastKey.split('-');
+  const meses      = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const fimFmt     = meses[+lm-1] + '/' + ly;
+
+  document.getElementById('simKpis').style.display = 'grid';
+  document.getElementById('simKTotal').textContent   = fmt(totalGeral);
+  document.getElementById('simKTotalSub').textContent= SIM_ITEMS.length + ' item(ns)';
+  document.getElementById('simKMes').textContent     = fmt(thisMonVal || values[0] || 0);
+  document.getElementById('simKDur').textContent     = durMeses;
+  document.getElementById('simKFim').textContent     = fimFmt;
+
+  // Impacto no orçamento
+  simRenderImpacto(map, thisM, maxVal);
+
+  // Timeline
+  simRenderTimeline();
+
+  // Show send button
+  document.getElementById('simSendBtn').style.display = 'inline-flex';
+  document.getElementById('simTimelineCard').style.display = 'block';
+  document.getElementById('simImpactoCard').style.display  = 'block';
+
+  // Update total pessoal card
+  tpRefreshSim();
+}
+
+function simRenderImpacto(map, thisM, maxVal) {
+  const pFixos   = P_GASTOS_FIXOS.reduce((s,g) => s+g.valor, 0);
+  const pVar     = P_GASTOS_VARIAVEIS.reduce((s,g) => s+g.valor, 0);
+  const pParcs   = P_DATA.reduce((s,i) => {
+    const vp = i.total/(i.parcelas||1);
+    const pg = (i.checks||[]).filter(Boolean).length;
+    return pg < i.parcelas ? s + vp : s;
+  }, 0);
+  const casalShare = tpCalcCasalTotal();
+  const simMes     = map[thisM]?.total || (Object.values(map)[0]?.total || 0);
+  const totalAtual = pFixos + pVar + pParcs + casalShare;
+  const totalNovo  = totalAtual + simMes;
+  const renda      = P_RENDA || 0;
+
+  // Bar segments
+  const segs = [
+    { lbl: 'Fixos pessoais', val: pFixos,    color: 'var(--blue)' },
+    { lbl: 'Variáveis',      val: pVar,      color: 'var(--warn)' },
+    { lbl: 'Parcelas ativas',val: pParcs,    color: 'var(--purple)' },
+    { lbl: 'Parte casal',    val: casalShare,color: 'var(--accent)' },
+    { lbl: 'Simulação',      val: simMes,    color: '#f87171' },
+  ].filter(s => s.val > 0);
+
+  const barTotal = segs.reduce((s,g) => s+g.val, 0) || 1;
+  const barHtml  = segs.map(s => `<div class="sim-impact-seg" style="width:${(s.val/barTotal*100).toFixed(1)}%;background:${s.color}" title="${s.lbl}: ${fmt(s.val)}"></div>`).join('');
+  const legHtml  = segs.map(s => `<div style="display:flex;align-items:flex-start;gap:5px"><div class="sim-impact-dot" style="background:${s.color}"></div><div><div class="sim-impact-lbl">${s.lbl}</div><div style="font-size:12px;font-weight:600">${fmt(s.val)}</div></div></div>`).join('');
+
+  const alertColor  = renda > 0 && totalNovo > renda ? 'var(--danger)' : 'var(--accent)';
+  const alertMsg    = renda > 0
+    ? totalNovo > renda
+      ? `⚠ Com a simulação, você ultrapassa sua renda em <strong>${fmt(totalNovo - renda)}</strong>`
+      : `✅ Ainda sobram <strong>${fmt(renda - totalNovo)}</strong> após a simulação`
+    : `Configure sua renda pessoal para ver o impacto completo`;
+
+  document.getElementById('simImpactoBody').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+      <span style="font-size:13px;color:var(--muted)">Sem simulação: ${fmt(totalAtual)}</span>
+      <span style="font-family:'DM Serif Display',serif;font-size:20px">Com simulação: ${fmt(totalNovo)}</span>
+    </div>
+    <div class="sim-impact-bar">${barHtml}</div>
+    <div class="sim-impact-legend">${legHtml}</div>
+    <div style="margin-top:12px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);font-size:13px;color:${alertColor}">${alertMsg}</div>
+  `;
+}
+
+function simRenderTimeline() {
+  const map    = simBuildMonthMap();
+  let keys     = Object.keys(map).sort();
+  const thisM  = todayISO().slice(0,7);
+  const maxVal = Math.max(...keys.map(k => map[k].total)) || 1;
+
+  if (SIM_VIEW === 'year') {
+    const limit = new Date();
+    limit.setMonth(limit.getMonth() + 12);
+    const limitKey = limit.getFullYear() + '-' + String(limit.getMonth()+1).padStart(2,'0');
+    keys = keys.filter(k => k <= limitKey);
+  }
+
+  document.getElementById('simTimelineSub').textContent = keys.length + ' meses de pagamento';
+
+  const html = keys.map(k => {
+    const row      = map[k];
+    const pct      = Math.round(row.total / maxVal * 100);
+    const isCurrent= k === thisM;
+    const isPast   = k < thisM;
+    const color    = isPast ? 'var(--muted2)' : isCurrent ? 'var(--accent)' : 'var(--blue)';
+    const itemList = row.items.map(i => `${i.nome} ${fmt(i.val)}`).join(' · ');
+    return `<div class="sim-month-row${isCurrent ? ' current-month' : ''}">
+      <div class="sim-month-lbl${isCurrent ? ' current' : ''}">${getMesLabel(k)}${isCurrent ? ' ◀' : ''}</div>
+      <div>
+        <div class="sim-month-bar-wrap"><div class="sim-month-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+        <div class="sim-month-items">${itemList}</div>
+      </div>
+      <div class="sim-month-val" style="color:${isCurrent ? 'var(--accent)' : 'inherit'}">${fmt(row.total)}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('simTimeline').innerHTML = html || '<div style="padding:20px;text-align:center;color:var(--muted)">Nenhum mês a exibir</div>';
+}
+
+function simSendToPessoal() {
+  switchTab('pessoal');
+  tpRefreshSim();
+  toast('✅ Simulação integrada ao Meu Painel');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CARD TOTAL PESSOAL
+// ═══════════════════════════════════════════════════════════════
+let TP_SHARES = JSON.parse(localStorage.getItem('cn_tp_shares') || '{}');
+let tpChartInst = null;
+
+function tpSaveShares() {
+  // Read all share inputs
+  document.querySelectorAll('.tp-share-input').forEach(inp => {
+    const key = inp.dataset.key;
+    const val = Math.min(100, Math.max(0, parseFloat(inp.value) || 50));
+    TP_SHARES[key] = val;
+  });
+  localStorage.setItem('cn_tp_shares', JSON.stringify(TP_SHARES));
+  tpRender();
+  toast('✅ Percentuais salvos');
+}
+
+function tpGetShare(key) {
+  return TP_SHARES[key] !== undefined ? TP_SHARES[key] : 50;
+}
+
+function tpCalcCasalTotal() {
+  let total = 0;
+  // Fixos casal
+  GASTOS_FIXOS.forEach(g => {
+    const pct = tpGetShare('cf_' + g.id) / 100;
+    total += g.valor * pct;
+  });
+  // Variáveis casal
+  GASTOS_VARIAVEIS.forEach(g => {
+    const pct = tpGetShare('cv_' + g.id) / 100;
+    total += g.valor * pct;
+  });
+  // Parcelas ativas do casal
+  DATA.forEach(item => {
+    const vp  = item.total / (item.parcelas || 1);
+    const pg  = (item.checks || []).filter(Boolean).length;
+    if (pg < item.parcelas) {
+      const pct = tpGetShare('ci_' + item.row) / 100;
+      total += vp * pct;
+    }
+  });
+  return total;
+}
+
+function tpRender() {
+  const el = document.getElementById('tpCard');
+  if (!el) return;
+
+  // ── Pessoais ────────────────────────────────────
+  const pFixos   = P_GASTOS_FIXOS.reduce((s,g) => s+g.valor, 0);
+  const pVar     = P_GASTOS_VARIAVEIS.reduce((s,g) => s+g.valor, 0);
+  const pParcs   = P_DATA.reduce((s,i) => {
+    const vp = i.total/(i.parcelas||1);
+    const pg = (i.checks||[]).filter(Boolean).length;
+    return pg < i.parcelas ? s + vp : s;
+  }, 0);
+  const totalPessoal = pFixos + pVar + pParcs;
+
+  // Personal rows
+  const pessoalRows = [
+    ...P_GASTOS_FIXOS.map(g => ({nome: g.nome, val: g.valor, sub: 'Fixo pessoal', color: 'var(--blue)'})),
+    ...P_GASTOS_VARIAVEIS.map(g => ({nome: g.nome, val: g.valor, sub: 'Variável pessoal', color: 'var(--warn)'})),
+    ...P_DATA.filter(i => (i.checks||[]).filter(Boolean).length < i.parcelas)
+             .map(i => ({nome: i.nome, val: i.total/(i.parcelas||1), sub: 'Parcela pessoal', color: 'var(--purple)'})),
+  ];
+
+  document.getElementById('tpPessoalRows').innerHTML = pessoalRows.length
+    ? pessoalRows.map(r => `<div class="tp-item-row">
+        <div class="tp-item-name"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${r.color};margin-right:6px"></span>${r.nome}<span style="color:var(--muted);font-size:11px;margin-left:6px">${r.sub}</span></div>
+        <div class="tp-item-val">${fmt(r.val)}/mês</div>
+      </div>`).join('')
+    : '<div style="color:var(--muted);font-size:12px;padding:6px 0">Nenhum gasto pessoal cadastrado</div>';
+
+  // ── Casal ─────────────────────────────────────────
+  const casalRows = [];
+
+  GASTOS_FIXOS.forEach(g => {
+    const key = 'cf_' + g.id;
+    const pct = tpGetShare(key);
+    casalRows.push({ key, nome: g.nome, totalItem: g.valor, pct, minha: g.valor * pct/100, cor: 'var(--accent)', tipo: 'Fixo casal' });
+  });
+  GASTOS_VARIAVEIS.forEach(g => {
+    const key = 'cv_' + g.id;
+    const pct = tpGetShare(key);
+    casalRows.push({ key, nome: g.nome, totalItem: g.valor, pct, minha: g.valor * pct/100, cor: '#f59e0b', tipo: 'Variável casal' });
+  });
+  DATA.filter(i => (i.checks||[]).filter(Boolean).length < i.parcelas).forEach(item => {
+    const key   = 'ci_' + item.row;
+    const pct   = tpGetShare(key);
+    const vp    = item.total/(item.parcelas||1);
+    casalRows.push({ key, nome: item.nome, totalItem: vp, pct, minha: vp * pct/100, cor: 'var(--text)', tipo: 'Parcela casal' });
+  });
+
+  const casalTotal = casalRows.reduce((s,r) => s+r.minha, 0);
+
+  document.getElementById('tpCasalRows').innerHTML = casalRows.length
+    ? casalRows.map(r => `<div class="tp-item-row">
+        <div class="tp-item-name"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${r.cor};margin-right:6px"></span>${r.nome}<span style="color:var(--muted);font-size:11px;margin-left:6px">${r.tipo}</span></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
+          <div style="text-align:right">
+            <div class="tp-item-val">${fmt(r.minha)}/mês</div>
+            <div style="font-size:10px;color:var(--muted)">de ${fmt(r.totalItem)}</div>
+          </div>
+          <input class="tp-share-input" type="number" min="0" max="100" value="${r.pct}" data-key="${r.key}" onchange="tpLiveUpdate(this)">
+          <span style="font-size:11px;color:var(--muted)">%</span>
+        </div>
+      </div>`).join('')
+    : '<div style="color:var(--muted);font-size:12px;padding:6px 0">Nenhum gasto do casal cadastrado</div>';
+
+  // ── Simulação integrada ────────────────────────────
+  tpRefreshSim();
+
+  // ── Totais ────────────────────────────────────────
+  const grandTotal = totalPessoal + casalTotal;
+  document.getElementById('tpGrandTotal').textContent = fmt(grandTotal);
+  document.getElementById('tpTotalVal').textContent   = fmt(grandTotal);
+  document.getElementById('tpTotalSub').textContent   = 'estimativa mensal';
+
+  // ── Comparativo mês a mês ─────────────────────────
+  const thisKey = todayISO().slice(0,7);
+  const prevDate = new Date();
+  prevDate.setMonth(prevDate.getMonth() - 1);
+  const prevKey  = prevDate.getFullYear() + '-' + String(prevDate.getMonth()+1).padStart(2,'0');
+
+  const combineHist = (key) => {
+    const ph = P_HISTORICO.find(h => h.mes === key);
+    if (!ph) return null;
+    return (ph.compras||0) + (ph.fixos||0) + (ph.variaveis||0) + (ph.outros||0);
+  };
+
+  const prevTotal = combineHist(prevKey);
+  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const [py,pm] = prevKey.split('-');
+  const [ty,tm] = thisKey.split('-');
+
+  document.getElementById('tpPrevMonth').textContent = prevTotal !== null ? fmt(prevTotal) : '—';
+  document.getElementById('tpThisMonth').textContent = fmt(grandTotal);
+
+  if (prevTotal !== null) {
+    const diff = grandTotal - prevTotal;
+    const pct  = Math.abs(Math.round(diff/prevTotal*100));
+    const el   = document.getElementById('tpPrevDiff');
+    el.textContent  = (diff > 0 ? '▲ +' : '▼ -') + pct + '% vs atual';
+    el.className    = 'tp-compare-diff ' + (diff > 0 ? 'up' : 'down');
+  }
+
+  // Chart histórico pessoal + atual
+  tpRenderChart(grandTotal, thisKey);
+}
+
+function tpLiveUpdate(inp) {
+  // Live update the "minha" value shown next to the input
+  const pct    = Math.min(100, Math.max(0, parseFloat(inp.value) || 0));
+  const key    = inp.dataset.key;
+  const row    = inp.closest('.tp-item-row');
+  if (!row) return;
+  // Find the total value from the row
+  const vals   = row.querySelectorAll('.tp-item-val, .tp-item-val');
+  // Re-render is too heavy; just update shares in memory for display
+  TP_SHARES[key] = pct;
+  // Update displayed value
+  const valEl = row.querySelector('.tp-item-val');
+  if (!valEl) return;
+  const baseText = row.querySelector('[style*="de "]');
+  if (!baseText) return;
+  const baseVal = parseFloat(baseText.textContent.replace('de R$ ','').replace('.','').replace(',','.')) || 0;
+  valEl.textContent = fmt(baseVal * pct / 100) + '/mês';
+}
+
+function tpRefreshSim() {
+  const simSec  = document.getElementById('tpSimSection');
+  const simRows = document.getElementById('tpSimRows');
+  if (!simSec || !simRows) return;
+
+  const thisM  = todayISO().slice(0,7);
+  const map    = simBuildMonthMap();
+  const simMes = map[thisM]?.total || 0;
+
+  if (!SIM_ITEMS.length || simMes === 0) {
+    simSec.style.display = 'none';
+    return;
+  }
+
+  simSec.style.display = 'block';
+  simRows.innerHTML = SIM_ITEMS.map(item => {
+    const parcVal = item.valor / item.parcelas;
+    const [y,m]   = item.inicio.split('-');
+    const meses   = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    return `<div class="tp-item-row">
+      <div class="tp-item-name"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#f87171;margin-right:6px"></span>${item.nome}<span style="color:var(--muted);font-size:11px;margin-left:6px">Simulado · ${item.parcelas}x</span></div>
+      <div class="tp-item-val" style="color:#f87171">${fmt(parcVal)}/mês</div>
+    </div>`;
+  }).join('');
+
+  // Update grand total to include simulation
+  const cur = parseFloat(document.getElementById('tpGrandTotal').textContent.replace(/[^\d,]/g,'').replace(',','.')) || 0;
+  document.getElementById('tpGrandTotal').textContent = fmt(cur + simMes);
+}
+
+function tpRenderChart(grandTotal, thisKey) {
+  const ctx = document.getElementById('tpChart');
+  if (!ctx) return;
+  if (tpChartInst) { tpChartInst.destroy(); tpChartInst = null; }
+
+  const sorted = [...P_HISTORICO].sort((a,b) => a.mes.localeCompare(b.mes)).slice(-5);
+  const labels = [...sorted.map(h => getMesLabel(h.mes)), getMesLabel(thisKey) + ' *'];
+  const data   = [...sorted.map(h => (h.compras||0)+(h.fixos||0)+(h.variaveis||0)+(h.outros||0)), grandTotal];
+
+  if (data.every(v => v === 0)) return;
+
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const grid   = isDark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.06)';
+  const text   = isDark ? '#99958d' : '#737069';
+  const colors = data.map((_, i) => i === data.length - 1 ? '#518bea' : 'rgba(81,139,234,.4)');
+
+  tpChartInst = new Chart(ctx.getContext('2d'), {
+    type: 'bar',
+    data: { labels, datasets: [{ data, backgroundColor: colors, borderRadius: 6, borderWidth: 0 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmt(c.parsed.y) } } },
+      scales: {
+        x: { grid: { color: grid }, ticks: { color: text, font: { size: 10 } } },
+        y: { grid: { color: grid }, ticks: { color: text, font: { size: 10 }, callback: v => 'R$' + (v/1000).toFixed(0) + 'k' } }
+      }
+    }
+  });
+}
+
+
 
 document.querySelectorAll('.overlay').forEach(o => {
   o.addEventListener('click', e => { if (e.target === o) closeModals(); });
