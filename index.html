@@ -357,10 +357,14 @@ body::before{
 .acerto-check input:checked::before{transform:scale(1)}
 .acerto-check:has(input:checked){background:var(--accent-lt);border-color:color-mix(in srgb,var(--accent) 45%,var(--border));color:var(--accent)}
 .acerto-check input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.gf-acerto{display:flex;align-items:center;align-self:stretch}
+.gf-acerto{display:flex;flex-direction:column;align-items:center;justify-content:center;align-self:stretch;gap:4px;min-width:82px}
 .gf-acerto .acerto-check{margin-top:0;padding:5px}
 .gf-acerto .acerto-check span{display:none}
+.acerto-meta{margin-top:4px;color:var(--muted);font-size:9px;line-height:1.25;text-align:center;white-space:normal}
+.acerto-meta.pending{color:var(--warn);font-weight:600}
+.gf-acerto .acerto-meta{max-width:88px;margin-top:0}
 .acerto-help{margin-top:10px;padding:9px 12px;border-radius:var(--r-sm);background:var(--accent-lt);color:var(--accent);font-size:11px;line-height:1.45}
+.auto-reminder-status{display:block;margin-top:4px;color:var(--muted);font-weight:500}
 
 /* Histórico Tabs */
 .hist-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
@@ -777,7 +781,7 @@ body::before{
       <button class="resumo-notif-btn" id="notifBtn" onclick="toggleNotificacoes()" title="Ativar lembrete mensal">🔔 Lembrete mensal</button>
     </div>
     <div class="resumo-grid" id="resumoGrid"></div>
-    <div class="acerto-help">Marque <strong>Acertado</strong> em cada conta que vocês já resolveram. A marcação vale somente para o mês atual e será liberada automaticamente no próximo mês.</div>
+    <div class="acerto-help">Marque <strong>Acertado</strong> em cada conta que vocês já resolveram. A marcação vale somente para o mês atual e será liberada automaticamente no próximo mês.<span class="auto-reminder-status" id="autoReminderStatus">🔔 Lembretes automáticos: aguardando sincronização.</span></div>
   </div>
 
   <div class="gastos-section">
@@ -1427,65 +1431,8 @@ body::before{
 
 <script>
 
-// ═══════════════════════════════════════════════════════════════════
-//  APPS SCRIPT — adicione estas funções ao seu Google Apps Script
-//  (Extensions > Apps Script no Google Sheets)
-// ═══════════════════════════════════════════════════════════════════
-/*
-  Adicione ao final do seu Apps Script existente:
-
-  function ensureSheet(name) {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    return ss.getSheetByName(name) || ss.insertSheet(name);
-  }
-
-  // No doPost, adicione estes cases ao switch/if existente:
-  // case 'save_gas':
-  //   saveJsonSheet('Gasolina', data.data); break;
-  // case 'save_p_items':
-  //   saveJsonSheet('P_' + data.user + '_Itens', data.data); break;
-  // case 'save_p_fixos':
-  //   saveJsonSheet('P_' + data.user + '_Fixos', data.data); break;
-  // case 'save_p_variaveis':
-  //   saveJsonSheet('P_' + data.user + '_Variaveis', data.data); break;
-  // case 'save_p_historico':
-  //   saveJsonSheet('P_' + data.user + '_Historico', data.data); break;
-  // case 'save_p_config':
-  //   saveJsonSheet('P_' + data.user + '_Config', [{ renda: data.renda, meta: data.meta }]); break;
-
-  function saveJsonSheet(sheetName, dataArray) {
-    const sheet = ensureSheet(sheetName);
-    sheet.clearContents();
-    if (!dataArray || !dataArray.length) return;
-    const keys = Object.keys(dataArray[0]);
-    sheet.appendRow(keys);
-    dataArray.forEach(row => sheet.appendRow(keys.map(k => {
-      const v = row[k];
-      return (Array.isArray(v) || typeof v === 'object') ? JSON.stringify(v) : (v ?? '');
-    })));
-  }
-
-  // No doGet, adicione ao payload retornado:
-  // gasolina:    readJsonSheet('Gasolina'),
-  // pessoal:     readPersonalData(),   (opcional — ver abaixo)
-
-  function readJsonSheet(sheetName) {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sh = ss.getSheetByName(sheetName);
-    if (!sh) return [];
-    const rows = sh.getDataRange().getValues();
-    if (rows.length < 2) return [];
-    const headers = rows[0];
-    return rows.slice(1).map(r => {
-      const obj = {};
-      headers.forEach((h, i) => {
-        try { obj[h] = JSON.parse(r[i]); } catch { obj[h] = r[i]; }
-      });
-      return obj;
-    });
-  }
-*/
-// ═══════════════════════════════════════════════════════════════════
+// O backend completo desta versão está em AppsScript_CasaNova.gs.
+// Substitua o código do projeto Apps Script por esse arquivo e publique uma nova versão.
 
 
 // ═══════════════════════════════════════════════════════════════
@@ -1587,6 +1534,12 @@ let GASTOS_FIXOS     = JSON.parse(localStorage.getItem('cn_gastos_fixos')     ||
 let GASTOS_VARIAVEIS = JSON.parse(localStorage.getItem('cn_gastos_variaveis') || '[]').map(g => ({ ...g, acertadoMes: g.acertadoMes || '' }));
 let HISTORICO        = JSON.parse(localStorage.getItem('cn_historico')        || '[]');
 let ITEM_ACERTOS     = JSON.parse(localStorage.getItem('cn_item_acertos')     || '{}');
+let PENDING_SYNC     = JSON.parse(localStorage.getItem('cn_pending_sync')     || '[]');
+let LAST_SYNC_AT     = localStorage.getItem('cn_last_sync_at') || '';
+const DEVICE_ID      = localStorage.getItem('cn_device_id') || mutationId();
+localStorage.setItem('cn_device_id', DEVICE_ID);
+let _syncFlushRunning = false;
+let _syncConfirmTimer = null;
 
 let HIST_VIEW = 'total';
 let chartPago = null, chartCat = null, chartHist = null;
@@ -1607,47 +1560,160 @@ function saveItemAcertos() {
   localStorage.setItem('cn_item_acertos', JSON.stringify(ITEM_ACERTOS));
 }
 
+function mutationId() {
+  if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+  return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2) + '-' + Math.random().toString(36).slice(2);
+}
+
+function acertoMutationKey(m) {
+  return [m.tipo, String(m.registroId), m.mes].join('|');
+}
+
+function savePendingSync() {
+  localStorage.setItem('cn_pending_sync', JSON.stringify(PENDING_SYNC));
+  updateSyncStatus();
+}
+
+function actorData() {
+  return {
+    user: CURRENT_USER?.name || 'Usuário',
+    userEmail: CURRENT_USER?.email || '',
+  };
+}
+
+function applyAcertoToRecord(registro, acerto, pending) {
+  if (!registro || !acerto) return;
+  registro.acertadoMes = acerto.value ? acerto.mes : '';
+  registro.acertadoPor = acerto.user || acerto.alteradoPor || '';
+  registro.acertadoEm = acerto.alteredAt || acerto.alteradoEm || '';
+  registro._syncPending = Boolean(pending);
+}
+
+function queueAcertoMutation(tipo, registroId, checked, registro) {
+  const actor = actorData();
+  const mutation = {
+    action: 'set_acerto',
+    mutationId: mutationId(),
+    tipo,
+    registroId: String(registroId),
+    mes: currentMonthKey(),
+    value: Boolean(checked),
+    alteredAt: new Date().toISOString(),
+    ...actor,
+  };
+
+  const key = acertoMutationKey(mutation);
+  PENDING_SYNC = PENDING_SYNC.filter(m => acertoMutationKey(m) !== key);
+  PENDING_SYNC.push(mutation);
+  applyAcertoToRecord(registro, mutation, true);
+  savePendingSync();
+  flushPendingSync();
+}
+
+function mergeAcertosFromServer(acertos) {
+  const map = new Map((acertos || []).map(a => [[a.tipo, String(a.registroId), a.mes].join('|'), a]));
+
+  DATA.forEach(item => {
+    const acerto = map.get(['item', String(item.id), currentMonthKey()].join('|'));
+    if (acerto) applyAcertoToRecord(item, acerto, false);
+  });
+  GASTOS_FIXOS.forEach(g => {
+    const acerto = map.get(['fixo', String(g.id), currentMonthKey()].join('|'));
+    if (acerto) applyAcertoToRecord(g, acerto, false);
+  });
+  GASTOS_VARIAVEIS.forEach(g => {
+    const acerto = map.get(['variavel', String(g.id), currentMonthKey()].join('|'));
+    if (acerto) applyAcertoToRecord(g, acerto, false);
+  });
+}
+
+function applyPendingAcertos() {
+  PENDING_SYNC.forEach(m => {
+    let registro = null;
+    if (m.tipo === 'item') registro = DATA.find(i => String(i.id) === String(m.registroId));
+    else if (m.tipo === 'fixo') registro = GASTOS_FIXOS.find(g => String(g.id) === String(m.registroId));
+    else if (m.tipo === 'variavel') registro = GASTOS_VARIAVEIS.find(g => String(g.id) === String(m.registroId));
+    applyAcertoToRecord(registro, m, true);
+  });
+}
+
+function acknowledgePendingSync(processedIds) {
+  const confirmed = new Set((processedIds || []).map(String));
+  if (!confirmed.size) return;
+  const before = PENDING_SYNC.length;
+  PENDING_SYNC = PENDING_SYNC.filter(m => !confirmed.has(String(m.mutationId)));
+  if (PENDING_SYNC.length !== before) savePendingSync();
+}
+
+function scheduleSyncConfirmation() {
+  clearTimeout(_syncConfirmTimer);
+  _syncConfirmTimer = setTimeout(() => fetchData({ quiet: true }), 1800);
+}
+
+async function flushPendingSync() {
+  if (_syncFlushRunning || !PENDING_SYNC.length || !URL || !navigator.onLine) {
+    updateSyncStatus();
+    return;
+  }
+
+  _syncFlushRunning = true;
+  updateSyncStatus();
+  let sentAny = false;
+  try {
+    for (const mutation of [...PENDING_SYNC]) {
+      await apiPost(mutation);
+      sentAny = true;
+    }
+  } catch (_) {
+    // A fila permanece no aparelho e será reenviada ao recuperar a conexão.
+  } finally {
+    _syncFlushRunning = false;
+    updateSyncStatus();
+    if (sentAny) scheduleSyncConfirmation();
+  }
+}
+
 function toggleItemAcerto(row, checked) {
   const item = DATA.find(i => i.row === row);
   if (!item) return;
 
-  item.acertadoMes = checked ? currentMonthKey() : '';
-  if (checked) ITEM_ACERTOS[row] = item.acertadoMes;
-  else delete ITEM_ACERTOS[row];
+  const id = item.id || ('row-' + row);
+  if (checked) ITEM_ACERTOS[id] = currentMonthKey();
+  else delete ITEM_ACERTOS[id];
   saveItemAcertos();
-
-  // A marcação funciona localmente desde já. Este envio também permite que o
-  // Apps Script sincronize o acerto entre aparelhos quando aceitar a ação.
-  if (URL) apiPost({ action: 'toggle_acerto', row, value: checked, mes: item.acertadoMes }).catch(() => {});
+  queueAcertoMutation('item', id, checked, item);
 
   render();
-  toast(checked ? '🤝 Conta marcada como acertada' : '↩ Conta voltou para o acerto');
+  toast(checked ? '🤝 Conta marcada — sincronizando' : '↩ Conta reaberta — sincronizando');
 }
 
 function toggleGastoAcerto(tipo, id, checked) {
   const list = tipo === 'fixo' ? GASTOS_FIXOS : GASTOS_VARIAVEIS;
-  const gasto = list.find(g => g.id === id);
+  const gasto = list.find(g => String(g.id) === String(id));
   if (!gasto) return;
 
-  gasto.acertadoMes = checked ? currentMonthKey() : '';
   if (tipo === 'fixo') {
-    saveGF();
+    queueAcertoMutation('fixo', gasto.id, checked, gasto);
+    localStorage.setItem('cn_gastos_fixos', JSON.stringify(GASTOS_FIXOS));
     renderGastosFixos();
   } else {
-    saveGV();
+    queueAcertoMutation('variavel', gasto.id, checked, gasto);
+    localStorage.setItem('cn_gastos_variaveis', JSON.stringify(GASTOS_VARIAVEIS));
     renderGastosVariaveis();
   }
 
   renderResumoMes(DATA);
-  toast(checked ? '🤝 Conta marcada como acertada' : '↩ Conta voltou para o acerto');
+  toast(checked ? '🤝 Conta marcada — sincronizando' : '↩ Conta reaberta — sincronizando');
 }
 
 function apiPost(params) {
+  if (!URL) return Promise.reject(new Error('URL do Apps Script não configurada'));
+  const actor = actorData();
   return fetch(URL, {
     method: 'POST',
     mode: 'no-cors',
     headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(params),
+    body: JSON.stringify({ ...params, ...actor }),
   });
 }
 
@@ -1683,22 +1749,57 @@ function catColor(catName) {
 
 function setSync(state, lbl) {
   const dot = document.getElementById('syncDot');
+  if (!dot) return;
   dot.className = 'sync-dot' + (state ? ' ' + state : '');
   document.getElementById('syncLbl').textContent = lbl;
 }
 
+function updateSyncStatus() {
+  const pill = document.getElementById('syncPill');
+  const pendentes = PENDING_SYNC.length;
+  if (!navigator.onLine) {
+    setSync('error', pendentes ? `Offline · ${pendentes} pendente${pendentes !== 1 ? 's' : ''}` : 'Offline');
+  } else if (_syncFlushRunning || pendentes) {
+    setSync('loading', pendentes ? `${pendentes} pendente${pendentes !== 1 ? 's' : ''}` : 'Sincronizando…');
+  } else if (LAST_SYNC_AT) {
+    const data = new Date(LAST_SYNC_AT);
+    const hora = Number.isNaN(data.getTime()) ? '' : data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    setSync('live', hora ? `Sincronizado ${hora}` : 'Sincronizado');
+  } else {
+    setSync('', 'Aguardando');
+  }
+
+  if (pill) {
+    pill.title = LAST_SYNC_AT
+      ? 'Última sincronização: ' + new Date(LAST_SYNC_AT).toLocaleString('pt-BR')
+      : 'Ainda não sincronizado';
+  }
+}
+
 // ─── FETCH ─────────────────────────────────────────────────────────────
-async function fetchData() {
+async function fetchData(options = {}) {
+  const quiet = Boolean(options.quiet);
+  if (!URL) return;
+  if (!navigator.onLine) {
+    updateSyncStatus();
+    clearTimeout(window._refreshTimer);
+    window._refreshTimer = setTimeout(() => fetchData({ quiet: true }), 30000);
+    return;
+  }
+
   setSync('loading', 'Sincronizando…');
   const list = document.getElementById('itemList');
-  if (DATA.length === 0) list.innerHTML = `<div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div>`;
+  if (!quiet && DATA.length === 0) list.innerHTML = `<div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div>`;
 
   try {
     // 1. Passa o nome do usuário na requisição para o Google Apps Script
     let fetchUrl = URL + '?t=' + Date.now();
     if (typeof CURRENT_USER !== 'undefined' && CURRENT_USER && CURRENT_USER.name) {
       fetchUrl += '&user=' + encodeURIComponent(CURRENT_USER.name);
+      fetchUrl += '&userEmail=' + encodeURIComponent(CURRENT_USER.email || '');
     }
+    fetchUrl += '&deviceId=' + encodeURIComponent(DEVICE_ID);
+    fetchUrl += '&pending=' + encodeURIComponent(PENDING_SYNC.length);
 
     const res = await fetch(fetchUrl);
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -1709,15 +1810,16 @@ async function fetchData() {
     const rawItems = Array.isArray(payload) ? payload : (payload.items || []);
     DATA = rawItems.map(d => ({
       ...d,
+      id: String(d.id || ('row-' + d.row)),
       total: Number(d.total) || 0,
       parcelas: Number(d.parcelas) || 1,
       checks: (d.checks || []).map(Boolean),
-      acertadoMes: Object.prototype.hasOwnProperty.call(d, 'acertadoMes') ? (d.acertadoMes || '') : (ITEM_ACERTOS[d.row] || ''),
+      acertadoMes: Object.prototype.hasOwnProperty.call(d, 'acertadoMes') ? (d.acertadoMes || '') : (ITEM_ACERTOS[d.id] || ITEM_ACERTOS[d.row] || ''),
     }));
 
     if (payload.fixos !== undefined) {
       GASTOS_FIXOS = (payload.fixos || []).map((g, i) => ({
-        id:    g.id    || (Date.now() + i),
+        id:    String(g.id || (Date.now() + i)),
         nome:  g.nome  || '',
         valor: Number(g.valor) || 0,
         cor:   g.cor   || gfCor(i),
@@ -1729,7 +1831,7 @@ async function fetchData() {
 
     if (payload.variaveis !== undefined) {
       GASTOS_VARIAVEIS = (payload.variaveis || []).map((g, i) => ({
-        id:    g.id    || (Date.now() + i + 1000),
+        id:    String(g.id || (Date.now() + i + 1000)),
         nome:  g.nome  || '',
         valor: Number(g.valor) || 0,
         cor:   g.cor   || gfCor(i + 3),
@@ -1817,20 +1919,41 @@ async function fetchData() {
       try { pRender(); } catch(e){} // Atualiza os visuais da aba pessoal
     }
 
+    mergeAcertosFromServer(payload.acertos || []);
+    acknowledgePendingSync(payload.sync?.recentMutationIds || []);
+    applyPendingAcertos();
+
+    LAST_SYNC_AT = payload.sync?.serverTime || new Date().toISOString();
+    localStorage.setItem('cn_last_sync_at', LAST_SYNC_AT);
+
+    const reminderStatus = document.getElementById('autoReminderStatus');
+    if (reminderStatus) {
+      const ativos = payload.lembretes?.ativos;
+      const destinos = Number(payload.lembretes?.destinos || 0);
+      reminderStatus.textContent = ativos
+        ? `🔔 Lembretes automáticos ativos para ${destinos || 1} destinatário${destinos === 1 ? '' : 's'}.`
+        : '🔔 Lembretes automáticos ainda não foram ativados no Apps Script.';
+    }
+
     render();
     renderGastosFixos();
     renderGastosVariaveis();
     renderHistorico();
     renderResumoMes(DATA);
-    setSync('live', 'Ao vivo');
-    document.getElementById('lastUpd').textContent = 'Atualizado: ' + new Date().toLocaleTimeString('pt-BR').slice(0, 5);
+    updateSyncStatus();
+    document.getElementById('lastUpd').textContent = 'Atualizado: ' + new Date(LAST_SYNC_AT).toLocaleTimeString('pt-BR').slice(0, 5);
 
     clearTimeout(window._refreshTimer);
-    window._refreshTimer = setTimeout(fetchData, 90000);
+    window._refreshTimer = setTimeout(() => fetchData({ quiet: true }), 60000);
+    flushPendingSync();
 
   } catch (e) {
-    setSync('error', 'Erro de conexão');
-    list.innerHTML = `<div class="loader-wrap" style="color:var(--danger)"><p>⚠ Falha ao conectar.<br><small>${e.message}</small></p><br><button class="btn btn-ghost-light" onclick="openCfg()">⚙ Configurar URL</button></div>`;
+    setSync('error', PENDING_SYNC.length ? `${PENDING_SYNC.length} pendente${PENDING_SYNC.length !== 1 ? 's' : ''}` : 'Erro de conexão');
+    if (DATA.length === 0) {
+      list.innerHTML = `<div class="loader-wrap" style="color:var(--danger)"><p>⚠ Falha ao conectar.<br><small>${escapeHtml(e.message)}</small></p><br><button class="btn btn-ghost-light" onclick="openCfg()">⚙ Configurar URL</button></div>`;
+    }
+    clearTimeout(window._refreshTimer);
+    window._refreshTimer = setTimeout(() => fetchData({ quiet: true }), 30000);
   }
 }
 
@@ -2084,7 +2207,7 @@ function renderList(items, frac = 1) {
   const list = document.getElementById('itemList');
 
   if (SEARCH && items.length === 0) {
-    list.innerHTML = `<div class="empty-search"><big>🔍</big>Nenhum resultado para "<strong>${SEARCH}</strong>".<br><small>Tente outro termo ou limpe a busca.</small></div>`;
+    list.innerHTML = `<div class="empty-search"><big>🔍</big>Nenhum resultado para "<strong>${escapeHtml(SEARCH)}</strong>".<br><small>Tente outro termo ou limpe a busca.</small></div>`;
     return;
   }
   if (items.length === 0) {
@@ -2120,12 +2243,12 @@ function renderList(items, frac = 1) {
     card.style.borderLeft = `3px solid ${catColor(item.cat)}`;
     card.innerHTML = `
       <div class="undo-bar" id="undo-${item.row}">
-        <span>🗑 "${item.nome}" será removido…</span>
+        <span>🗑 "${escapeHtml(item.nome)}" será removido…</span>
         <button class="undo-btn" onclick="undoDelete(${item.row})">Desfazer</button>
       </div>
       <div>
         <div class="i-name">${highlight(item.nome)}</div>
-        <div class="i-cat">${item.cat}</div>
+        <div class="i-cat">${escapeHtml(item.cat)}</div>
       </div>
       <div class="i-price">
         <div class="i-price-val">${fmt(total)}</div>
@@ -2142,6 +2265,7 @@ function renderList(items, frac = 1) {
           <input type="checkbox" ${acertado ? 'checked' : ''} onchange="toggleItemAcerto(${item.row}, this.checked)">
           <span>${acertado ? 'Acertado' : 'Marcar acertado'}</span>
         </label>
+        ${acertoMetaHtml(item)}
       </div>
       ${ACTIVE_PERSON === null ? buildSplitCol(item) : '<div></div>'}
       <div class="progress-col">
@@ -2150,7 +2274,7 @@ function renderList(items, frac = 1) {
       </div>
       <div class="item-actions">
         <button class="btn-edit-icon" onclick="openEdit(${item.row})" title="Editar">✏️</button>
-        <button class="btn-icon" onclick="startDelete(${item.row}, '${escJs(item.nome)}')" title="Excluir">🗑️</button>
+        <button class="btn-icon" onclick="startDelete(${item.row})" title="Excluir">🗑️</button>
       </div>
     `;
     // animation-delay removed for mobile performance
@@ -2163,11 +2287,32 @@ function renderList(items, frac = 1) {
 }
 
 function highlight(text) {
-  if (!SEARCH) return text;
+  const safeText = escapeHtml(text);
+  if (!SEARCH) return safeText;
   const re = new RegExp('(' + SEARCH.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
-  return text.replace(re, '<mark style="background:#fef08a;color:#000;border-radius:2px;padding:0 1px">$1</mark>');
+  return safeText.replace(re, '<mark style="background:#fef08a;color:#000;border-radius:2px;padding:0 1px">$1</mark>');
 }
-function escJs(s) { return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+function escJs(s) { return String(s ?? '').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+function acertoMetaHtml(registro) {
+  if (!isAcertadoMes(registro)) return '';
+  if (registro._syncPending) return '<div class="acerto-meta pending">⏳ aguardando sincronização</div>';
+
+  const actor = escapeHtml(registro.acertadoPor || 'Sincronizado');
+  const data = registro.acertadoEm ? new Date(registro.acertadoEm) : null;
+  const hora = data && !Number.isNaN(data.getTime())
+    ? data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    : '';
+  return `<div class="acerto-meta">${actor}${hora ? ' · ' + hora : ''}</div>`;
+}
 
 // ─── BUSCA & TOGGLE ───────────────────────────────────────────────────────
 function handleSearch(val) {
@@ -2297,7 +2442,7 @@ function saveEdit() {
   });
 }
 
-function startDelete(row, nome) {
+function startDelete(row) {
   const card = document.getElementById('card-' + row);
   const undoBar = document.getElementById('undo-' + row);
   if (!card || !undoBar) return;
@@ -2477,7 +2622,7 @@ function addGastoFixo() {
   const valor = parseFloat(document.getElementById('gfValor').value) || 0;
   if (!nome)    { toast('⚠ Nome é obrigatório', 'warn'); return; }
   if (valor<=0) { toast('⚠ Informe um valor', 'warn'); return; }
-  const id = Date.now();
+  const id = String(Date.now());
   const data = todayISO();
   GASTOS_FIXOS.push({ id, nome, valor, cor: gfCor(GASTOS_FIXOS.length), data, acertadoMes: '' });
   saveGF();
@@ -2495,7 +2640,7 @@ function addGastoVariavel() {
   if (!nome)    { toast('⚠ Nome é obrigatório', 'warn'); return; }
   if (valor<=0) { toast('⚠ Informe um valor', 'warn'); return; }
   const data = todayISO();
-  GASTOS_VARIAVEIS.push({ id: Date.now(), nome, valor, cor: gfCor(GASTOS_VARIAVEIS.length), data, acertadoMes: '' });
+  GASTOS_VARIAVEIS.push({ id: String(Date.now()), nome, valor, cor: gfCor(GASTOS_VARIAVEIS.length), data, acertadoMes: '' });
   saveGV();
   document.getElementById('gvNome').value  = '';
   document.getElementById('gvValor').value = '';
@@ -2551,11 +2696,11 @@ function renderGastosFixos() {
     }).join('') : '';
     const dataLabel = g.data ? fmtDateShort(g.data) : '';
 
-    return `<div class="gf-row ${acertado ? 'acertado' : ''}" onclick="openGastoDetail('fixo', ${g.id}, ${GASTOS_FIXOS.indexOf(g)})">
+    return `<div class="gf-row ${acertado ? 'acertado' : ''}" onclick="openGastoDetail('fixo', '${escJs(g.id)}', ${GASTOS_FIXOS.indexOf(g)})">
       <div class="gf-dot" style="background:${g.cor}"></div>
       <div class="gf-main">
         <div class="gf-top">
-          <span class="gf-nome">${g.nome}</span>
+          <span class="gf-nome">${escapeHtml(g.nome)}</span>
           <span class="gf-val">${fmt(g.valor)}</span>
         </div>
         ${dataLabel ? `<div style="font-size:10px;color:var(--muted);margin-top:-2px">📅 ${dataLabel}</div>` : ''}
@@ -2563,9 +2708,10 @@ function renderGastosFixos() {
       </div>
       <div class="gf-acerto">
         <label class="acerto-check" onclick="event.stopPropagation()" title="${acertado ? 'Esta conta já foi acertada neste mês' : 'Marcar como acertada neste mês'}">
-          <input type="checkbox" ${acertado ? 'checked' : ''} onchange="toggleGastoAcerto('fixo', ${g.id}, this.checked)">
+          <input type="checkbox" ${acertado ? 'checked' : ''} onchange="toggleGastoAcerto('fixo', '${escJs(g.id)}', this.checked)">
           <span>Acertado</span>
         </label>
+        ${acertoMetaHtml(g)}
       </div>
     </div>`;
   }).join('');
@@ -2617,11 +2763,11 @@ function renderGastosVariaveis() {
     }).join('') : '';
     const dataLabel = g.data ? fmtDateShort(g.data) : '';
 
-    return `<div class="gf-row ${acertado ? 'acertado' : ''}" onclick="openGastoDetail('variavel', ${g.id}, ${GASTOS_VARIAVEIS.indexOf(g)})">
+    return `<div class="gf-row ${acertado ? 'acertado' : ''}" onclick="openGastoDetail('variavel', '${escJs(g.id)}', ${GASTOS_VARIAVEIS.indexOf(g)})">
       <div class="gf-dot" style="background:${g.cor}"></div>
       <div class="gf-main">
         <div class="gf-top">
-          <span class="gf-nome">${g.nome}</span>
+          <span class="gf-nome">${escapeHtml(g.nome)}</span>
           <span class="gf-val">${fmt(g.valor)}</span>
         </div>
         ${dataLabel ? `<div style="font-size:10px;color:var(--muted);margin-top:-2px">📅 ${dataLabel}</div>` : ''}
@@ -2629,9 +2775,10 @@ function renderGastosVariaveis() {
       </div>
       <div class="gf-acerto">
         <label class="acerto-check" onclick="event.stopPropagation()" title="${acertado ? 'Esta conta já foi acertada neste mês' : 'Marcar como acertada neste mês'}">
-          <input type="checkbox" ${acertado ? 'checked' : ''} onchange="toggleGastoAcerto('variavel', ${g.id}, this.checked)">
+          <input type="checkbox" ${acertado ? 'checked' : ''} onchange="toggleGastoAcerto('variavel', '${escJs(g.id)}', this.checked)">
           <span>Acertado</span>
         </label>
+        ${acertoMetaHtml(g)}
       </div>
     </div>`;
   }).join('');
@@ -2645,7 +2792,7 @@ function openGastoDetail(tipo, id, idx) {
   _gdType = tipo;
   _gdId = id;
   const list = tipo === 'fixo' ? GASTOS_FIXOS : GASTOS_VARIAVEIS;
-  let g = list.find(x => x.id === id);
+  let g = list.find(x => String(x.id) === String(id));
   // fallback to index if id lookup fails (items from Sheets may have regenerated ids)
   if (!g && idx !== undefined) g = list[idx];
   if (!g) return;
@@ -2758,11 +2905,11 @@ function saveGastoDetail() {
 function deleteGastoDetail() {
   if (!_gdType || !_gdId) return;
   if (_gdType === 'fixo') {
-    GASTOS_FIXOS = GASTOS_FIXOS.filter(g => g.id !== _gdId);
+    GASTOS_FIXOS = GASTOS_FIXOS.filter(g => String(g.id) !== String(_gdId));
     saveGF();
     renderGastosFixos();
   } else {
-    GASTOS_VARIAVEIS = GASTOS_VARIAVEIS.filter(g => g.id !== _gdId);
+    GASTOS_VARIAVEIS = GASTOS_VARIAVEIS.filter(g => String(g.id) !== String(_gdId));
     saveGV();
     renderGastosVariaveis();
   }
@@ -3064,8 +3211,10 @@ async function toggleNotificacoes() {
   scheduleMonthlyCheck();
 }
 
+let _monthlyReminderTimer = null;
 function scheduleMonthlyCheck() {
-  setInterval(() => {
+  if (_monthlyReminderTimer) return;
+  _monthlyReminderTimer = setInterval(() => {
     const now  = new Date();
     const key  = `cn_notif_sent_${now.getFullYear()}_${now.getMonth()}`;
     const sent = localStorage.getItem(key);
@@ -3087,7 +3236,7 @@ function scheduleMonthlyCheck() {
       });
       localStorage.setItem(key, '1');
     }
-  }, 60 * 60 * 1000); 
+  }, 60 * 60 * 1000);
 }
 
 // ─── UTILS ───────────────────────────────────────────────────────────────
@@ -3097,7 +3246,18 @@ function closeModals() { document.querySelectorAll('.overlay').forEach(o => o.cl
 function saveCfg() {
   const u = document.getElementById('cfgUrl').value.trim();
   if (!u) return;
-  localStorage.setItem('cn_url', u); URL = u; closeModals(); fetchData();
+  try {
+    const parsed = new URL(u);
+    if (parsed.protocol !== 'https:') throw new Error('A URL precisa usar HTTPS');
+  } catch (_) {
+    toast('⚠ Informe uma URL HTTPS válida do Apps Script', 'warn');
+    return;
+  }
+  localStorage.setItem('cn_url', u);
+  URL = u;
+  closeModals();
+  fetchData();
+  flushPendingSync();
 }
 
 function setKpi(i, v, s) {
@@ -3720,8 +3880,12 @@ function onAuthSuccess() {
   renderHistorico();
   renderResumoMes();
   initPWA();
+  updateSyncStatus();
   if (!URL) setTimeout(openCfg, 600);
-  else fetchData();
+  else {
+    fetchData();
+    flushPendingSync();
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -4249,6 +4413,16 @@ window.onload = () => {
 document.addEventListener('touchstart', ()=>{}, {passive:true});
 document.addEventListener('touchmove',  ()=>{}, {passive:true});
 window.addEventListener('scroll',       ()=>{}, {passive:true});
+
+window.addEventListener('online', () => {
+  updateSyncStatus();
+  flushPendingSync();
+  fetchData({ quiet: true });
+});
+window.addEventListener('offline', updateSyncStatus);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && URL && navigator.onLine) fetchData({ quiet: true });
+});
 
 document.querySelectorAll('.overlay').forEach(o => {
   o.addEventListener('click', e => { if (e.target === o) closeModals(); });
