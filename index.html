@@ -3618,7 +3618,7 @@ function saveCfg() {
   const u = document.getElementById('cfgUrl').value.trim();
   if (!u) return;
   try {
-    const parsed = new URL(u);
+    const parsed = new window.URL(u);
     if (parsed.protocol !== 'https:') throw new Error('A URL precisa usar HTTPS');
   } catch (_) {
     toast('⚠ Informe uma URL HTTPS válida do Apps Script', 'warn');
