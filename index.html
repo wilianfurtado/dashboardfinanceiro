@@ -222,6 +222,8 @@ body::before{
 .item-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 22px;display:grid;grid-template-columns:1fr auto auto auto auto auto auto;align-items:center;gap:18px;transition:transform .2s,box-shadow .2s,border-color .2s;cursor:default;position:relative;animation:fadeUp .4s ease both;contain:layout style;}
 .item-card:hover{box-shadow:var(--sh-md);transform:translateY(-2px);border-color:var(--muted2);}
 .item-card.deleting{opacity:.4;transform:scale(.98);pointer-events:none}
+.item-card.acertado{background:linear-gradient(90deg,var(--accent-lt),var(--surface) 36%);border-color:color-mix(in srgb,var(--accent) 42%,var(--border))}
+.item-card.acertado .i-name::after{content:'  ✓ acertado';font-family:'DM Sans',sans-serif;font-size:10px;font-weight:700;color:var(--accent);white-space:nowrap}
 @media(max-width:960px){.item-card{grid-template-columns:1fr 1fr;gap:12px}}
 
 /* Undo snackbar */
@@ -325,6 +327,8 @@ body::before{
 .gf-list::-webkit-scrollbar{width:4px}.gf-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 .gf-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-sm);background:var(--bg);border:1px solid var(--border);transition:.15s;cursor:pointer}
 .gf-row:hover{border-color:var(--muted2)}
+.gf-row.acertado{background:var(--accent-lt);border-color:color-mix(in srgb,var(--accent) 38%,var(--border))}
+.gf-row.acertado .gf-nome{color:var(--accent)}
 .gf-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:2px;align-self:flex-start}
 .gf-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
 .gf-top{display:flex;align-items:center;gap:8px}
@@ -343,6 +347,20 @@ body::before{
 .gf-add-row .fi{padding:8px 11px;font-size:13px}
 .gf-add-btn{background:var(--accent);color:#fff;border:none;border-radius:var(--r-sm);padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;transition:.2s;flex-shrink:0}
 .gf-add-btn:hover{background:var(--accent-dk)}
+
+/* Acerto mensal entre o casal */
+.acerto-check{display:inline-flex;align-items:center;gap:6px;margin-top:7px;padding:4px 8px;border:1px solid var(--border);border-radius:20px;background:var(--surface);color:var(--muted);font-size:10px;font-weight:600;line-height:1;cursor:pointer;white-space:nowrap;transition:.2s;user-select:none}
+.acerto-check:hover{border-color:var(--accent);color:var(--accent)}
+.acerto-check input{appearance:none;-webkit-appearance:none;width:14px;height:14px;margin:0;border:1.5px solid var(--muted2);border-radius:4px;background:var(--bg);display:grid;place-content:center;cursor:pointer;transition:.2s;flex-shrink:0}
+.acerto-check input::before{content:'✓';color:#fff;font-size:10px;font-weight:800;line-height:1;transform:scale(0);transition:transform .12s}
+.acerto-check input:checked{background:var(--accent);border-color:var(--accent)}
+.acerto-check input:checked::before{transform:scale(1)}
+.acerto-check:has(input:checked){background:var(--accent-lt);border-color:color-mix(in srgb,var(--accent) 45%,var(--border));color:var(--accent)}
+.acerto-check input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gf-acerto{display:flex;align-items:center;align-self:stretch}
+.gf-acerto .acerto-check{margin-top:0;padding:5px}
+.gf-acerto .acerto-check span{display:none}
+.acerto-help{margin-top:10px;padding:9px 12px;border-radius:var(--r-sm);background:var(--accent-lt);color:var(--accent);font-size:11px;line-height:1.45}
 
 /* Histórico Tabs */
 .hist-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
@@ -753,12 +771,13 @@ body::before{
   <div class="resumo-mes" id="resumoMes">
     <div class="resumo-header">
       <div>
-        <div class="resumo-title">📅 Quanto pagar este mês</div>
+        <div class="resumo-title">🤝 Quanto falta acertar este mês</div>
         <div class="resumo-sub" id="resumoSubtitle">—</div>
       </div>
       <button class="resumo-notif-btn" id="notifBtn" onclick="toggleNotificacoes()" title="Ativar lembrete mensal">🔔 Lembrete mensal</button>
     </div>
     <div class="resumo-grid" id="resumoGrid"></div>
+    <div class="acerto-help">Marque <strong>Acertado</strong> em cada conta que vocês já resolveram. A marcação vale somente para o mês atual e será liberada automaticamente no próximo mês.</div>
   </div>
 
   <div class="gastos-section">
@@ -1564,14 +1583,64 @@ function splitFracs() {
 }
 
 // Listas
-let GASTOS_FIXOS     = JSON.parse(localStorage.getItem('cn_gastos_fixos')     || '[]');
-let GASTOS_VARIAVEIS = JSON.parse(localStorage.getItem('cn_gastos_variaveis') || '[]');
+let GASTOS_FIXOS     = JSON.parse(localStorage.getItem('cn_gastos_fixos')     || '[]').map(g => ({ ...g, acertadoMes: g.acertadoMes || '' }));
+let GASTOS_VARIAVEIS = JSON.parse(localStorage.getItem('cn_gastos_variaveis') || '[]').map(g => ({ ...g, acertadoMes: g.acertadoMes || '' }));
 let HISTORICO        = JSON.parse(localStorage.getItem('cn_historico')        || '[]');
+let ITEM_ACERTOS     = JSON.parse(localStorage.getItem('cn_item_acertos')     || '{}');
 
 let HIST_VIEW = 'total';
 let chartPago = null, chartCat = null, chartHist = null;
 let undoTimers = {};
 let editPagasCount = 0;
+let toastTimer = null;
+
+function currentMonthKey() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
+
+function isAcertadoMes(registro) {
+  return registro?.acertadoMes === currentMonthKey();
+}
+
+function saveItemAcertos() {
+  localStorage.setItem('cn_item_acertos', JSON.stringify(ITEM_ACERTOS));
+}
+
+function toggleItemAcerto(row, checked) {
+  const item = DATA.find(i => i.row === row);
+  if (!item) return;
+
+  item.acertadoMes = checked ? currentMonthKey() : '';
+  if (checked) ITEM_ACERTOS[row] = item.acertadoMes;
+  else delete ITEM_ACERTOS[row];
+  saveItemAcertos();
+
+  // A marcação funciona localmente desde já. Este envio também permite que o
+  // Apps Script sincronize o acerto entre aparelhos quando aceitar a ação.
+  if (URL) apiPost({ action: 'toggle_acerto', row, value: checked, mes: item.acertadoMes }).catch(() => {});
+
+  render();
+  toast(checked ? '🤝 Conta marcada como acertada' : '↩ Conta voltou para o acerto');
+}
+
+function toggleGastoAcerto(tipo, id, checked) {
+  const list = tipo === 'fixo' ? GASTOS_FIXOS : GASTOS_VARIAVEIS;
+  const gasto = list.find(g => g.id === id);
+  if (!gasto) return;
+
+  gasto.acertadoMes = checked ? currentMonthKey() : '';
+  if (tipo === 'fixo') {
+    saveGF();
+    renderGastosFixos();
+  } else {
+    saveGV();
+    renderGastosVariaveis();
+  }
+
+  renderResumoMes(DATA);
+  toast(checked ? '🤝 Conta marcada como acertada' : '↩ Conta voltou para o acerto');
+}
 
 function apiPost(params) {
   return fetch(URL, {
@@ -1643,6 +1712,7 @@ async function fetchData() {
       total: Number(d.total) || 0,
       parcelas: Number(d.parcelas) || 1,
       checks: (d.checks || []).map(Boolean),
+      acertadoMes: Object.prototype.hasOwnProperty.call(d, 'acertadoMes') ? (d.acertadoMes || '') : (ITEM_ACERTOS[d.row] || ''),
     }));
 
     if (payload.fixos !== undefined) {
@@ -1652,6 +1722,7 @@ async function fetchData() {
         valor: Number(g.valor) || 0,
         cor:   g.cor   || gfCor(i),
         data:  (g.data || '').split('T')[0].split(' ')[0],
+        acertadoMes: g.acertadoMes || '',
       }));
       localStorage.setItem('cn_gastos_fixos', JSON.stringify(GASTOS_FIXOS));
     }
@@ -1663,6 +1734,7 @@ async function fetchData() {
         valor: Number(g.valor) || 0,
         cor:   g.cor   || gfCor(i + 3),
         data:  (g.data || '').split('T')[0].split(' ')[0],
+        acertadoMes: g.acertadoMes || '',
       }));
       localStorage.setItem('cn_gastos_variaveis', JSON.stringify(GASTOS_VARIAVEIS));
     }
@@ -1784,6 +1856,8 @@ function render() {
     if (FILTER === 'Todos') return true;
     if (FILTER === 'Pendentes') return calcPago(i) < i.total;
     if (FILTER === 'Quitados') return calcPago(i) >= i.total;
+    if (FILTER === 'A acertar') return !isAcertadoMes(i);
+    if (FILTER === 'Acertados') return isAcertadoMes(i);
     return i.cat === FILTER;
   });
 
@@ -1791,7 +1865,7 @@ function render() {
   items = sortItems(items);
 
   // 3. Filtros UI
-  const specialFilters = ['Todos', 'Pendentes', 'Quitados'];
+  const specialFilters = ['Todos', 'A acertar', 'Acertados', 'Pendentes', 'Quitados'];
   const cats = [...new Set(DATA.map(i => i.cat).filter(Boolean))];
   const allFilters = [...specialFilters, ...cats];
 
@@ -1800,6 +1874,8 @@ function render() {
     if (c === 'Todos') cnt = DATA.length;
     else if (c === 'Pendentes') cnt = DATA.filter(i => calcPago(i) < i.total).length;
     else if (c === 'Quitados') cnt = DATA.filter(i => calcPago(i) >= i.total).length;
+    else if (c === 'A acertar') cnt = DATA.filter(i => !isAcertadoMes(i)).length;
+    else if (c === 'Acertados') cnt = DATA.filter(i => isAcertadoMes(i)).length;
     else cnt = DATA.filter(i => i.cat === c).length;
 
     const isActive = c === FILTER;
@@ -2025,6 +2101,7 @@ function renderList(items, frac = 1) {
     const pagas = checks.filter(Boolean).length;
     const restante = total - (valParc * pagas);
     const p = pct(item);
+    const acertado = isAcertadoMes(item);
 
     const statusCls = p >= 100 ? 'bg-green' : p > 0 ? 'bg-warn' : 'bg-red';
     const statusTxt = p >= 100 ? '✓ Quitado' : p > 0 ? p + '% pago' : 'Em aberto';
@@ -2038,7 +2115,7 @@ function renderList(items, frac = 1) {
     }
 
     const card = document.createElement('div');
-    card.className = 'item-card';
+    card.className = 'item-card' + (acertado ? ' acertado' : '');
     card.id = 'card-' + item.row;
     card.style.borderLeft = `3px solid ${catColor(item.cat)}`;
     card.innerHTML = `
@@ -2061,6 +2138,10 @@ function renderList(items, frac = 1) {
       <div style="text-align:center">
         <span class="badge ${statusCls}">${statusTxt}</span>
         <div style="font-size:11px;color:var(--muted);margin-top:5px">${fmt(restante)} rest.</div>
+        <label class="acerto-check" title="Marcar esta conta como acertada entre vocês">
+          <input type="checkbox" ${acertado ? 'checked' : ''} onchange="toggleItemAcerto(${item.row}, this.checked)">
+          <span>${acertado ? 'Acertado' : 'Marcar acertado'}</span>
+        </label>
       </div>
       ${ACTIVE_PERSON === null ? buildSplitCol(item) : '<div></div>'}
       <div class="progress-col">
@@ -2398,7 +2479,7 @@ function addGastoFixo() {
   if (valor<=0) { toast('⚠ Informe um valor', 'warn'); return; }
   const id = Date.now();
   const data = todayISO();
-  GASTOS_FIXOS.push({ id, nome, valor, cor: gfCor(GASTOS_FIXOS.length), data });
+  GASTOS_FIXOS.push({ id, nome, valor, cor: gfCor(GASTOS_FIXOS.length), data, acertadoMes: '' });
   saveGF();
   document.getElementById('gfNome').value  = '';
   document.getElementById('gfValor').value = '';
@@ -2414,7 +2495,7 @@ function addGastoVariavel() {
   if (!nome)    { toast('⚠ Nome é obrigatório', 'warn'); return; }
   if (valor<=0) { toast('⚠ Informe um valor', 'warn'); return; }
   const data = todayISO();
-  GASTOS_VARIAVEIS.push({ id: Date.now(), nome, valor, cor: gfCor(GASTOS_VARIAVEIS.length), data });
+  GASTOS_VARIAVEIS.push({ id: Date.now(), nome, valor, cor: gfCor(GASTOS_VARIAVEIS.length), data, acertadoMes: '' });
   saveGV();
   document.getElementById('gvNome').value  = '';
   document.getElementById('gvValor').value = '';
@@ -2456,6 +2537,7 @@ function renderGastosFixos() {
   }
 
   list.innerHTML = GASTOS_FIXOS.map(g => {
+    const acertado = isAcertadoMes(g);
     const splitPills = temSplit ? PESSOAS.map((p, i) => {
       const val      = g.valor * fracs[i];
       const initials = p.nome.slice(0, 2).toUpperCase();
@@ -2469,7 +2551,7 @@ function renderGastosFixos() {
     }).join('') : '';
     const dataLabel = g.data ? fmtDateShort(g.data) : '';
 
-    return `<div class="gf-row" onclick="openGastoDetail('fixo', ${g.id}, ${GASTOS_FIXOS.indexOf(g)})">
+    return `<div class="gf-row ${acertado ? 'acertado' : ''}" onclick="openGastoDetail('fixo', ${g.id}, ${GASTOS_FIXOS.indexOf(g)})">
       <div class="gf-dot" style="background:${g.cor}"></div>
       <div class="gf-main">
         <div class="gf-top">
@@ -2478,6 +2560,12 @@ function renderGastosFixos() {
         </div>
         ${dataLabel ? `<div style="font-size:10px;color:var(--muted);margin-top:-2px">📅 ${dataLabel}</div>` : ''}
         ${temSplit ? `<div class="gf-split">${splitPills}</div>` : ''}
+      </div>
+      <div class="gf-acerto">
+        <label class="acerto-check" onclick="event.stopPropagation()" title="${acertado ? 'Esta conta já foi acertada neste mês' : 'Marcar como acertada neste mês'}">
+          <input type="checkbox" ${acertado ? 'checked' : ''} onchange="toggleGastoAcerto('fixo', ${g.id}, this.checked)">
+          <span>Acertado</span>
+        </label>
       </div>
     </div>`;
   }).join('');
@@ -2515,6 +2603,7 @@ function renderGastosVariaveis() {
   }
 
   list.innerHTML = GASTOS_VARIAVEIS.map(g => {
+    const acertado = isAcertadoMes(g);
     const splitPills = temSplit ? PESSOAS.map((p, i) => {
       const val      = g.valor * fracs[i];
       const initials = p.nome.slice(0, 2).toUpperCase();
@@ -2528,7 +2617,7 @@ function renderGastosVariaveis() {
     }).join('') : '';
     const dataLabel = g.data ? fmtDateShort(g.data) : '';
 
-    return `<div class="gf-row" onclick="openGastoDetail('variavel', ${g.id}, ${GASTOS_VARIAVEIS.indexOf(g)})">
+    return `<div class="gf-row ${acertado ? 'acertado' : ''}" onclick="openGastoDetail('variavel', ${g.id}, ${GASTOS_VARIAVEIS.indexOf(g)})">
       <div class="gf-dot" style="background:${g.cor}"></div>
       <div class="gf-main">
         <div class="gf-top">
@@ -2537,6 +2626,12 @@ function renderGastosVariaveis() {
         </div>
         ${dataLabel ? `<div style="font-size:10px;color:var(--muted);margin-top:-2px">📅 ${dataLabel}</div>` : ''}
         ${temSplit ? `<div class="gf-split">${splitPills}</div>` : ''}
+      </div>
+      <div class="gf-acerto">
+        <label class="acerto-check" onclick="event.stopPropagation()" title="${acertado ? 'Esta conta já foi acertada neste mês' : 'Marcar como acertada neste mês'}">
+          <input type="checkbox" ${acertado ? 'checked' : ''} onchange="toggleGastoAcerto('variavel', ${g.id}, this.checked)">
+          <span>Acertado</span>
+        </label>
       </div>
     </div>`;
   }).join('');
@@ -2684,19 +2779,34 @@ function renderResumoMes(data) {
   const temSplit = PESSOAS.length > 0 && PESSOAS.some(p => p.renda > 0);
 
   let parcelas = 0;
+  let qtdParcelasPendentes = 0;
+  let qtdParcelasAcertadas = 0;
   data.forEach(item => {
     const valParc = item.total / (item.parcelas || 1);
     const pagas   = (item.checks || []).filter(Boolean).length;
-    if (pagas < item.parcelas) parcelas += valParc;
+    if (pagas < item.parcelas) {
+      if (isAcertadoMes(item)) qtdParcelasAcertadas++;
+      else {
+        parcelas += valParc;
+        qtdParcelasPendentes++;
+      }
+    }
   });
 
-  const totalFixos     = GASTOS_FIXOS.reduce((s, g) => s + g.valor, 0);
-  const totalVariaveis = GASTOS_VARIAVEIS.reduce((s, g) => s + g.valor, 0);
+  const fixosPendentes     = GASTOS_FIXOS.filter(g => !isAcertadoMes(g));
+  const variaveisPendentes = GASTOS_VARIAVEIS.filter(g => !isAcertadoMes(g));
+  const totalFixos         = fixosPendentes.reduce((s, g) => s + g.valor, 0);
+  const totalVariaveis     = variaveisPendentes.reduce((s, g) => s + g.valor, 0);
   const totalMes       = parcelas + totalFixos + totalVariaveis;
+  const qtdPendentes   = qtdParcelasPendentes + fixosPendentes.length + variaveisPendentes.length;
+  const qtdAcertadas   = qtdParcelasAcertadas
+    + GASTOS_FIXOS.filter(isAcertadoMes).length
+    + GASTOS_VARIAVEIS.filter(isAcertadoMes).length;
 
   const now = new Date();
   const mesNome = now.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-  document.getElementById('resumoSubtitle').textContent = mesNome.charAt(0).toUpperCase() + mesNome.slice(1) + ' · estimativa';
+  document.getElementById('resumoSubtitle').textContent = mesNome.charAt(0).toUpperCase() + mesNome.slice(1)
+    + ` · ${qtdPendentes} a acertar · ${qtdAcertadas} acertada${qtdAcertadas !== 1 ? 's' : ''}`;
 
   const grid = document.getElementById('resumoGrid');
 
