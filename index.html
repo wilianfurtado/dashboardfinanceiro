@@ -115,7 +115,7 @@ body::before{
   color:rgba(255,255,255,.7);
   background:rgba(255,255,255,.1);
   border:1px solid rgba(255,255,255,.18);
-  border-radius:20px;padding:4px 12px;
+  border-radius:20px;padding:4px 12px;cursor:pointer;
 }
 .sync-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.4);flex-shrink:0;transition:.3s}
 .sync-dot.live{background:#6ee7b7;animation:blink 2.5s infinite}
@@ -362,6 +362,7 @@ body::before{
 .gf-acerto .acerto-check span{display:none}
 .acerto-meta{margin-top:4px;color:var(--muted);font-size:9px;line-height:1.25;text-align:center;white-space:normal}
 .acerto-meta.pending{color:var(--warn);font-weight:600}
+.acerto-meta.failed{color:var(--danger);font-weight:700}
 .gf-acerto .acerto-meta{max-width:88px;margin-top:0}
 .acerto-help{margin-top:10px;padding:9px 12px;border-radius:var(--r-sm);background:var(--accent-lt);color:var(--accent);font-size:11px;line-height:1.45}
 .auto-reminder-status{display:block;margin-top:4px;color:var(--muted);font-weight:500}
@@ -879,7 +880,7 @@ body::before{
     </div>
 
     <div class="topbar-r">
-      <div class="sync-pill" id="syncPill">
+      <div class="sync-pill" id="syncPill" role="button" tabindex="0" onclick="retryPendingSync()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();retryPendingSync()}" title="Clique para sincronizar agora">
         <div class="sync-dot" id="syncDot"></div>
         <span id="syncLbl">—</span>
       </div>
@@ -2052,6 +2053,7 @@ function applyAcertoToRecord(registro, acerto, pending) {
   registro.acertadoPor = acerto.user || acerto.alteradoPor || '';
   registro.acertadoEm = acerto.alteredAt || acerto.alteradoEm || '';
   registro._syncPending = Boolean(pending);
+  registro._syncFailed = Boolean(pending && Number(acerto._syncAttempts || 0) >= 3);
 }
 
 function queueAcertoMutation(tipo, registroId, checked, registro) {
@@ -2064,6 +2066,8 @@ function queueAcertoMutation(tipo, registroId, checked, registro) {
     mes: currentMonthKey(),
     value: Boolean(checked),
     alteredAt: new Date().toISOString(),
+    _syncAttempts: 0,
+    _lastAttemptAt: 0,
     ...actor,
   };
 
@@ -2110,6 +2114,22 @@ function acknowledgePendingSync(processedIds) {
   if (PENDING_SYNC.length !== before) savePendingSync();
 }
 
+function reconcilePendingSyncTargets() {
+  const validTargets = {
+    item: new Set(DATA.map(item => String(item.id))),
+    fixo: new Set(GASTOS_FIXOS.filter(g => !g._missingStableId).map(g => String(g.id))),
+    variavel: new Set(GASTOS_VARIAVEIS.filter(g => !g._missingStableId).map(g => String(g.id))),
+  };
+  const before = PENDING_SYNC.length;
+  PENDING_SYNC = PENDING_SYNC.filter(mutation => {
+    const targets = validTargets[mutation.tipo];
+    return !targets || targets.has(String(mutation.registroId));
+  });
+  const discarded = before - PENDING_SYNC.length;
+  if (discarded) savePendingSync();
+  return discarded;
+}
+
 function scheduleSyncConfirmation() {
   clearTimeout(_syncConfirmTimer);
   _syncConfirmTimer = setTimeout(() => fetchData({ quiet: true }), 1800);
@@ -2126,6 +2146,12 @@ async function flushPendingSync() {
   let sentAny = false;
   try {
     for (const mutation of [...PENDING_SYNC]) {
+      const now = Date.now();
+      const lastAttempt = Number(mutation._lastAttemptAt || 0);
+      if (lastAttempt && now - lastAttempt < 5000) continue;
+      mutation._syncAttempts = Number(mutation._syncAttempts || 0) + 1;
+      mutation._lastAttemptAt = now;
+      savePendingSync();
       await apiPost(mutation);
       sentAny = true;
     }
@@ -2136,6 +2162,19 @@ async function flushPendingSync() {
     updateSyncStatus();
     if (sentAny) scheduleSyncConfirmation();
   }
+}
+
+function retryPendingSync() {
+  if (!PENDING_SYNC.length) {
+    fetchData({ quiet: true });
+    return;
+  }
+  PENDING_SYNC.forEach(mutation => {
+    mutation._syncAttempts = 0;
+    mutation._lastAttemptAt = 0;
+  });
+  savePendingSync();
+  flushPendingSync();
 }
 
 function toggleItemAcerto(row, checked) {
@@ -2156,6 +2195,13 @@ function toggleGastoAcerto(tipo, id, checked) {
   const list = tipo === 'fixo' ? GASTOS_FIXOS : GASTOS_VARIAVEIS;
   const gasto = list.find(g => String(g.id) === String(id));
   if (!gasto) return;
+  if (gasto._missingStableId) {
+    toast('⚠ Esta conta ainda não recebeu um ID permanente. Sincronize novamente.');
+    fetchData({ quiet: true });
+    if (tipo === 'fixo') renderGastosFixos();
+    else renderGastosVariaveis();
+    return;
+  }
 
   if (tipo === 'fixo') {
     queueAcertoMutation('fixo', gasto.id, checked, gasto);
@@ -2614,8 +2660,11 @@ function setSync(state, lbl) {
 function updateSyncStatus() {
   const pill = document.getElementById('syncPill');
   const pendentes = PENDING_SYNC.length;
+  const falhou = PENDING_SYNC.some(mutation => Number(mutation._syncAttempts || 0) >= 3);
   if (!navigator.onLine) {
     setSync('error', pendentes ? `Offline · ${pendentes} pendente${pendentes !== 1 ? 's' : ''}` : 'Offline');
+  } else if (falhou && !_syncFlushRunning) {
+    setSync('error', 'Não confirmado · tentar novamente');
   } else if (_syncFlushRunning || pendentes) {
     setSync('loading', pendentes ? `${pendentes} pendente${pendentes !== 1 ? 's' : ''}` : 'Sincronizando…');
   } else if (LAST_SYNC_AT) {
@@ -2627,9 +2676,11 @@ function updateSyncStatus() {
   }
 
   if (pill) {
-    pill.title = LAST_SYNC_AT
-      ? 'Última sincronização: ' + new Date(LAST_SYNC_AT).toLocaleString('pt-BR')
-      : 'Ainda não sincronizado';
+    pill.title = falhou
+      ? 'A alteração não foi confirmada pelo servidor. Clique para tentar novamente.'
+      : LAST_SYNC_AT
+        ? 'Última sincronização: ' + new Date(LAST_SYNC_AT).toLocaleString('pt-BR') + '. Clique para sincronizar agora.'
+        : 'Ainda não sincronizado. Clique para tentar agora.';
   }
 }
 
@@ -2676,24 +2727,26 @@ async function fetchData(options = {}) {
 
     if (payload.fixos !== undefined) {
       GASTOS_FIXOS = (payload.fixos || []).map((g, i) => ({
-        id:    String(g.id || (Date.now() + i)),
+        id:    String(g.id || `legacy-fixo-${i}`),
         nome:  g.nome  || '',
         valor: Number(g.valor) || 0,
         cor:   g.cor   || gfCor(i),
         data:  (g.data || '').split('T')[0].split(' ')[0],
         acertadoMes: g.acertadoMes || '',
+        _missingStableId: !String(g.id || '').trim(),
       }));
       localStorage.setItem('cn_gastos_fixos', JSON.stringify(GASTOS_FIXOS));
     }
 
     if (payload.variaveis !== undefined) {
       GASTOS_VARIAVEIS = (payload.variaveis || []).map((g, i) => ({
-        id:    String(g.id || (Date.now() + i + 1000)),
+        id:    String(g.id || `legacy-variavel-${i}`),
         nome:  g.nome  || '',
         valor: Number(g.valor) || 0,
         cor:   g.cor   || gfCor(i + 3),
         data:  (g.data || '').split('T')[0].split(' ')[0],
         acertadoMes: g.acertadoMes || '',
+        _missingStableId: !String(g.id || '').trim(),
       }));
       localStorage.setItem('cn_gastos_variaveis', JSON.stringify(GASTOS_VARIAVEIS));
     }
@@ -2777,7 +2830,11 @@ async function fetchData(options = {}) {
     }
 
     mergeAcertosFromServer(payload.acertos || []);
-    acknowledgePendingSync(payload.sync?.recentMutationIds || []);
+    acknowledgePendingSync([
+      ...(payload.sync?.recentMutationIds || []),
+      ...(payload.acertos || []).map(acerto => acerto.mutationId).filter(Boolean),
+    ]);
+    const discardedPending = reconcilePendingSyncTargets();
     applyPendingAcertos();
 
     LAST_SYNC_AT = payload.sync?.serverTime || new Date().toISOString();
@@ -2799,6 +2856,9 @@ async function fetchData(options = {}) {
     renderResumoMes(DATA);
     updateSyncStatus();
     document.getElementById('lastUpd').textContent = 'Atualizado: ' + new Date(LAST_SYNC_AT).toLocaleTimeString('pt-BR').slice(0, 5);
+    if (discardedPending) {
+      toast(`⚠ ${discardedPending} marcação antiga sem vínculo foi removida. Marque a conta novamente.`);
+    }
 
     clearTimeout(window._refreshTimer);
     window._refreshTimer = setTimeout(() => fetchData({ quiet: true }), 60000);
@@ -3187,6 +3247,7 @@ function escJs(s) { return String(s ?? '').replace(/\\/g,'\\\\').replace(/'/g,"\
 
 function acertoMetaHtml(registro) {
   if (!isAcertadoMes(registro)) return '';
+  if (registro._syncFailed) return '<div class="acerto-meta failed">⚠ não confirmado<br>toque no status acima</div>';
   if (registro._syncPending) return '<div class="acerto-meta pending">⏳ aguardando sincronização</div>';
 
   const actor = escapeHtml(registro.acertadoPor || 'Sincronizado');
