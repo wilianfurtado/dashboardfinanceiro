@@ -11,8 +11,7 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 /* ═══════════════════════════════════════════════════════════════════════════
-   CASA NOVA DESIGN SYSTEM — beUI MOTION & MODERN TOKENS
-   WCAG AA/AAA High Contrast · 60fps Mobile Performance · Zero Visual Bugs
+   CASA NOVA — estilos base e componentes
    ═══════════════════════════════════════════════════════════════════════════ */
 
 *, *::before, *::after {
@@ -3045,6 +3044,147 @@ body::before {
   .month-kpis { grid-template-columns: 1fr; }
   .resumo-grid { grid-template-columns: 1fr; }
 }
+/* Casa Nova: hierarchy, readable data and predictable interaction. */
+:root {
+  --r: 16px;
+  --r-md: 12px;
+  --accent: #087654;
+  --accent-hover: #065f46;
+  --accent-dk: #065f46;
+  --muted: #566577;
+  --muted2: #657488;
+  --warn: #a85a08;
+  --danger: #c52c3a;
+  --border: #dce3e9;
+  --sh: 0 2px 8px rgba(16,35,44,.04);
+  --sh-glow: none;
+  --sh-glow-purple: none;
+}
+[data-theme="dark"] {
+  --bg: #101719;
+  --surface: #182225;
+  --surface-elevated: #202d31;
+  --surface-subtle: #1d292d;
+  --border: #334348;
+  --border-strong: #516369;
+  --text: #eef4f3;
+  --muted: #b1c0c4;
+  --muted2: #9baeb4;
+  --accent: #65d6b0;
+  --accent-dk: #075b43;
+  --accent-hover: #86e3c4;
+  --warn: #f2be72;
+  --danger: #ff9299;
+  --blue: #8abcf7;
+  --purple: #c6b2ef;
+}
+body { font-size: 16px; }
+body::before { display: none; }
+::selection { background: var(--accent); color: var(--bg); }
+input, textarea { caret-color: var(--accent); }
+button, input, select, textarea { font: inherit; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+.hero-shell, [data-theme="dark"] .hero-shell { background: #103e32; box-shadow: none; }
+.brand-name { text-shadow: none; }
+.main { max-width: 1320px; }
+.period-toolbar { background: none; border: 0; border-radius: 0; padding: 12px 0 20px; box-shadow: none; }
+.period-title { font-size: clamp(26px, 3vw, 36px); letter-spacing: -.02em; }
+.period-subtitle { font-size: 14px; margin-top: 6px; }
+.period-controls { gap: 8px; }
+.period-btn, .period-today { min-height: 44px; }
+.month-kpis { gap: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 24px; }
+.month-kpi { background: transparent; border: 0; border-radius: 0; padding: 24px; box-shadow: none; overflow: visible; min-width: 0; }
+.month-kpi + .month-kpi { border-left: 1px solid var(--border); }
+.month-kpi::before, .kpi::before, .kpi::after, .resumo-pessoa::before { display: none; }
+.month-kpi:hover, .kpi:hover, .card:hover, .resumo-pessoa:hover { transform: none; box-shadow: none; }
+.month-kpi-label, .kpi-lbl { font-size: 14px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+.month-kpi-value { font-family: 'DM Sans', sans-serif; font-size: clamp(23px, 2.4vw, 32px); font-weight: 650; line-height: 1.3; letter-spacing: -.025em; margin-top: 8px; overflow-wrap: anywhere; }
+.month-kpi:nth-child(3) .month-kpi-value:not(.negative) { color: var(--accent); }
+.month-kpi-note, .kpi-sub { font-size: 13px; line-height: 1.5; margin-top: 6px; }
+.kpis { gap: 16px; }
+.kpi { border: 0; border-radius: 0; border-bottom: 1px solid var(--border); padding: 16px 4px; background: none; box-shadow: none; }
+.kpi-ico-wrap { display: none; }
+.kpi-val { font-family: 'DM Sans', sans-serif; font-size: 24px; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+.card, .resumo-mes, .attention-card { box-shadow: none; }
+.card-title, .resumo-title { font-size: 22px; }
+.card-sub, .resumo-sub, .fl, .gf-total-lbl, .attention-count { font-size: 14px; }
+.attention-card { background: transparent; border: 0; padding: 0 0 24px; border-bottom: 1px solid var(--border); border-radius: 0; }
+.attention-title { font-size: 16px; }
+.attention-item { border-radius: 8px; box-shadow: none; }
+.attention-item strong, .attention-item span { font-size: 14px; }
+.resumo-pessoa { border: 0; background: transparent; padding: 16px; }
+.resumo-pessoa-nome { font-size: 13px; text-transform: none; letter-spacing: 0; }
+.resumo-pessoa-total { font-family: 'DM Sans', sans-serif; font-weight: 650; line-height: 1.3; }
+.gf-list { max-height: 480px; gap: 0; }
+.gf-row { padding: 18px 10px; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; background: transparent; }
+.gf-row:hover { transform: none; background: var(--surface-subtle); }
+.gf-row.acertado { background: var(--accent-lt); }
+.gf-top { flex-wrap: wrap; align-items: baseline; }
+.gf-nome { font-size: 15px; overflow-wrap: anywhere; }
+.gf-val { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700; }
+.gf-split { margin-top: 6px; gap: 12px; }
+.gf-split-pill { padding: 0; border: 0; border-radius: 0; background: transparent; gap: 6px; }
+.gf-split-av { width: 24px; height: 24px; font-size: 10px; }
+.gf-split-name, .gf-split-val { font-size: 12px; line-height: 1.4; }
+.gf-acerto { min-width: 88px; }
+.gf-acerto .acerto-check { min-height: 44px; flex-direction: column; gap: 4px; }
+.gf-acerto .acerto-check span { display: inline; font-size: 12px; }
+.acerto-meta, .gf-acerto .acerto-meta { font-size: 12px; line-height: 1.4; max-width: 110px; }
+.fi, .fi-select { min-height: 46px; font-size: 16px; }
+.fi::placeholder { color: var(--muted); opacity: 1; }
+.btn { min-height: 44px; font-size: 14px; }
+.btn-accent, .btn-accent:hover, .quick-action-fab { background: #087654; color: #fff; box-shadow: none; }
+.ai-chat-fab, .ai-send-btn { background: #6445a5; color: #fff; box-shadow: var(--sh); }
+.ai-chat-head { background: #443065; }
+.ai-message-bubble, .ai-suggestion, .ai-premises { font-size: 14px; }
+.ai-chat-note, .ai-context-label { font-size: 12px; }
+.ai-table-wrap { overflow-x: auto; }
+.ai-table { font-size: 13px; }
+.month-kpi-value, .kpi, .kpi-val, .item-card, .card { animation: none; }
+.sync-dot.live { animation: none; }
+.hero-shell, .mobile-bottom-nav, .overlay, .gd-overlay, .quick-action-backdrop { backdrop-filter: none; -webkit-backdrop-filter: none; }
+.overlay, .gd-overlay { z-index: 900; visibility: hidden; pointer-events: none; transition: opacity 160ms ease, visibility 160ms; }
+.overlay.open, .gd-overlay.open { visibility: visible; pointer-events: auto; }
+.panel, .gd-panel { max-height: min(90dvh, 900px); overscroll-behavior: contain; }
+.panel-header, .p-panel-header { background: var(--surface); color: var(--text); border-bottom: 1px solid var(--border); }
+.panel-header h2, .p-panel-header h2 { color: var(--text); padding-right: 30px; }
+.panel-header .panel-sub { color: var(--muted); font-size: 14px; }
+.panel-ico { display: none; }
+.dialog-close { position: absolute; top: 10px; right: 10px; z-index: 2; width: 44px; height: 44px; border: 0; border-radius: 10px; background: var(--surface-subtle); color: var(--text); font-size: 26px; cursor: pointer; }
+.dialog-close:hover { background: var(--border); }
+.gd-close { min-width: 44px; min-height: 44px; }
+.toast-wrap { z-index: 1100; }
+.ui-icon { width: 20px; height: 20px; display: inline-block; vertical-align: middle; flex-shrink: 0; }
+.brand-icon { border: 0; background: none; box-shadow: none; }
+@media (max-width: 960px) {
+  .month-kpis { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .month-kpi { padding: 20px; }
+  .month-kpi:nth-child(3) { border-left: 0; }
+  .month-kpi:nth-child(n+3) { border-top: 1px solid var(--border); }
+}
+@media (max-width: 600px) {
+  .main { padding: 20px 16px 112px; }
+  .period-toolbar { align-items: flex-start; flex-direction: column; gap: 16px; }
+  .period-controls { width: 100%; }
+  .period-today { flex: 1; }
+  .month-kpi { padding: 16px 12px; }
+  .month-kpi-value { font-size: clamp(20px, 5.7vw, 28px); }
+  .kpis { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+  .kpi-val { font-size: 20px; }
+  .card { padding: 20px 16px; }
+  .gf-row { gap: 8px; padding: 16px 0; }
+  .gf-top { display: block; }
+  .gf-val { margin-top: 4px; }
+  .gf-dot { display: none; }
+  .gf-acerto { min-width: 76px; max-width: 100px; }
+  .mobile-nav-btn { font-size: 12px; }
+  .panel, .gd-panel { max-height: 90dvh; }
+  .panel-header h2 { font-size: 22px; }
+  .row-2 { gap: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
 </style>
 </head>
 <body>
@@ -3063,12 +3203,12 @@ body::before {
 <div class="hero-shell">
   <header class="topbar">
     <div class="brand">
-      <div class="brand-icon">🏠</div>
+      <div class="brand-icon"><svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
       <span class="brand-name">Casa Nova</span>
     </div>
 
     <div class="search-wrap">
-      <span class="search-ico">🔍</span>
+      <span class="search-ico"><svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg></span>
       <input type="text" id="searchInput" placeholder="Buscar item…" oninput="handleSearch(this.value)">
       <span class="search-clear" id="searchClear" onclick="clearSearch()">✕</span>
     </div>
@@ -3079,10 +3219,10 @@ body::before {
         <span id="syncLbl">—</span>
       </div>
       <button class="btn btn-dark btn-novo-gasto-desk" id="btnNovoGasto" onclick="openAdd()" style="display:none">+ Novo Gasto</button>
-      <button class="btn btn-ghost" onclick="openRenda()" title="Definir Renda">💵</button>
-      <button class="btn btn-ghost" onclick="toggleTheme()" title="Modo Escuro">🌓</button>
-      <button class="btn btn-ghost" onclick="openCfg()" title="Configurar URL">⚙</button>
-      <button class="btn btn-ghost" onclick="fetchData()" title="Recarregar">↻</button>
+      <button class="btn btn-ghost" onclick="openRenda()" title="Definir renda" aria-label="Definir renda"><svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg></button>
+      <button class="btn btn-ghost" onclick="toggleTheme()" title="Alternar tema" aria-label="Alternar tema"><svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg></button>
+      <button class="btn btn-ghost" onclick="openCfg()" title="Configurar conexão" aria-label="Configurar conexão"><svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg></button>
+      <button class="btn btn-ghost" onclick="fetchData()" title="Recarregar" aria-label="Recarregar dados"><svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></button>
       <div id="userPill" style="display:none">
         <div class="user-pill" title="Perfil">
           <img id="userAvatar" class="user-avatar" src="" alt="" onerror="this.style.display='none';document.getElementById('userAvatarFb').style.display='flex'">
@@ -3095,8 +3235,8 @@ body::before {
   </header>
 
   <div class="main-nav">
-    <button class="main-nav-tab active" id="navCasa" onclick="switchTab('casa')">🏠 Casa Nova</button>
-    <button class="main-nav-tab" id="navPessoal" onclick="switchTab('pessoal')" style="display:none">👤 <span id="navPessoalLabel">Meu Painel</span></button>
+    <button class="main-nav-tab active" id="navCasa" onclick="switchTab('casa')"><svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> Casa Nova</button>
+    <button class="main-nav-tab" id="navPessoal" onclick="switchTab('pessoal')" style="display:none"><svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg> <span id="navPessoalLabel">Meu Painel</span></button>
   </div>
   <div class="filters-bar" id="filtersBar">
     <div class="pill-filter active" onclick="setFilter('Todos')">Todos</div>
@@ -3106,7 +3246,6 @@ body::before {
 <main class="main" id="mainCasa">
   <section class="period-toolbar" aria-label="Período analisado">
     <div class="period-copy">
-      <div class="period-eyebrow">Visão mensal</div>
       <div class="period-title" id="periodTitle">—</div>
       <div class="period-subtitle" id="periodSubtitle">Valores calculados com as parcelas e despesas cadastradas</div>
     </div>
@@ -3291,7 +3430,6 @@ body::before {
 
   <section class="period-toolbar" aria-label="Período analisado">
     <div class="period-copy">
-      <div class="period-eyebrow">Visão mensal pessoal</div>
       <div class="period-title" id="pPeriodTitle">—</div>
       <div class="period-subtitle">Valores calculados com suas parcelas e despesas cadastradas</div>
     </div>
@@ -3441,21 +3579,21 @@ body::before {
 <div class="quick-action-backdrop" id="quickActionBackdrop" onclick="closeQuickAction()" aria-hidden="true"></div>
 <div class="quick-action" id="quickAction">
   <div class="quick-action-menu" id="quickActionMenu" aria-hidden="true">
-    <button class="quick-action-item" type="button" data-action-tab="casa" onclick="runQuickAction('casa')"><span class="quick-action-icon">＋</span>Nova compra da casa</button>
-    <button class="quick-action-item" type="button" data-action-tab="pessoal" onclick="runQuickAction('pessoal')"><span class="quick-action-icon">＋</span>Nova compra pessoal</button>
-    <button class="quick-action-item" type="button" onclick="runQuickAction('assistant')"><span class="quick-action-icon">✦</span>Assistente financeiro</button>
-    <button class="quick-action-item" type="button" onclick="runQuickAction('income')"><span class="quick-action-icon">$</span>Renda e divisão</button>
-    <button class="quick-action-item" type="button" onclick="runQuickAction('sync')"><span class="quick-action-icon">↻</span>Sincronizar agora</button>
-    <button class="quick-action-item" type="button" onclick="runQuickAction('settings')"><span class="quick-action-icon">⚙</span>Configurações</button>
-    <button class="quick-action-item" type="button" onclick="runQuickAction('theme')"><span class="quick-action-icon">◐</span>Alternar tema</button>
-    <button class="quick-action-item" type="button" onclick="runQuickAction('logout')"><span class="quick-action-icon">↪</span>Sair</button>
+    <button class="quick-action-item" type="button" data-action-tab="casa" onclick="runQuickAction('casa')"><span class="quick-action-icon"><svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg></span>Nova compra da casa</button>
+    <button class="quick-action-item" type="button" data-action-tab="pessoal" onclick="runQuickAction('pessoal')"><span class="quick-action-icon"><svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg></span>Nova compra pessoal</button>
+    <button class="quick-action-item" type="button" onclick="runQuickAction('assistant')"><span class="quick-action-icon"><svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/></svg></span>Assistente financeiro</button>
+    <button class="quick-action-item" type="button" onclick="runQuickAction('income')"><span class="quick-action-icon"><svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg></span>Renda e divisão</button>
+    <button class="quick-action-item" type="button" onclick="runQuickAction('sync')"><span class="quick-action-icon"><svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></span>Sincronizar agora</button>
+    <button class="quick-action-item" type="button" onclick="runQuickAction('settings')"><span class="quick-action-icon"><svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg></span>Configurações</button>
+    <button class="quick-action-item" type="button" onclick="runQuickAction('theme')"><span class="quick-action-icon"><svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg></span>Alternar tema</button>
+    <button class="quick-action-item" type="button" onclick="runQuickAction('logout')"><span class="quick-action-icon"><svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></span>Sair</button>
   </div>
   <button class="quick-action-fab" type="button" onclick="toggleQuickAction()" aria-label="Abrir ações rápidas" aria-expanded="false">＋</button>
 </div>
 
 <nav class="mobile-bottom-nav" aria-label="Navegação principal">
-  <button class="mobile-nav-btn active" id="mobileNavCasa" type="button" onclick="switchTab('casa')"><span class="nav-ico">⌂</span><span>Casa</span></button>
-  <button class="mobile-nav-btn" id="mobileNavPessoal" type="button" onclick="switchTab('pessoal')" style="display:none"><span class="nav-ico">●</span><span>Pessoal</span></button>
+  <button class="mobile-nav-btn active" id="mobileNavCasa" type="button" onclick="switchTab('casa')"><span class="nav-ico"><svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span><span>Casa</span></button>
+  <button class="mobile-nav-btn" id="mobileNavPessoal" type="button" onclick="switchTab('pessoal')" style="display:none"><span class="nav-ico"><svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg></span><span>Pessoal</span></button>
 </nav>
 
 <button class="ai-chat-fab" id="aiChatFab" type="button" onclick="toggleAIChat()" aria-label="Abrir assistente financeiro" aria-expanded="false" aria-controls="aiChatPanel">
@@ -4982,7 +5120,7 @@ function render() {
     const isActive = c === FILTER;
     const color = (isActive && !specialFilters.includes(c)) ? catColor(c) : '';
     const style = color ? `style="background:${color};border-color:${color}"` : '';
-    return `<div class="pill-filter ${isActive ? 'active' : ''}" ${style} onclick="setFilter('${c}')">${c} <span class="count">${cnt}</span></div>`;
+    return `<div class="pill-filter ${isActive ? 'active' : ''}" ${style} data-filter="${escapeHtml(c)}" onclick="setFilter(this.dataset.filter)">${escapeHtml(c)} <span class="count">${cnt}</span></div>`;
   }).join('') + `<select class="sort-select" onchange="setSort(this.value)">
     <option value="default" ${SORT==='default'?'selected':''}>Ordem padrão</option>
     <option value="valor-desc" ${SORT==='valor-desc'?'selected':''}>Maior valor</option>
@@ -5405,8 +5543,7 @@ function saveItem() {
   });
 }
 
-function openEdit() {
-  document.body.classList.add("modal-open");
+function openEdit(row) {
   triggerHaptic(10);
   const item = DATA.find(i => i.row === row);
   if (!item) return;
@@ -5419,7 +5556,7 @@ function openEdit() {
   editPagasCount = (item.checks || []).filter(Boolean).length;
   renderEditDots(item.parcelas, editPagasCount);
 
-  document.getElementById('editOverlay').classList.add('open');
+  showModal('editOverlay');
 }
 
 function renderEditDots(parc, pagas) {
@@ -5508,11 +5645,10 @@ function undoDelete(row) {
 
 // ─── META E RENDA ────────────────────────────────────────────────────────
 function openMeta() {
-  document.body.classList.add("modal-open");
   triggerHaptic(10);
   document.getElementById('metaInput').value = META || '';
   document.getElementById('metaPreview').style.display = 'none';
-  document.getElementById('metaOverlay').classList.add('open');
+  showModal('metaOverlay');
 }
 function saveMeta() {
   META = parseFloat(document.getElementById('metaInput').value) || 0;
@@ -5562,11 +5698,10 @@ function renderRenda(data) {
 }
 
 function openRenda() {
-  document.body.classList.add("modal-open");
   triggerHaptic(10);
   renderPessoasForm();
   document.getElementById('rendaPreview').style.display = 'none';
-  document.getElementById('rendaOverlay').classList.add('open');
+  showModal('rendaOverlay');
 }
 
 function renderPessoasForm() {
@@ -5676,8 +5811,7 @@ function addGastoVariavel() {
   toast('✅ Gasto variável adicionado');
 }
 
-function openExpenseModal() {
-  document.body.classList.add("modal-open");
+function openExpenseModal(scope = 'casa', type = 'fixo') {
   triggerHaptic(10);
   const personal = scope === 'pessoal';
   document.getElementById('expenseScope').value = scope;
@@ -5690,7 +5824,7 @@ function openExpenseModal() {
   document.getElementById('expenseTitle').textContent = type === 'fixo' ? 'Adicionar gasto fixo' : 'Adicionar gasto variável';
   document.getElementById('expenseSubtitle').textContent = personal ? 'Esse registro ficará no seu painel pessoal.' : 'Esse registro será compartilhado no painel Casa Nova.';
   document.getElementById('expenseIcon').textContent = type === 'fixo' ? '•' : '~';
-  document.getElementById('expenseOverlay').classList.add('open');
+  showModal('expenseOverlay');
   setTimeout(() => document.getElementById('expenseName')?.focus(), 100);
 }
 
@@ -5866,17 +6000,16 @@ let _gdType = null;
 let _gdId = null;
 
 function openGastoDetail(tipo, id, idx) {
-  document.body.classList.add('modal-open');
   triggerHaptic(8);
   _gdType = tipo;
   _gdId = id;
   const list = tipo === 'fixo' ? GASTOS_FIXOS : GASTOS_VARIAVEIS;
   let g = list.find(x => String(x.id) === String(id));
-  // fallback to index if id lookup fails (items from Sheets may have regenerated ids)
+  // Legacy fallback: preserve the actual ID of the matched record.
   if (!g && idx !== undefined) g = list[idx];
   if (!g) return;
-  // ensure consistent id
-  if (!g.id || g.id !== id) { g.id = id; _gdId = id; }
+  // Opening a detail must never change the stored record ID.
+  _gdId = g.id;
 
   const tipoLabel = tipo === 'fixo' ? 'Gasto Fixo' : 'Gasto Variável';
   const tipoEmoji = tipo === 'fixo' ? '📌' : '⚡';
@@ -5912,7 +6045,7 @@ function openGastoDetail(tipo, id, idx) {
     <div class="gd-field">
       <div class="gd-field-label">Nome</div>
       <div class="gd-edit-row">
-        <input class="fi" id="gdNome" value="${g.nome}" placeholder="Nome do gasto">
+        <input class="fi" id="gdNome" value="${escapeHtml(g.nome)}" placeholder="Nome do gasto">
       </div>
     </div>
     <div class="gd-field">
@@ -5942,23 +6075,17 @@ function openGastoDetail(tipo, id, idx) {
     });
   });
 
-  document.getElementById('gastoDetailOverlay').classList.add('open');
+  showModal('gastoDetailOverlay');
 }
 
 function closeGastoDetail() {
-  const gd = document.getElementById('gastoDetailOverlay');
-  if (gd) gd.classList.remove('open');
-  _gdType = null;
-  _gdId = null;
-  if (!document.querySelector('.overlay.open')) {
-    document.body.classList.remove('modal-open');
-  }
+  closeModals();
 }
 
 function saveGastoDetail() {
   if (!_gdType || !_gdId) return;
   const list = _gdType === 'fixo' ? GASTOS_FIXOS : GASTOS_VARIAVEIS;
-  const g = list.find(x => x.id === _gdId);
+  const g = list.find(x => String(x.id) === String(_gdId));
   if (!g) return;
 
   const nome  = document.getElementById('gdNome').value.trim();
@@ -6100,7 +6227,6 @@ function setHistView(view, btn) {
 }
 
 function openRegistroMes() {
-  document.body.classList.add("modal-open");
   triggerHaptic(10);
   const now = new Date();
   const mesStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
@@ -6130,7 +6256,7 @@ function openRegistroMes() {
 
   document.getElementById('regOutros').value = '';
   document.getElementById('regPreview').style.display = 'none';
-  document.getElementById('registroOverlay').classList.add('open');
+  showModal('registroOverlay');
 
   ['regCompras','regFixos','regVariaveis','regOutros','regMes'].forEach(id => {
     document.getElementById(id).oninput = updateRegPreview;
@@ -6263,15 +6389,42 @@ function renderHistorico() {
 }
 
 // ─── UTILS ───────────────────────────────────────────────────────────────
+let modalReturnFocus = null;
+function showModal(id) {
+  const overlay = document.getElementById(id);
+  if (!overlay) return;
+  closeQuickAction();
+  closeAIChat();
+  modalReturnFocus = document.activeElement;
+  document.querySelectorAll('.overlay, .gd-overlay').forEach(other => {
+    other.classList.remove('open');
+    other.setAttribute('aria-hidden', 'true');
+    other.inert = true;
+  });
+  overlay.inert = false;
+  overlay.setAttribute('aria-hidden', 'false');
+  overlay.classList.add('open');
+  document.body.classList.add('modal-open');
+  const input = overlay.querySelector('input:not([type="hidden"]), select, textarea, button');
+  input?.focus({ preventScroll: true });
+}
+
 function openCfg() {
-  document.body.classList.add("modal-open");
-  triggerHaptic(10); document.getElementById('cfgOverlay').classList.add('open'); document.getElementById('cfgUrl').value = URL; }
+  triggerHaptic(10); showModal('cfgOverlay'); document.getElementById('cfgUrl').value = URL; }
 function openAdd() {
-  document.body.classList.add("modal-open");
-  triggerHaptic(10); document.getElementById('addOverlay').classList.add('open'); document.getElementById('nNome').focus(); }
+  triggerHaptic(10); showModal('addOverlay'); document.getElementById('nNome').focus(); }
 function closeModals() {
-  document.querySelectorAll('.overlay, .gd-overlay').forEach(o => o.classList.remove('open'));
+  const hadOpenModal = Boolean(document.querySelector('.overlay.open, .gd-overlay.open'));
+  document.querySelectorAll('.overlay, .gd-overlay').forEach(overlay => {
+    overlay.classList.remove('open');
+    overlay.inert = true;
+    overlay.setAttribute('aria-hidden', 'true');
+  });
   document.body.classList.remove('modal-open');
+  _gdType = null;
+  _gdId = null;
+  if (hadOpenModal && modalReturnFocus?.isConnected) modalReturnFocus.focus({ preventScroll: true });
+  modalReturnFocus = null;
 }
 function saveCfg() {
   const u = document.getElementById('cfgUrl').value.trim();
@@ -6617,9 +6770,8 @@ function pRenderHistorico() {
 }
 
 function pOpenRegistroMes() {
-  document.body.classList.add("modal-open");
   triggerHaptic(10);
-  document.getElementById('pRegistroOverlay').classList.add('open');
+  showModal('pRegistroOverlay');
   const _todayParts = todayISO().split('-');
   document.getElementById('pRegMes').value = _todayParts[0]+'-'+_todayParts[1];
   const fixosT = P_GASTOS_FIXOS.reduce((s,g)=>s+g.valor,0);
@@ -6648,9 +6800,8 @@ function pSaveRegistroMes() {
 
 // ─── RENDA & META PESSOAL ─────────────────────────────────────
 function pOpenRenda() {
-  document.body.classList.add("modal-open");
   triggerHaptic(10);
-  document.getElementById('pRendaOverlay').classList.add('open');
+  showModal('pRendaOverlay');
   document.getElementById('pRendaInput').value = P_RENDA || '';
 }
 function pSaveRenda() {
@@ -6663,9 +6814,8 @@ function pSaveRenda() {
   toast('✅ Renda pessoal salva');
 }
 function pOpenMeta() {
-  document.body.classList.add("modal-open");
   triggerHaptic(10);
-  document.getElementById('pMetaOverlay').classList.add('open');
+  showModal('pMetaOverlay');
   document.getElementById('pMetaInput').value = P_META || '';
 }
 function pSaveMeta() {
@@ -6736,9 +6886,8 @@ function pRenderResumoMes() {
 
 // ─── ITEMS PESSOAIS ───────────────────────────────────────────
 function pOpenAdd() {
-  document.body.classList.add("modal-open");
   triggerHaptic(10);
-  document.getElementById('pAddOverlay').classList.add('open');
+  showModal('pAddOverlay');
   document.getElementById('pNNome').value  = '';
   document.getElementById('pNCat').value   = '';
   document.getElementById('pNValor').value = '';
@@ -6762,8 +6911,7 @@ function pSaveItem() {
   toast('✅ Item pessoal salvo!');
 }
 
-function pOpenEdit() {
-  document.body.classList.add("modal-open");
+function pOpenEdit(idx) {
   triggerHaptic(10);
   const item = P_DATA[idx];
   if (!item) return;
@@ -6774,7 +6922,7 @@ function pOpenEdit() {
   document.getElementById('pEParc').value  = item.parcelas;
   pEditPagasCount = (item.checks||[]).filter(Boolean).length;
   pRenderEditDots(item.parcelas, pEditPagasCount);
-  document.getElementById('pEditOverlay').classList.add('open');
+  showModal('pEditOverlay');
 }
 
 function pRenderEditDots(parc, pagas) {
@@ -7023,6 +7171,7 @@ function toggleQuickAction() {
 }
 
 function closeQuickAction() {
+  document.getElementById('quickActionMenu')?.setAttribute('aria-hidden', 'true');
   const bd = document.getElementById('quickActionBackdrop');
   if (bd) bd.classList.remove('open');
   const wrap=document.getElementById('quickAction');
@@ -7096,35 +7245,47 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && URL && navigator.onLine) fetchData({ quiet: true });
 });
 
-document.querySelectorAll('.overlay').forEach(o => {
-  o.addEventListener('click', e => { if (e.target === o) closeModals(); });
-});
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    closeModals();
-    closeAIChat();
+// One dismissal handler, shared by all dialogs.
+document.querySelectorAll('.overlay, .gd-overlay').forEach(overlay => {
+  overlay.setAttribute('aria-hidden', 'true');
+  overlay.inert = true;
+  const heading = overlay.querySelector('h2, .gd-header-title');
+  if (heading) {
+    if (!heading.id) heading.id = overlay.id + 'Title';
+    overlay.setAttribute('aria-labelledby', heading.id);
   }
+  const panel = overlay.querySelector('.panel, .gd-panel');
+  if (panel && !panel.querySelector('.gd-close')) {
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'dialog-close';
+    close.setAttribute('aria-label', 'Fechar formulário');
+    close.textContent = '×';
+    close.addEventListener('click', closeModals);
+    panel.prepend(close);
+  }
+  overlay.addEventListener('click', event => {
+    if (event.target === overlay) closeModals();
+  });
 });
-
-
-// Global keyboard accessibility and backdrop dismiss (beUI pattern)
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') {
     closeModals();
-    closeGastoDetail();
     closeQuickAction();
     closeAIChat();
+    return;
   }
-});
-
-// Click outside modal panel to dismiss
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.overlay').forEach(ov => {
-    ov.addEventListener('click', (e) => {
-      if (e.target === ov) closeModals();
-    });
-  });
+  const overlay = document.querySelector('.overlay.open, .gd-overlay.open');
+  if (event.key !== 'Tab' || !overlay) return;
+  const controls = [...overlay.querySelectorAll('button, input, select, textarea, a[href], [tabindex="0"]')]
+    .filter(control => !control.disabled && control.type !== 'hidden' && control.getClientRects().length);
+  if (!controls.length) { event.preventDefault(); return; }
+  const first = controls[0], last = controls[controls.length - 1];
+  if (event.shiftKey && (document.activeElement === first || !overlay.contains(document.activeElement))) {
+    event.preventDefault(); last.focus();
+  } else if (!event.shiftKey && (document.activeElement === last || !overlay.contains(document.activeElement))) {
+    event.preventDefault(); first.focus();
+  }
 });
 </script>
 </body>
