@@ -5841,7 +5841,7 @@ function saveExpenseModal() {
   const date = document.getElementById('expenseDate').value || todayISO();
   if (!name) { toast('⚠ Nome é obrigatório', 'warn'); return; }
   if (value <= 0) { toast('⚠ Informe um valor válido', 'warn'); return; }
-  const record = { id: scope === 'pessoal' ? Date.now() : String(Date.now()), nome: name, valor: value, cor: gfCor(Date.now()), data, acertadoMes: '' };
+  const record = { id: scope === 'pessoal' ? Date.now() : String(Date.now()), nome: name, valor: value, cor: gfCor(Date.now()), data: date, acertadoMes: '' };
 
   if (scope === 'pessoal') {
     if (type === 'fixo') { P_GASTOS_FIXOS.push(record); pSaveFixos(); }
