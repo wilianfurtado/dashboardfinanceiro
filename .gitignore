@@ -1,0 +1,12 @@
+# Impeccable binaries and harness folders
+.agent/
+.agents/
+.claude/
+.codex/
+.cursor/
+.gemini/
+.impeccable/config.local.json
+
+# OS & Environment
+.DS_Store
+Thumbs.db
