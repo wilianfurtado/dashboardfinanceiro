@@ -3023,8 +3023,322 @@ button:active:not(:disabled),
   .resumo-grid { grid-template-columns: 1fr; }
 }
 </style>
+<style id="liquid-glass-layer">
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIQUID GLASS LAYER — port of rdev/liquid-glass-react for vanilla HTML
+   Tier 1: refractive glass (KPIs, header controls, CTAs)
+   Tier 2: tinted frosted glass (charts, data containers, modals)
+   Tier 3: clean, near-opaque reading surfaces (rows, lists)
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+  --lg-blur: 16px;
+  --lg-sat: 180%;
+  --lg-edge-hi: rgba(255, 255, 255, 0.70);
+  --lg-edge-lo: rgba(15, 23, 42, 0.08);
+  --lg-inset: inset 0 1px 1px rgba(255, 255, 255, 0.55), inset 0 -1px 2px rgba(15, 23, 42, 0.06);
+  --lg-drop: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 30px -8px rgba(15, 23, 42, 0.14);
+  --lg-t1: rgba(255, 255, 255, 0.55);
+  --lg-t2: rgba(255, 255, 255, 0.72);
+  --lg-t3: rgba(255, 255, 255, 0.88);
+  --lg-t3-hover: rgba(255, 255, 255, 0.96);
+  --lg-spec: rgba(255, 255, 255, 0.85);
+  --surface-subtle: rgba(241, 245, 249, 0.72);
+  --lg-solid: #ffffff;
+}
+[data-theme="dark"] {
+  --lg-edge-hi: rgba(255, 255, 255, 0.22);
+  --lg-edge-lo: rgba(255, 255, 255, 0.06);
+  --lg-inset: inset 0 1px 1px rgba(255, 255, 255, 0.35), inset 0 -1px 2px rgba(0, 0, 0, 0.15);
+  --lg-drop: 0 1px 2px rgba(0, 0, 0, 0.35), 0 12px 36px -10px rgba(0, 0, 0, 0.55);
+  --lg-t1: rgba(23, 26, 35, 0.42);
+  --lg-t2: rgba(15, 23, 42, 0.65);
+  --lg-t3: rgba(17, 19, 26, 0.84);
+  --lg-t3-hover: rgba(24, 27, 37, 0.92);
+  --lg-spec: rgba(255, 255, 255, 0.55);
+  --surface-subtle: rgba(30, 35, 50, 0.55);
+  --lg-solid: #11131a;
+}
+
+/* ── Ambient mesh: the light the glass refracts ── */
+html, body { background-color: var(--bg); }
+.lg-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+.lg-blob {
+  position: absolute;
+  width: 44vmax;
+  height: 44vmax;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.42;
+  will-change: transform;
+  animation: lgDrift 46s var(--ease-out, ease-in-out) infinite alternate;
+}
+.lg-blob.b1 { top: -14vmax; left: -10vmax; background: linear-gradient(135deg, #a5f3fc 0%, #bae6fd 100%); }
+.lg-blob.b2 { top: 18vh;   right: -16vmax; background: linear-gradient(135deg, #a7f3d0 0%, #99f6e4 100%); animation-duration: 58s; animation-delay: -12s; }
+.lg-blob.b3 { bottom: -20vmax; left: 14vw; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); animation-duration: 64s; animation-delay: -24s; }
+.lg-blob.b4 { top: 46vh; left: -12vmax; width: 32vmax; height: 32vmax; background: linear-gradient(135deg, #fde2e4 0%, #fbcfe8 100%); opacity: 0.32; animation-duration: 52s; animation-delay: -6s; }
+[data-theme="dark"] .lg-blob { opacity: 0.28; }
+[data-theme="dark"] .lg-blob.b1 { background: linear-gradient(135deg, #312e81 0%, #1e1b4b 100%); }
+[data-theme="dark"] .lg-blob.b2 { background: linear-gradient(135deg, #065f46 0%, #064e3b 100%); }
+[data-theme="dark"] .lg-blob.b3 { background: linear-gradient(135deg, #3b0764 0%, #1e1b4b 100%); }
+[data-theme="dark"] .lg-blob.b4 { background: linear-gradient(135deg, #0c4a6e 0%, #172554 100%); opacity: 0.22; }
+@keyframes lgDrift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(6vw, 4vh, 0) scale(1.08); }
+  100% { transform: translate3d(-4vw, 8vh, 0) scale(0.96); }
+}
+
+/* ═══ TIER 1 — Refractive Liquid Glass ═══ */
+.liquid-glass,
+.liquid-glass-cta {
+  position: relative;
+  isolation: isolate;
+  background: var(--lg-t1);
+  border: 1px solid transparent;
+  border-color: var(--lg-edge-hi) var(--lg-edge-lo) var(--lg-edge-lo) var(--lg-edge-hi);
+  box-shadow: var(--lg-inset), var(--lg-drop);
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat));
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat));
+}
+/* Refraction engine (Chromium): SVG displacement + chromatic aberration on the backdrop */
+html.lg-refraction .liquid-glass,
+html.lg-refraction .liquid-glass-cta {
+  backdrop-filter: url(#liquid-glass-refraction) blur(var(--lg-blur)) saturate(var(--lg-sat));
+}
+/* Specular rim that follows the cursor (border-only via mask) */
+.liquid-glass::after,
+.liquid-glass-cta::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: radial-gradient(160px circle at var(--mouse-x, 30%) var(--mouse-y, 0%), var(--lg-spec), transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: 0;
+  transition: opacity 240ms var(--ease-spring);
+  z-index: 2;
+}
+.liquid-glass.lg-lit::after,
+.liquid-glass-cta.lg-lit::after { opacity: 1; }
+
+/* Elastic physics (values driven by the rAF engine, damping 0.15) */
+.liquid-glass-interactive {
+  transform: translate3d(var(--lg-tx, 0px), var(--lg-ty, 0px), 0) scale(var(--lg-sx, 1), var(--lg-sy, 1));
+  transition: transform 90ms linear, box-shadow var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast);
+  will-change: transform;
+}
+html .liquid-glass-interactive:active:not(:disabled) {
+  transform: translate3d(var(--lg-tx, 0px), var(--lg-ty, 0px), 0) scale(calc(var(--lg-sx, 1) * 0.98), calc(var(--lg-sy, 1) * 0.98));
+  transition-duration: 120ms;
+  transition-timing-function: var(--ease-spring);
+}
+
+/* KPI cards on glass */
+.month-kpi.liquid-glass,
+.kpi.liquid-glass { border-radius: var(--r-lg); }
+.month-kpi.liquid-glass:hover,
+.kpi.liquid-glass:hover {
+  border-color: var(--lg-edge-hi) var(--lg-edge-lo) var(--lg-edge-lo) var(--lg-edge-hi);
+  box-shadow: var(--lg-inset), 0 2px 4px rgba(15, 23, 42, 0.06), 0 18px 40px -12px rgba(15, 23, 42, 0.22);
+}
+.kpi.liquid-glass .kpi-ico-wrap {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: var(--lg-edge-hi);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+[data-theme="dark"] .kpi.liquid-glass .kpi-ico-wrap { background: rgba(255, 255, 255, 0.06); }
+
+/* Primary CTA: emerald liquid pill (white text ≥ 5.5:1) */
+.btn.btn-accent.liquid-glass-cta {
+  background: linear-gradient(180deg, rgba(4, 120, 87, 0.94) 0%, rgba(6, 95, 70, 0.96) 100%);
+  border-color: rgba(255, 255, 255, 0.34) rgba(255, 255, 255, 0.08) rgba(0, 0, 0, 0.12) rgba(255, 255, 255, 0.26);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), inset 0 -1px 2px rgba(0, 0, 0, 0.18), 0 6px 18px -6px rgba(15, 23, 42, 0.28);
+  border-radius: var(--r-full);
+  color: #ffffff;
+  min-height: 44px;
+}
+.btn.btn-accent.liquid-glass-cta:hover {
+  background: linear-gradient(180deg, rgba(6, 95, 70, 0.96) 0%, rgba(6, 78, 59, 0.98) 100%);
+}
+.btn.btn-accent.liquid-glass-cta { --lg-spec: rgba(255, 255, 255, 0.75); }
+
+/* Header: tinted glass bar with pill controls */
+.hero-shell {
+  background: linear-gradient(135deg, rgba(19, 78, 55, 0.80) 0%, rgba(22, 91, 64, 0.76) 55%, rgba(26, 107, 76, 0.72) 100%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.08), 0 10px 30px -12px rgba(15, 23, 42, 0.32);
+}
+[data-theme="dark"] .hero-shell {
+  background: linear-gradient(135deg, rgba(9, 19, 14, 0.72) 0%, rgba(15, 34, 25, 0.68) 55%, rgba(19, 45, 34, 0.64) 100%);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+.hero-shell .btn-ghost,
+.hero-shell .sync-pill,
+.hero-shell .user-pill,
+.hero-shell .btn-logout,
+.hero-shell .pill-filter:not(.active),
+.hero-shell .sort-select,
+.hero-shell .search-wrap input {
+  border-radius: var(--r-full);
+  border-color: rgba(255, 255, 255, 0.30) rgba(255, 255, 255, 0.10) rgba(255, 255, 255, 0.08) rgba(255, 255, 255, 0.26);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.22), inset 0 -1px 2px rgba(0, 0, 0, 0.12);
+}
+.hero-shell .btn-ghost { min-width: 38px; min-height: 38px; padding: 7px 12px; }
+.hero-shell .pill-filter.active {
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9), 0 4px 12px -4px rgba(0, 0, 0, 0.25);
+}
+.main-nav-tab {
+  border-bottom: 0;
+  border-radius: var(--r-full);
+  margin: 6px 0;
+  padding: 8px 16px;
+  min-height: 40px;
+}
+.main-nav-tab.active {
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.30), inset 0 -1px 2px rgba(0, 0, 0, 0.12);
+}
+
+/* ═══ TIER 2 — Tinted Frosted Glass (data containers & dialogs) ═══ */
+.card,
+.period-toolbar,
+.renda-bar,
+.meta-bar,
+.resumo-mes,
+.attention-card,
+.panel,
+.gd-panel,
+.ai-chat-panel,
+.quick-action-menu,
+.auth-card {
+  background: var(--lg-t2);
+  border-color: var(--lg-edge-hi) var(--lg-edge-lo) var(--lg-edge-lo) var(--lg-edge-hi);
+  box-shadow: var(--lg-inset), var(--lg-drop);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+}
+.card:hover { border-color: var(--lg-edge-hi) var(--lg-edge-lo) var(--lg-edge-lo) var(--lg-edge-hi); }
+.panel, .gd-panel { background: rgba(255, 255, 255, 0.86); }
+[data-theme="dark"] .panel, [data-theme="dark"] .gd-panel { background: rgba(15, 23, 42, 0.78); }
+.ai-chat-head, .ai-context-bar, .ai-chat-compose { background: transparent; }
+.resumo-total-col { box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12), var(--lg-drop); }
+
+/* ═══ TIER 3 — Clean reading surfaces (no backdrop filter → 60fps scroll) ═══ */
+.item-card,
+.gf-row,
+.attention-item {
+  background-color: var(--lg-t3);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.item-card:hover,
+.gf-row:hover {
+  background-color: var(--lg-t3-hover);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.04));
+}
+.item-card.acertado {
+  background-color: var(--lg-t3);
+  background-image: linear-gradient(90deg, var(--accent-lt), transparent 42%);
+}
+.gf-row.acertado { background-color: var(--accent-lt); }
+
+/* ═══ Mobile: floating glass dock + 44px targets ═══ */
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    left: 12px;
+    right: 12px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    height: 64px;
+    padding: 6px 8px;
+    border-radius: var(--r-full);
+    background: var(--lg-t1);
+    border: 1px solid transparent;
+    border-color: var(--lg-edge-hi) var(--lg-edge-lo) var(--lg-edge-lo) var(--lg-edge-hi);
+    box-shadow: var(--lg-inset), 0 12px 32px -10px rgba(15, 23, 42, 0.35);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    backdrop-filter: blur(22px) saturate(180%);
+  }
+  .mobile-nav-btn { border-radius: var(--r-full); min-height: 48px; }
+  .mobile-nav-btn.active { box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4); }
+  .quick-action { bottom: calc(86px + env(safe-area-inset-bottom)); }
+  .quick-action-fab {
+    border-radius: var(--r-full);
+    background: linear-gradient(180deg, rgba(4, 120, 87, 0.94), rgba(6, 95, 70, 0.96));
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), inset 0 -1px 2px rgba(0, 0, 0, 0.18), 0 10px 24px -8px rgba(15, 23, 42, 0.35);
+  }
+  .liquid-glass-interactive { will-change: auto; }
+  .lg-blob { animation-duration: 80s; }
+}
+
+/* ═══ Financial typography guarantees ═══ */
+.month-kpi-note, .kpi-sub, .forecast-month, .gf-split-val, .renda-slot-val,
+.meta-month, .resumo-linha strong, .period-subtitle, .sec-meta,
+.gd-body, .ai-table td, .prog-labels span {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══ Accessibility preferences ═══ */
+@media (prefers-reduced-motion: reduce) {
+  .lg-blob { animation: none; }
+  .liquid-glass-interactive { transform: none !important; transition: box-shadow var(--transition-fast), border-color var(--transition-fast); }
+  .liquid-glass::after, .liquid-glass-cta::after { display: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .lg-ambient { display: none; }
+  .liquid-glass, .liquid-glass-cta, .hero-shell, .mobile-bottom-nav,
+  .card, .period-toolbar, .renda-bar, .meta-bar, .resumo-mes, .attention-card,
+  .panel, .gd-panel, .ai-chat-panel, .quick-action-menu, .auth-card,
+  .item-card, .gf-row, .attention-item {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  .liquid-glass, .card, .period-toolbar, .renda-bar, .meta-bar, .resumo-mes,
+  .attention-card, .panel, .gd-panel, .ai-chat-panel, .quick-action-menu,
+  .auth-card, .item-card, .gf-row, .attention-item, .mobile-bottom-nav {
+    background-color: var(--lg-solid) !important;
+  }
+  .hero-shell { background: #134e37 !important; }
+  [data-theme="dark"] .hero-shell { background: #0f2219 !important; }
+  :root { --surface-subtle: #f1f5f9; }
+  [data-theme="dark"] { --surface-subtle: #191c28; }
+}
+</style>
 </head>
 <body>
+<!-- LG:DEFS -->
+<svg class="lg-defs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden">
+  <defs>
+    <!-- Edge-only refraction with chromatic aberration (port of rdev/liquid-glass-react GlassFilter).
+         The displacement map is generated at runtime (rounded-rect SDF, like shader-utils.ts). -->
+    <filter id="liquid-glass-refraction" x="0" y="0" width="100%" height="100%" primitiveUnits="objectBoundingBox" color-interpolation-filters="sRGB">
+      <feImage id="lgDisplacementMap" x="0" y="0" width="1" height="1" preserveAspectRatio="none" result="MAP"/>
+      <feDisplacementMap in="SourceGraphic" in2="MAP" scale="0.06" xChannelSelector="R" yChannelSelector="B" result="RED_D"/>
+      <feColorMatrix in="RED_D" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="RED"/>
+      <feDisplacementMap in="SourceGraphic" in2="MAP" scale="0.054" xChannelSelector="R" yChannelSelector="B" result="GREEN_D"/>
+      <feColorMatrix in="GREEN_D" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="GREEN"/>
+      <feDisplacementMap in="SourceGraphic" in2="MAP" scale="0.048" xChannelSelector="R" yChannelSelector="B" result="BLUE_D"/>
+      <feColorMatrix in="BLUE_D" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="BLUE"/>
+      <feBlend in="GREEN" in2="BLUE" mode="screen" result="GB"/>
+      <feBlend in="RED" in2="GB" mode="screen" result="RGB"/>
+      <feGaussianBlur in="RGB" stdDeviation="0.0015"/>
+    </filter>
+  </defs>
+</svg>
+<div class="lg-ambient" aria-hidden="true"><span class="lg-blob b1"></span><span class="lg-blob b2"></span><span class="lg-blob b3"></span><span class="lg-blob b4"></span></div>
+<!-- /LG:DEFS -->
 
 <!-- ═══ AUTH SCREEN ═══ -->
 <div id="authScreen">
@@ -3095,10 +3409,10 @@ button:active:not(:disabled),
   </section>
 
   <section class="month-kpis" aria-label="Resumo financeiro do período">
-    <div class="month-kpi" style="--mk:var(--blue)"><div class="month-kpi-label">Renda</div><div class="month-kpi-value" id="monthIncome">—</div><div class="month-kpi-note">renda combinada</div></div>
-    <div class="month-kpi" style="--mk:var(--warn)"><div class="month-kpi-label">Gasto previsto</div><div class="month-kpi-value" id="monthSpend">—</div><div class="month-kpi-note" id="monthSpendNote">parcelas + despesas</div></div>
-    <div class="month-kpi" style="--mk:var(--accent)"><div class="month-kpi-label">Saldo livre</div><div class="month-kpi-value" id="monthBalance">—</div><div class="month-kpi-note" id="monthBalanceNote">após os gastos</div></div>
-    <div class="month-kpi" style="--mk:var(--purple)"><div class="month-kpi-label">Comprometimento</div><div class="month-kpi-value" id="monthCommitment">—</div><div class="month-kpi-note" id="monthCommitmentNote">da renda do casal</div></div>
+    <div class="month-kpi liquid-glass liquid-glass-interactive" style="--mk:var(--blue)"><div class="month-kpi-label">Renda</div><div class="month-kpi-value" id="monthIncome">—</div><div class="month-kpi-note">renda combinada</div></div>
+    <div class="month-kpi liquid-glass liquid-glass-interactive" style="--mk:var(--warn)"><div class="month-kpi-label">Gasto previsto</div><div class="month-kpi-value" id="monthSpend">—</div><div class="month-kpi-note" id="monthSpendNote">parcelas + despesas</div></div>
+    <div class="month-kpi liquid-glass liquid-glass-interactive" style="--mk:var(--accent)"><div class="month-kpi-label">Saldo livre</div><div class="month-kpi-value" id="monthBalance">—</div><div class="month-kpi-note" id="monthBalanceNote">após os gastos</div></div>
+    <div class="month-kpi liquid-glass liquid-glass-interactive" style="--mk:var(--purple)"><div class="month-kpi-label">Comprometimento</div><div class="month-kpi-value" id="monthCommitment">—</div><div class="month-kpi-note" id="monthCommitmentNote">da renda do casal</div></div>
   </section>
 
   <section class="attention-card" aria-label="Pontos de atenção">
@@ -3224,10 +3538,10 @@ button:active:not(:disabled),
   </div>
 
   <div class="kpis">
-    <div class="kpi" style="--kc:var(--text)"><div class="kpi-ico-wrap">Σ</div><div class="kpi-lbl">Total das compras</div><div class="kpi-val" id="k0">—</div><div class="kpi-sub" id="k0s"></div></div>
-    <div class="kpi" style="--kc:var(--accent)"><div class="kpi-ico-wrap">✅</div><div class="kpi-lbl">Total Pago</div><div class="kpi-val" id="k1">—</div><div class="kpi-sub" id="k1s"></div></div>
-    <div class="kpi" style="--kc:var(--warn)"><div class="kpi-ico-wrap">↗</div><div class="kpi-lbl">Saldo restante das compras</div><div class="kpi-val" id="k2">—</div><div class="kpi-sub" id="k2s"></div></div>
-    <div class="kpi" style="--kc:var(--blue)"><div class="kpi-ico-wrap">✓</div><div class="kpi-lbl">Compras quitadas</div><div class="kpi-val" id="k3">—</div><div class="kpi-sub" id="k3s"></div></div>
+    <div class="kpi liquid-glass liquid-glass-interactive" style="--kc:var(--text)"><div class="kpi-ico-wrap">Σ</div><div class="kpi-lbl">Total das compras</div><div class="kpi-val" id="k0">—</div><div class="kpi-sub" id="k0s"></div></div>
+    <div class="kpi liquid-glass liquid-glass-interactive" style="--kc:var(--accent)"><div class="kpi-ico-wrap">✅</div><div class="kpi-lbl">Total Pago</div><div class="kpi-val" id="k1">—</div><div class="kpi-sub" id="k1s"></div></div>
+    <div class="kpi liquid-glass liquid-glass-interactive" style="--kc:var(--warn)"><div class="kpi-ico-wrap">↗</div><div class="kpi-lbl">Saldo restante das compras</div><div class="kpi-val" id="k2">—</div><div class="kpi-sub" id="k2s"></div></div>
+    <div class="kpi liquid-glass liquid-glass-interactive" style="--kc:var(--blue)"><div class="kpi-ico-wrap">✓</div><div class="kpi-lbl">Compras quitadas</div><div class="kpi-val" id="k3">—</div><div class="kpi-sub" id="k3s"></div></div>
   </div>
 
   <div class="charts" id="chartsGrid">
@@ -3280,10 +3594,10 @@ button:active:not(:disabled),
   </section>
 
   <section class="month-kpis" aria-label="Resumo financeiro pessoal do período">
-    <div class="month-kpi" style="--mk:var(--blue)"><div class="month-kpi-label">Renda pessoal</div><div class="month-kpi-value" id="pMonthIncome">—</div><div class="month-kpi-note">renda cadastrada</div></div>
-    <div class="month-kpi" style="--mk:var(--warn)"><div class="month-kpi-label">Gasto previsto</div><div class="month-kpi-value" id="pMonthSpend">—</div><div class="month-kpi-note">parcelas + despesas</div></div>
-    <div class="month-kpi" style="--mk:var(--accent)"><div class="month-kpi-label">Saldo livre</div><div class="month-kpi-value" id="pMonthBalance">—</div><div class="month-kpi-note" id="pMonthBalanceNote">após os gastos</div></div>
-    <div class="month-kpi" style="--mk:var(--purple)"><div class="month-kpi-label">Comprometimento</div><div class="month-kpi-value" id="pMonthCommitment">—</div><div class="month-kpi-note">da renda pessoal</div></div>
+    <div class="month-kpi liquid-glass liquid-glass-interactive" style="--mk:var(--blue)"><div class="month-kpi-label">Renda pessoal</div><div class="month-kpi-value" id="pMonthIncome">—</div><div class="month-kpi-note">renda cadastrada</div></div>
+    <div class="month-kpi liquid-glass liquid-glass-interactive" style="--mk:var(--warn)"><div class="month-kpi-label">Gasto previsto</div><div class="month-kpi-value" id="pMonthSpend">—</div><div class="month-kpi-note">parcelas + despesas</div></div>
+    <div class="month-kpi liquid-glass liquid-glass-interactive" style="--mk:var(--accent)"><div class="month-kpi-label">Saldo livre</div><div class="month-kpi-value" id="pMonthBalance">—</div><div class="month-kpi-note" id="pMonthBalanceNote">após os gastos</div></div>
+    <div class="month-kpi liquid-glass liquid-glass-interactive" style="--mk:var(--purple)"><div class="month-kpi-label">Comprometimento</div><div class="month-kpi-value" id="pMonthCommitment">—</div><div class="month-kpi-note">da renda pessoal</div></div>
   </section>
 
   <section class="attention-card" aria-label="Pontos de atenção pessoais">
@@ -3327,10 +3641,10 @@ button:active:not(:disabled),
 
   <!-- KPIs pessoais -->
   <div class="kpis" style="margin-top:16px">
-    <div class="kpi" style="--kc:var(--text)"><div class="kpi-ico-wrap">Σ</div><div class="kpi-lbl">Total das compras</div><div class="kpi-val" id="pk0">—</div><div class="kpi-sub" id="pk0s"></div></div>
-    <div class="kpi" style="--kc:var(--blue)"><div class="kpi-ico-wrap">✅</div><div class="kpi-lbl">Total Pago</div><div class="kpi-val" id="pk1">—</div><div class="kpi-sub" id="pk1s"></div></div>
-    <div class="kpi" style="--kc:var(--warn)"><div class="kpi-ico-wrap">↗</div><div class="kpi-lbl">Saldo restante das compras</div><div class="kpi-val" id="pk2">—</div><div class="kpi-sub" id="pk2s"></div></div>
-    <div class="kpi" style="--kc:var(--purple)"><div class="kpi-ico-wrap">✓</div><div class="kpi-lbl">Compras quitadas</div><div class="kpi-val" id="pk3">—</div><div class="kpi-sub" id="pk3s"></div></div>
+    <div class="kpi liquid-glass liquid-glass-interactive" style="--kc:var(--text)"><div class="kpi-ico-wrap">Σ</div><div class="kpi-lbl">Total das compras</div><div class="kpi-val" id="pk0">—</div><div class="kpi-sub" id="pk0s"></div></div>
+    <div class="kpi liquid-glass liquid-glass-interactive" style="--kc:var(--blue)"><div class="kpi-ico-wrap">✅</div><div class="kpi-lbl">Total Pago</div><div class="kpi-val" id="pk1">—</div><div class="kpi-sub" id="pk1s"></div></div>
+    <div class="kpi liquid-glass liquid-glass-interactive" style="--kc:var(--warn)"><div class="kpi-ico-wrap">↗</div><div class="kpi-lbl">Saldo restante das compras</div><div class="kpi-val" id="pk2">—</div><div class="kpi-sub" id="pk2s"></div></div>
+    <div class="kpi liquid-glass liquid-glass-interactive" style="--kc:var(--purple)"><div class="kpi-ico-wrap">✓</div><div class="kpi-lbl">Compras quitadas</div><div class="kpi-val" id="pk3">—</div><div class="kpi-sub" id="pk3s"></div></div>
   </div>
 
   <!-- Gastos fixos + variáveis + histórico pessoal -->
@@ -3500,7 +3814,7 @@ button:active:not(:disabled),
     </div>
     <div class="pa">
       <button class="btn btn-ghost-light" style="flex:1" onclick="closeModals()">Cancelar</button>
-      <button class="btn btn-accent" id="btnSalvar" style="flex:1" onclick="saveItem()">Salvar</button>
+      <button class="btn btn-accent liquid-glass-cta liquid-glass-interactive" id="btnSalvar" style="flex:1" onclick="saveItem()">Salvar</button>
     </div>
   </div>
 </div>
@@ -3535,7 +3849,7 @@ button:active:not(:disabled),
     </div>
     <div class="pa">
       <button class="btn btn-ghost-light" style="flex:1" onclick="closeModals()">Cancelar</button>
-      <button class="btn btn-accent" id="btnEditar" style="flex:1" onclick="saveEdit()">Salvar Alterações</button>
+      <button class="btn btn-accent liquid-glass-cta liquid-glass-interactive" id="btnEditar" style="flex:1" onclick="saveEdit()">Salvar Alterações</button>
     </div>
   </div>
 </div>
@@ -3553,7 +3867,7 @@ button:active:not(:disabled),
     </div>
     <div class="pa">
       <button class="btn btn-ghost-light" style="flex:1" onclick="closeModals()">Fechar</button>
-      <button class="btn btn-accent" style="flex:1" onclick="saveCfg()">Conectar</button>
+      <button class="btn btn-accent liquid-glass-cta liquid-glass-interactive" style="flex:1" onclick="saveCfg()">Conectar</button>
     </div>
   </div>
 </div>
@@ -3572,7 +3886,7 @@ button:active:not(:disabled),
     <div class="meta-preview" id="metaPreview" style="display:none"></div>
     <div class="pa">
       <button class="btn btn-ghost-light" style="flex:1" onclick="closeModals()">Cancelar</button>
-      <button class="btn btn-accent" style="flex:1" onclick="saveMeta()">Salvar limite</button>
+      <button class="btn btn-accent liquid-glass-cta liquid-glass-interactive" style="flex:1" onclick="saveMeta()">Salvar limite</button>
     </div>
   </div>
 </div>
@@ -3589,7 +3903,7 @@ button:active:not(:disabled),
     <div class="meta-preview" id="rendaPreview" style="display:none;margin-top:14px"></div>
     <div class="pa">
       <button class="btn btn-ghost-light" style="flex:1" onclick="closeModals()">Cancelar</button>
-      <button class="btn btn-accent" style="flex:1" onclick="saveRenda()">Salvar</button>
+      <button class="btn btn-accent liquid-glass-cta liquid-glass-interactive" style="flex:1" onclick="saveRenda()">Salvar</button>
     </div>
   </div>
 </div>
@@ -3628,7 +3942,7 @@ button:active:not(:disabled),
     <div class="meta-preview" id="regPreview" style="display:none;margin-top:14px"></div>
     <div class="pa">
       <button class="btn btn-ghost-light" style="flex:1" onclick="closeModals()">Cancelar</button>
-      <button class="btn btn-accent" style="flex:1" onclick="saveRegistroMes()">Salvar Registro</button>
+      <button class="btn btn-accent liquid-glass-cta liquid-glass-interactive" style="flex:1" onclick="saveRegistroMes()">Salvar Registro</button>
     </div>
   </div>
 </div>
@@ -3646,7 +3960,7 @@ button:active:not(:disabled),
     </div>
     <div class="gd-body" id="gdBody"></div>
     <div class="gd-actions">
-      <button class="btn btn-accent" id="gdSaveBtn" onclick="saveGastoDetail()" style="display:none">Salvar Alterações</button>
+      <button class="btn btn-accent liquid-glass-cta liquid-glass-interactive" id="gdSaveBtn" onclick="saveGastoDetail()" style="display:none">Salvar Alterações</button>
       <button class="btn btn-danger-soft" id="gdDelBtn" onclick="deleteGastoDetail()">🗑 Remover</button>
     </div>
   </div>
@@ -3774,7 +4088,7 @@ button:active:not(:disabled),
     </div>
     <div class="pa">
       <button class="btn btn-ghost-light" style="flex:1" onclick="closeModals()">Cancelar</button>
-      <button class="btn btn-accent" style="flex:1" id="expenseSaveBtn" onclick="saveExpenseModal()">Salvar despesa</button>
+      <button class="btn btn-accent liquid-glass-cta liquid-glass-interactive" style="flex:1" id="expenseSaveBtn" onclick="saveExpenseModal()">Salvar despesa</button>
     </div>
   </div>
 </div>
@@ -5382,7 +5696,7 @@ function saveItem() {
   });
 }
 
-function openEdit() {
+function openEdit(row) {
   document.body.classList.add("modal-open");
   triggerHaptic(10);
   const item = DATA.find(i => i.row === row);
@@ -5653,7 +5967,7 @@ function addGastoVariavel() {
   toast('✅ Gasto variável adicionado');
 }
 
-function openExpenseModal() {
+function openExpenseModal(scope = 'casa', type = 'fixo') {
   document.body.classList.add("modal-open");
   triggerHaptic(10);
   const personal = scope === 'pessoal';
@@ -5684,7 +5998,7 @@ function saveExpenseModal() {
   const date = document.getElementById('expenseDate').value || todayISO();
   if (!name) { toast('⚠ Nome é obrigatório', 'warn'); return; }
   if (value <= 0) { toast('⚠ Informe um valor válido', 'warn'); return; }
-  const record = { id: scope === 'pessoal' ? Date.now() : String(Date.now()), nome: name, valor: value, cor: gfCor(Date.now()), data, acertadoMes: '' };
+  const record = { id: scope === 'pessoal' ? Date.now() : String(Date.now()), nome: name, valor: value, cor: gfCor(Date.now()), data: date, acertadoMes: '' };
 
   if (scope === 'pessoal') {
     if (type === 'fixo') { P_GASTOS_FIXOS.push(record); pSaveFixos(); }
@@ -5935,7 +6249,7 @@ function closeGastoDetail() {
 function saveGastoDetail() {
   if (!_gdType || !_gdId) return;
   const list = _gdType === 'fixo' ? GASTOS_FIXOS : GASTOS_VARIAVEIS;
-  const g = list.find(x => x.id === _gdId);
+  const g = list.find(x => String(x.id) === String(_gdId));
   if (!g) return;
 
   const nome  = document.getElementById('gdNome').value.trim();
@@ -6739,7 +7053,7 @@ function pSaveItem() {
   toast('✅ Item pessoal salvo!');
 }
 
-function pOpenEdit() {
+function pOpenEdit(idx) {
   document.body.classList.add("modal-open");
   triggerHaptic(10);
   const item = P_DATA[idx];
@@ -7103,6 +7417,137 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+</script>
+
+
+<script id="liquid-glass-engine">
+/* Liquid Glass engine — vanilla port of rdev/liquid-glass-react
+   1) Generates the edge displacement map (rounded-rect SDF) once, feeds the SVG filter.
+   2) Tracks the pointer in a single rAF loop: specular rim (--mouse-x/y) and
+      elastic translate/directional scale with damping 0.15 (elasticity prop). */
+(function () {
+  'use strict';
+  var root = document.documentElement;
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var coarse = window.matchMedia('(pointer: coarse)');
+  var ua = navigator.userAgent.toLowerCase();
+  var isChromium = !!window.chrome && ua.indexOf('firefox') === -1;
+
+  /* ── 1. Displacement map (port of shader-utils.ts) ── */
+  function smoothStep(a, b, t) { t = Math.max(0, Math.min(1, (t - a) / (b - a))); return t * t * (3 - 2 * t); }
+  function buildMap() {
+    var W = 192, H = 128;
+    var c = document.createElement('canvas'); c.width = W; c.height = H;
+    var ctx = c.getContext('2d'); if (!ctx) return null;
+    var img = ctx.createImageData(W, H), d = img.data, raw = new Float32Array(W * H * 2), max = 0, i = 0, x, y;
+    for (y = 0; y < H; y++) {
+      for (x = 0; x < W; x++) {
+        var u = x / W, v = y / H, ix = u - 0.5, iy = v - 0.5;
+        var edge = Math.min(u, 1 - u, v, 1 - v);          // distance to nearest edge (0..0.5)
+        var e = smoothStep(0.16, 0, edge);                 // 1 at the rim, 0 in the body
+        var scaled = 1 - e * 0.55;                         // sample toward the center at the rim
+        var dx = (ix * scaled + 0.5) * W - x, dy = (iy * scaled + 0.5) * H - y;
+        raw[i++] = dx; raw[i++] = dy;
+        max = Math.max(max, Math.abs(dx), Math.abs(dy));
+      }
+    }
+    max = Math.max(max, 1); i = 0;
+    for (y = 0; y < H; y++) {
+      for (x = 0; x < W; x++) {
+        var ef = Math.min(1, Math.min(x, y, W - x - 1, H - y - 1) / 2);
+        var r = (raw[i++] * ef) / max + 0.5, g = (raw[i++] * ef) / max + 0.5, p = (y * W + x) * 4;
+        d[p] = r * 255; d[p + 1] = g * 255; d[p + 2] = g * 255; d[p + 3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    return c.toDataURL('image/png');
+  }
+  function enableRefraction() {
+    if (!isChromium || coarse.matches) return;
+    var fe = document.getElementById('lgDisplacementMap');
+    if (!fe) return;
+    var url = buildMap();
+    if (!url) return;
+    fe.setAttribute('href', url);
+    fe.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', url);
+    root.classList.add('lg-refraction');
+  }
+
+  /* ── 2. Pointer physics ── */
+  var ELASTICITY = 0.15, DAMPING = 0.15, SELECTOR = '.liquid-glass-interactive';
+  var states = new Map(), mouse = { x: 0, y: 0 }, current = null, rafId = 0;
+
+  function stateFor(el) {
+    var s = states.get(el);
+    if (!s) { s = { tx: 0, ty: 0, sx: 1, sy: 1, gtx: 0, gty: 0, gsx: 1, gsy: 1 }; states.set(el, s); }
+    return s;
+  }
+  function computeGoal(el, s) {
+    var r = el.getBoundingClientRect();
+    var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    var dx = mouse.x - cx, dy = mouse.y - cy, dist = Math.sqrt(dx * dx + dy * dy);
+    el.style.setProperty('--mouse-x', ((mouse.x - r.left) / r.width * 100).toFixed(2) + '%');
+    el.style.setProperty('--mouse-y', ((mouse.y - r.top) / r.height * 100).toFixed(2) + '%');
+    if (!dist) { s.gtx = s.gty = 0; s.gsx = s.gsy = 1; return; }
+    var nx = Math.abs(dx / dist), ny = Math.abs(dy / dist);
+    var k = Math.min(dist / 300, 1) * ELASTICITY;
+    // Large cards move less than pills: attenuate by size
+    var sizeDamp = Math.min(1, 180 / Math.max(r.width, r.height));
+    s.gtx = dx * ELASTICITY * 0.1 * sizeDamp;
+    s.gty = dy * ELASTICITY * 0.1 * sizeDamp;
+    s.gsx = Math.max(0.97, 1 + (nx * k * 0.3 - ny * k * 0.15) * sizeDamp * 0.35);
+    s.gsy = Math.max(0.97, 1 + (ny * k * 0.3 - nx * k * 0.15) * sizeDamp * 0.35);
+  }
+  function tick() {
+    rafId = 0;
+    var active = false;
+    states.forEach(function (s, el) {
+      if (el === current) computeGoal(el, s); else { s.gtx = s.gty = 0; s.gsx = s.gsy = 1; }
+      s.tx += (s.gtx - s.tx) * DAMPING; s.ty += (s.gty - s.ty) * DAMPING;
+      s.sx += (s.gsx - s.sx) * DAMPING; s.sy += (s.gsy - s.sy) * DAMPING;
+      var settled = Math.abs(s.tx) < 0.05 && Math.abs(s.ty) < 0.05 && Math.abs(s.sx - 1) < 0.0005 && Math.abs(s.sy - 1) < 0.0005;
+      if (el !== current && settled) {
+        el.style.removeProperty('--lg-tx'); el.style.removeProperty('--lg-ty');
+        el.style.removeProperty('--lg-sx'); el.style.removeProperty('--lg-sy');
+        states.delete(el);
+        return;
+      }
+      el.style.setProperty('--lg-tx', s.tx.toFixed(2) + 'px');
+      el.style.setProperty('--lg-ty', s.ty.toFixed(2) + 'px');
+      el.style.setProperty('--lg-sx', s.sx.toFixed(4));
+      el.style.setProperty('--lg-sy', s.sy.toFixed(4));
+      active = true;
+    });
+    if (active) rafId = requestAnimationFrame(tick);
+  }
+  function schedule() { if (!rafId) rafId = requestAnimationFrame(tick); }
+
+  function onMove(e) {
+    if (e.pointerType && e.pointerType !== 'mouse') return;
+    mouse.x = e.clientX; mouse.y = e.clientY;
+    var target = e.target && e.target.closest ? e.target.closest(SELECTOR) : null;
+    if (target !== current) {
+      if (current) current.classList.remove('lg-lit');
+      current = target;
+      if (current) { current.classList.add('lg-lit'); stateFor(current); }
+    }
+    if (current || states.size) schedule();
+  }
+  function onLeave() {
+    if (current) current.classList.remove('lg-lit');
+    current = null;
+    if (states.size) schedule();
+  }
+  function bindPhysics() {
+    if (reduceMotion.matches || coarse.matches) return;
+    document.addEventListener('pointermove', onMove, { passive: true });
+    document.addEventListener('pointerleave', onLeave, { passive: true });
+    window.addEventListener('blur', onLeave);
+  }
+
+  function init() { enableRefraction(); bindPhysics(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
 </script>
 </body>
 </html>
