@@ -3316,6 +3316,559 @@ html .liquid-glass-interactive:active:not(:disabled) {
   [data-theme="dark"] { --surface-subtle: #191c28; }
 }
 </style>
+
+
+
+<style id="couple-suite-styles">
+/* ═══════════════════════════════════════════════════════════════════════════
+   CASA NOVA COUPLE SUITE — Visor Pacing + Splitwise Settlement + Quick-Add
+   WCAG AA/AAA Verified · Tabular Nums · Zero Anti-Patterns
+   ═══════════════════════════════════════════════════════════════════════════ */
+/* ── 1. Sub-navigation Segmented Control (iOS / Visor style) ── */
+.casa-subnav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.casa-subnav {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px;
+  border-radius: var(--r-full);
+  background: var(--lg-t2, var(--surface));
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--lg-inset), var(--sh-sm);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.casa-subnav::-webkit-scrollbar { display: none; }
+.casa-subnav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 15px;
+  min-height: 38px;
+  border-radius: var(--r-full);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--transition-fast), color var(--transition-fast), transform 120ms var(--ease-spring), box-shadow var(--transition-fast);
+}
+.casa-subnav-btn:hover {
+  color: var(--text);
+  background: var(--surface-subtle);
+}
+.casa-subnav-btn.active {
+  background: var(--text);
+  color: var(--bg);
+  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.22);
+}
+.casa-subnav-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: var(--r-full);
+  background: rgba(128, 128, 128, 0.18);
+  color: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.casa-subnav-btn.active .casa-subnav-badge {
+  background: rgba(255, 255, 255, 0.22);
+}
+[data-theme="dark"] .casa-subnav-btn.active .casa-subnav-badge {
+  background: rgba(15, 23, 42, 0.22);
+}
+/* View visibility filtering on #mainCasa */
+#mainCasa[data-casa-view="mes"] .kpis,
+#mainCasa[data-casa-view="mes"] #chartsGrid,
+#mainCasa[data-casa-view="mes"] #casaItemsSection,
+#mainCasa[data-casa-view="mes"] #casaHistCard {
+  display: none !important;
+}
+#mainCasa[data-casa-view="mes"] .gastos-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (max-width: 820px) {
+  #mainCasa[data-casa-view="mes"] .gastos-grid {
+    grid-template-columns: 1fr;
+  }
+}
+#mainCasa[data-casa-view="compras"] #visorPacingCard,
+#mainCasa[data-casa-view="compras"] #coupleSettlementCard,
+#mainCasa[data-casa-view="compras"] .attention-card,
+#mainCasa[data-casa-view="compras"] #rendaBar,
+#mainCasa[data-casa-view="compras"] #metaBar,
+#mainCasa[data-casa-view="compras"] #resumoMes,
+#mainCasa[data-casa-view="compras"] .gastos-section,
+#mainCasa[data-casa-view="compras"] #chartsGrid {
+  display: none !important;
+}
+#mainCasa[data-casa-view="analise"] .attention-card,
+#mainCasa[data-casa-view="analise"] #coupleSettlementCard,
+#mainCasa[data-casa-view="analise"] #casaFixosCard,
+#mainCasa[data-casa-view="analise"] #casaVariaveisCard,
+#mainCasa[data-casa-view="analise"] #casaItemsSection {
+  display: none !important;
+}
+#mainCasa[data-casa-view="analise"] .gastos-grid {
+  grid-template-columns: 1fr;
+}
+/* ── 2. Smart Quick-Add Bar (Nubank / Copilot natural input) ── */
+.smart-quick-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px 6px 14px;
+  border-radius: var(--r-full);
+  background: var(--lg-t2, var(--surface));
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--lg-inset), var(--sh-sm);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  flex: 1;
+  min-width: 280px;
+}
+.smart-quick-ico {
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.smart-quick-input {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  outline: none;
+  min-width: 140px;
+}
+.smart-quick-input::placeholder {
+  color: var(--muted);
+}
+.smart-quick-preview {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-lt);
+  border: 1px solid var(--accent-border);
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  display: none;
+}
+.smart-quick-btn {
+  padding: 7px 14px;
+  min-height: 34px;
+  border-radius: var(--r-full);
+  border: 1px solid transparent;
+  background: var(--accent);
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--transition-fast), transform 120ms var(--ease-spring);
+}
+.smart-quick-btn:hover {
+  background: var(--accent-hover);
+}
+/* ── 3. Visor App Income Composition & Safe-to-Spend Bar ── */
+.visor-card {
+  margin-bottom: 18px;
+  padding: 18px 20px;
+  border-radius: var(--r-lg);
+}
+.visor-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.visor-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.visor-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.visor-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.015em;
+}
+.visor-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.visor-daily-pill {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: var(--r-full);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.visor-health-pill {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: var(--r-full);
+  font-variant-numeric: tabular-nums;
+}
+.visor-health-pill.ok {
+  background: var(--accent-lt);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+}
+.visor-health-pill.warn {
+  background: var(--warn-lt);
+  color: var(--warn);
+  border: 1px solid var(--warn-border);
+}
+.visor-health-pill.danger {
+  background: var(--danger-lt);
+  color: var(--danger);
+  border: 1px solid var(--danger-border);
+}
+.visor-stack-track {
+  height: 14px;
+  width: 100%;
+  border-radius: var(--r-full);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  margin-bottom: 14px;
+}
+.visor-seg {
+  height: 100%;
+  border-radius: var(--r-full);
+  transition: width 500ms var(--ease-spring);
+  min-width: 0;
+}
+.visor-legend {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (max-width: 768px) {
+  .visor-legend {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.visor-bucket {
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.visor-bucket-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.visor-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+  flex-shrink: 0;
+}
+.visor-bucket-val {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.visor-bucket-pct {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+/* ── 4. Splitwise / Honeydue Couple Settlement Card ── */
+.settlement-card {
+  margin-bottom: 18px;
+  padding: 18px 20px;
+  border-radius: var(--r-lg);
+}
+.settlement-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr 1fr;
+  gap: 12px;
+  align-items: stretch;
+}
+@media (max-width: 860px) {
+  .settlement-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.settlement-hero {
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-strong);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+}
+.settlement-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.settlement-verdict {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+}
+.settlement-verdict strong {
+  color: var(--accent);
+}
+.settlement-sub {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.settlement-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+.settlement-btn {
+  padding: 7px 13px;
+  min-height: 36px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), transform 120ms var(--ease-spring);
+}
+.settlement-btn:hover {
+  background: var(--surface-active);
+}
+.settlement-btn.primary {
+  background: var(--accent);
+  border-color: transparent;
+  color: #ffffff;
+}
+.settlement-btn.primary:hover {
+  background: var(--accent-hover);
+}
+.settlement-person {
+  padding: 13px 15px;
+  border-radius: var(--r-md);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+}
+.settlement-person-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.settlement-person-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+.settlement-person-share {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.settlement-person-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.settlement-person-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.settlement-person-row strong {
+  color: var(--text);
+  font-weight: 600;
+}
+/* ── 5. Payer Pill ("Quem pagou?") on expense & item rows ── */
+.payer-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  min-height: 26px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-subtle);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), transform 120ms var(--ease-spring);
+}
+.payer-pill:hover {
+  border-color: var(--text-secondary);
+  background: var(--surface-active);
+}
+.payer-pill.paid-by-p0,
+.payer-pill.paid-by-p1 {
+  background: var(--accent-lt);
+  color: var(--accent);
+  border-color: var(--accent-border);
+}
+.payer-pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+/* ── 6. Period Close/Rollover Button & Modal Type Switcher ── */
+.period-close-month-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  min-height: 38px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--accent-border);
+  background: var(--accent-lt);
+  color: var(--accent);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--transition-fast), transform 120ms var(--ease-spring);
+}
+.period-close-month-btn:hover {
+  background: var(--accent);
+  color: #ffffff;
+}
+.unified-type-switch {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  padding: 4px;
+  border-radius: var(--r-md);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+.unified-type-btn {
+  padding: 8px 10px;
+  min-height: 38px;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.unified-type-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border-strong);
+  box-shadow: var(--sh-sm);
+}
+.virada-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.virada-step input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+.virada-step-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.virada-step-sub {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+</style>
 </head>
 <body>
 <!-- LG:DEFS -->
@@ -3405,6 +3958,7 @@ html .liquid-glass-interactive:active:not(:disabled) {
       <button class="period-btn" id="periodPrev" type="button" onclick="changeSelectedMonth(-1)" aria-label="Mês anterior">‹</button>
       <button class="period-today" type="button" onclick="resetSelectedMonth()">Mês atual</button>
       <button class="period-btn" id="periodNext" type="button" onclick="changeSelectedMonth(1)" aria-label="Próximo mês">›</button>
+      <button class="period-close-month-btn" type="button" onclick="openViradaMes()" title="Ritual guiado de fechamento e virada do mês">✨ Fechar mês</button>
     </div>
   </section>
 
@@ -3414,6 +3968,86 @@ html .liquid-glass-interactive:active:not(:disabled) {
     <div class="month-kpi liquid-glass liquid-glass-interactive" style="--mk:var(--accent)"><div class="month-kpi-label">Saldo livre</div><div class="month-kpi-value" id="monthBalance">—</div><div class="month-kpi-note" id="monthBalanceNote">após os gastos</div></div>
     <div class="month-kpi liquid-glass liquid-glass-interactive" style="--mk:var(--purple)"><div class="month-kpi-label">Comprometimento</div><div class="month-kpi-value" id="monthCommitment">—</div><div class="month-kpi-note" id="monthCommitmentNote">da renda do casal</div></div>
   </section>
+
+  
+  
+
+  
+  
+
+  
+  <!-- COUPLE-SUITE:TOP -->
+  <div class="casa-subnav-bar" role="region" aria-label="Modos de visualização e lançamento rápido">
+    <div class="casa-subnav" role="tablist" aria-label="Visões da aba Casa">
+      <button class="casa-subnav-btn active" type="button" role="tab" aria-selected="true" data-view="tudo" onclick="setCasaSubView('tudo', this)">🗂️ Tudo</button>
+      <button class="casa-subnav-btn" type="button" role="tab" aria-selected="false" data-view="mes" onclick="setCasaSubView('mes', this)">📌 Dia a Dia <span class="casa-subnav-badge" id="badgeSubMes">0</span></button>
+      <button class="casa-subnav-btn" type="button" role="tab" aria-selected="false" data-view="compras" onclick="setCasaSubView('compras', this)">📦 Compras & Parcelas <span class="casa-subnav-badge" id="badgeSubCompras">0</span></button>
+      <button class="casa-subnav-btn" type="button" role="tab" aria-selected="false" data-view="analise" onclick="setCasaSubView('analise', this)">📊 Análise & Visor</button>
+    </div>
+    <form class="smart-quick-bar" onsubmit="event.preventDefault(); submitSmartQuickAdd();">
+      <span class="smart-quick-ico" aria-hidden="true">⚡</span>
+      <input class="smart-quick-input" id="smartQuickInput" type="text" placeholder="Lançar em 1 frase: ex. Mercado 280, Aluguel 2200 fixo ou Sofá 3600 10x Sala" oninput="previewSmartQuickAdd(this.value)" aria-label="Lançamento rápido em uma frase">
+      <span class="smart-quick-preview" id="smartQuickPreview"></span>
+      <button class="smart-quick-btn" type="submit">+ Lançar</button>
+    </form>
+  </div>
+  <!-- Visor App: Composição da Renda & Sobra Livre -->
+  <section class="card visor-card" id="visorPacingCard" aria-label="Composição da renda e sobra livre">
+    <div class="visor-head">
+      <div class="visor-title-wrap">
+        <span class="visor-eyebrow">Raio-X do Mês · Estilo Visor</span>
+        <div class="visor-title" id="visorHeadline">Para onde vai a renda do casal neste mês</div>
+      </div>
+      <div class="visor-badges">
+        <span class="visor-daily-pill" id="visorDailyAllowance">Livre/dia: —</span>
+        <span class="visor-health-pill ok" id="visorHealthBadge">Calculando…</span>
+      </div>
+    </div>
+    <div class="visor-stack-track" role="img" aria-label="Barra de composição da renda">
+      <div class="visor-seg" id="visorSegFixos" style="width:0%;background:var(--blue)" title="Gastos Fixos"></div>
+      <div class="visor-seg" id="visorSegParcelas" style="width:0%;background:var(--ai)" title="Parcelas do Mês"></div>
+      <div class="visor-seg" id="visorSegVariaveis" style="width:0%;background:var(--warn)" title="Gastos Variáveis"></div>
+      <div class="visor-seg" id="visorSegLivre" style="width:100%;background:var(--accent)" title="Sobra Livre"></div>
+    </div>
+    <div class="visor-legend">
+      <div class="visor-bucket">
+        <div class="visor-bucket-top"><span><span class="visor-dot" style="background:var(--blue)"></span>Fixos</span><span class="visor-bucket-pct" id="visorPctFixos">0%</span></div>
+        <div class="visor-bucket-val" id="visorValFixos">R$ 0</div>
+      </div>
+      <div class="visor-bucket">
+        <div class="visor-bucket-top"><span><span class="visor-dot" style="background:var(--ai)"></span>Parcelas</span><span class="visor-bucket-pct" id="visorPctParcelas">0%</span></div>
+        <div class="visor-bucket-val" id="visorValParcelas">R$ 0</div>
+      </div>
+      <div class="visor-bucket">
+        <div class="visor-bucket-top"><span><span class="visor-dot" style="background:var(--warn)"></span>Variáveis</span><span class="visor-bucket-pct" id="visorPctVariaveis">0%</span></div>
+        <div class="visor-bucket-val" id="visorValVariaveis">R$ 0</div>
+      </div>
+      <div class="visor-bucket">
+        <div class="visor-bucket-top"><span><span class="visor-dot" style="background:var(--accent)"></span>Livre no Mês</span><span class="visor-bucket-pct" id="visorPctLivre">0%</span></div>
+        <div class="visor-bucket-val" id="visorValLivre">R$ 0</div>
+      </div>
+    </div>
+  </section>
+  <!-- Splitwise / Honeydue: Balanço "Quem Pagou?" & Acerto Pix entre o Casal -->
+  <section class="card settlement-card" id="coupleSettlementCard" aria-label="Balanço e acerto entre o casal">
+    <div class="settlement-grid">
+      <div class="settlement-hero">
+        <div>
+          <div class="settlement-eyebrow">🤝 Balanço Real entre o Casal · Quem Pagou vs. Parte Justa</div>
+          <div class="settlement-verdict" id="settlementVerdict">Calculando acerto do mês…</div>
+          <div class="settlement-sub" id="settlementSub">Toque no botão "Quem pagou" em qualquer conta abaixo quando uma pessoa pagar o valor inteiro sozinha.</div>
+        </div>
+        <div class="settlement-actions">
+          <button class="settlement-btn primary" type="button" onclick="settleAllPendingMonth()">✓ Marcar mês como acertado</button>
+          <button class="settlement-btn" type="button" onclick="openViradaMes()">✨ Fechar / Virar mês</button>
+          <button class="settlement-btn" type="button" onclick="openRenda()">⚖️ Ajustar divisão (%)</button>
+        </div>
+      </div>
+      <div class="settlement-person" id="settlementPerson0"></div>
+      <div class="settlement-person" id="settlementPerson1"></div>
+    </div>
+  </section>
+  <!-- /COUPLE-SUITE:TOP -->
 
   <section class="attention-card" aria-label="Pontos de atenção">
     <div class="attention-head"><div class="attention-title">O que precisa de atenção</div><span class="attention-count" id="attentionCount">0 alertas</span></div>
@@ -3481,7 +4115,7 @@ html .liquid-glass-interactive:active:not(:disabled) {
       <div class="sec-title">Gastos Fixos & Histórico</div>
     </div>
     <div class="gastos-grid">
-      <div class="card">
+      <div class="card" id="casaFixosCard">
         <div class="card-head">
         <div><div class="card-title">Gastos fixos mensais</div><div class="card-sub">aluguel, internet, mercado…</div></div>
         </div>
@@ -3501,7 +4135,7 @@ html .liquid-glass-interactive:active:not(:disabled) {
         <button class="expense-add-button" type="button" onclick="openExpenseModal('casa','fixo')">Adicionar gasto fixo</button>
       </div>
 
-      <div class="card">
+      <div class="card" id="casaVariaveisCard">
         <div class="card-head">
           <div><div class="card-title">Gastos Variáveis</div><div class="card-sub">luz, água, mercado…</div></div>
         </div>
@@ -3521,7 +4155,7 @@ html .liquid-glass-interactive:active:not(:disabled) {
         <button class="expense-add-button" type="button" onclick="openExpenseModal('casa','variavel')">Adicionar gasto variável</button>
       </div>
 
-      <div class="card">
+      <div class="card" id="casaHistCard">
         <div class="card-head">
           <div><div class="card-title">Histórico de Gastos</div><div class="card-sub" id="histSub">últimos meses</div></div>
           <div class="hist-tabs">
@@ -3565,7 +4199,7 @@ html .liquid-glass-interactive:active:not(:disabled) {
     </div>
   </div>
 
-  <div>
+  <div id="casaItemsSection">
     <div class="sec-header">
       <div class="sec-title">Progresso por Item</div>
       <span class="sec-meta" id="lastUpd"></span>
@@ -3653,7 +4287,7 @@ html .liquid-glass-interactive:active:not(:disabled) {
       <div class="sec-title">Gastos Fixos & Histórico Pessoal</div>
     </div>
     <div class="gastos-grid">
-      <div class="card">
+      <div class="card" id="casaFixosCard">
         <div class="card-head"><div><div class="card-title">Fixos Pessoais</div><div class="card-sub">despesas mensais suas</div></div></div>
         <div class="gf-list" id="pGfList"></div>
         <div class="gf-total-row">
@@ -3791,6 +4425,13 @@ html .liquid-glass-interactive:active:not(:disabled) {
       <h2>Novo Gasto</h2>
       <p class="panel-sub">Preencha os dados e o item será salvo na planilha.</p>
     </div>
+    <!-- COUPLE-SUITE:ADD-SWITCH -->
+    <div class="unified-type-switch" role="tablist" aria-label="Tipo de lançamento">
+      <button type="button" class="unified-type-btn active" onclick="switchUnifiedAddMode('item')">📦 Compra / Parcelado</button>
+      <button type="button" class="unified-type-btn" onclick="switchUnifiedAddMode('fixo')">📌 Conta Fixa Mensal</button>
+      <button type="button" class="unified-type-btn" onclick="switchUnifiedAddMode('variavel')">⚡ Gasto Variável</button>
+    </div>
+    <!-- /COUPLE-SUITE:ADD-SWITCH -->
     <div class="fg">
       <label class="fl">Nome</label>
       <input class="fi" id="nNome" placeholder="Ex: Geladeira Frost Free">
@@ -4081,6 +4722,23 @@ html .liquid-glass-interactive:active:not(:disabled) {
       <div class="fg"><label class="fl">Área</label><select class="fi" id="expenseScopeView" disabled><option value="casa">Casa Nova</option><option value="pessoal">Pessoal</option></select></div>
       <div class="fg"><label class="fl">Tipo</label><select class="fi" id="expenseTypeView" onchange="syncExpenseType(this.value)"><option value="fixo">Gasto fixo</option><option value="variavel">Gasto variável</option></select></div>
     </div>
+    <!-- COUPLE-SUITE:EXP-PAYER -->
+    <div class="unified-type-switch" role="tablist" aria-label="Alternar tipo de lançamento">
+      <button type="button" class="unified-type-btn" id="expSwitchItem" onclick="switchUnifiedAddMode('item')">📦 Compra / Parcelado</button>
+      <button type="button" class="unified-type-btn active" id="expSwitchFixo" onclick="switchUnifiedAddMode('fixo')">📌 Conta Fixa Mensal</button>
+      <button type="button" class="unified-type-btn" id="expSwitchVar" onclick="switchUnifiedAddMode('variavel')">⚡ Gasto Variável</button>
+    </div>
+    <div class="fg">
+      <label class="fl" for="expensePaidBy">Quem pagou este gasto?</label>
+      <select class="fi" id="expensePaidBy">
+        <option value="dividido">⚖️ Cada um pagou sua parte (proporcional à renda)</option>
+        <option value="p0" id="expOptP0">💳 Pago 100% por Pessoa 1</option>
+        <option value="p1" id="expOptP1">💳 Pago 100% por Pessoa 2</option>
+        <option value="5050-p0" id="expOpt50P0">🤝 Divisão 50/50 · Pago por Pessoa 1</option>
+        <option value="5050-p1" id="expOpt50P1">🤝 Divisão 50/50 · Pago por Pessoa 2</option>
+      </select>
+    </div>
+    <!-- /COUPLE-SUITE:EXP-PAYER -->
     <div class="fg"><label class="fl">Nome</label><input class="fi" id="expenseName" placeholder="Ex: Internet, mercado ou academia"></div>
     <div class="row-2">
       <div class="fg"><label class="fl">Valor mensal (R$)</label><input class="fi" type="number" id="expenseValue" min="0" step="0.01" placeholder="0,00"></div>
@@ -4092,6 +4750,52 @@ html .liquid-glass-interactive:active:not(:disabled) {
     </div>
   </div>
 </div>
+
+
+
+<!-- COUPLE-SUITE:MODALS -->
+<div class="overlay" id="viradaMesOverlay" role="dialog" aria-modal="true" aria-labelledby="viradaMesTitle">
+  <div class="panel" style="max-width:520px">
+    <div class="panel-header">
+      <span class="panel-ico">✨</span>
+      <h2 id="viradaMesTitle">Fechamento & Virada do Mês</h2>
+      <p class="panel-sub" id="viradaMesSub">Conclua o mês atual do casal em 1 clique.</p>
+    </div>
+    <label class="virada-step">
+      <input type="checkbox" id="viradaChkHist" checked>
+      <div>
+        <div class="virada-step-title">1. Salvar fotografia no Histórico Mensal</div>
+        <div class="virada-step-sub" id="viradaHistDesc">Registra Fixos + Variáveis + Parcelas do mês atual no gráfico de evolução.</div>
+      </div>
+    </label>
+    <label class="virada-step">
+      <input type="checkbox" id="viradaChkParcelas" checked>
+      <div>
+        <div class="virada-step-title">2. Avançar +1 parcela paga nas compras ativas</div>
+        <div class="virada-step-sub" id="viradaParcelasDesc">Marca a próxima parcela pendente nas compras em andamento.</div>
+      </div>
+    </label>
+    <label class="virada-step">
+      <input type="checkbox" id="viradaChkNextMonth" checked>
+      <div>
+        <div class="virada-step-title">3. Avançar visão para o próximo mês</div>
+        <div class="virada-step-sub">As contas fixas ficam automaticamente liberadas (desmarcadas) para o novo mês.</div>
+      </div>
+    </label>
+    <label class="virada-step">
+      <input type="checkbox" id="viradaChkClearVar">
+      <div>
+        <div class="virada-step-title">4. Limpar gastos variáveis pontuais após arquivar</div>
+        <div class="virada-step-sub">Opcional: zera a lista de variáveis para começar o próximo mês do zero.</div>
+      </div>
+    </label>
+    <div class="pa">
+      <button class="btn btn-ghost-light" type="button" style="flex:1" onclick="closeModals()">Cancelar</button>
+      <button class="btn btn-accent liquid-glass-cta liquid-glass-interactive" type="button" style="flex:1" onclick="executeViradaMes()">✨ Concluir e Virar Mês</button>
+    </div>
+  </div>
+</div>
+<!-- /COUPLE-SUITE:MODALS -->
 
 <div class="toast-wrap" id="toastWrap">
   <div class="toast" id="toast"></div>
@@ -7547,6 +8251,614 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function init() { enableRefraction(); bindPhysics(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+
+
+
+<script id="couple-suite-engine">
+/* ═══════════════════════════════════════════════════════════════════════════
+   CASA NOVA COUPLE SUITE ENGINE
+   1. Payer Tracking ("Quem pagou?") & Couple Settlement (Splitwise-style)
+   2. Visor App Income Composition & Safe-to-Spend Daily Allowance
+   3. Sub-view Segmented Navigation (Tudo / Dia a Dia / Compras / Análise)
+   4. Smart Natural-Language Quick-Add & Unified Modal Switcher
+   5. 1-Click Guided Month Rollover ("Fechar / Virar Mês")
+   ═══════════════════════════════════════════════════════════════════════════ */
+let PAGADORES_MAP = {};
+try {
+  PAGADORES_MAP = JSON.parse(localStorage.getItem('cn_pagadores') || '{}') || {};
+} catch (_) {
+  PAGADORES_MAP = {};
+}
+function savePagadoresMap() {
+  localStorage.setItem('cn_pagadores', JSON.stringify(PAGADORES_MAP));
+}
+function getPayerKey(kind, id, monthKey) {
+  const m = monthKey || (typeof SELECTED_MONTH !== 'undefined' ? SELECTED_MONTH : '');
+  return `${kind}:${String(id)}:${m}`;
+}
+function getRecordPayer(kind, record) {
+  if (!record) return 'dividido';
+  const id = record.id !== undefined ? record.id : record.row;
+  const monthKey = typeof SELECTED_MONTH !== 'undefined' ? SELECTED_MONTH : '';
+  return PAGADORES_MAP[getPayerKey(kind, id, monthKey)]
+      || PAGADORES_MAP[`${kind}:${String(id)}`]
+      || record.pagoPor
+      || 'dividido';
+}
+function setRecordPayer(kind, id, value, record) {
+  const monthKey = typeof SELECTED_MONTH !== 'undefined' ? SELECTED_MONTH : '';
+  PAGADORES_MAP[getPayerKey(kind, id, monthKey)] = value;
+  PAGADORES_MAP[`${kind}:${String(id)}`] = value;
+  if (record) record.pagoPor = value;
+  savePagadoresMap();
+}
+function getPayerMeta(code) {
+  const p0 = (typeof PESSOAS !== 'undefined' && PESSOAS[0]) ? PESSOAS[0] : { nome: 'Pessoa 1', cor: '#2563eb' };
+  const p1 = (typeof PESSOAS !== 'undefined' && PESSOAS[1]) ? PESSOAS[1] : { nome: 'Pessoa 2', cor: '#047857' };
+  switch (code) {
+    case 'p0':
+      return { code: 'p0', label: `${p0.nome} pagou`, short: p0.nome, color: p0.cor, cls: 'paid-by-p0' };
+    case 'p1':
+      return { code: 'p1', label: `${p1.nome} pagou`, short: p1.nome, color: p1.cor, cls: 'paid-by-p1' };
+    case '5050-p0':
+      return { code: '5050-p0', label: `50/50 · ${p0.nome} pagou`, short: `50/50 ${p0.nome}`, color: p0.cor, cls: 'paid-by-p0' };
+    case '5050-p1':
+      return { code: '5050-p1', label: `50/50 · ${p1.nome} pagou`, short: `50/50 ${p1.nome}`, color: p1.cor, cls: 'paid-by-p1' };
+    default:
+      return { code: 'dividido', label: 'Dividido (% renda)', short: 'Dividido', color: 'var(--muted)', cls: '' };
+  }
+}
+function cyclePayer(kind, id) {
+  const order = ['dividido', 'p0', 'p1', '5050-p0', '5050-p1'];
+  let record = null;
+  if (kind === 'fixo') record = GASTOS_FIXOS.find(g => String(g.id) === String(id));
+  else if (kind === 'variavel') record = GASTOS_VARIAVEIS.find(g => String(g.id) === String(id));
+  else if (kind === 'item') record = DATA.find(i => String(i.row) === String(id) || String(i.id) === String(id));
+  const current = getRecordPayer(kind, record || { id });
+  const next = order[(order.indexOf(current) + 1) % order.length];
+  setRecordPayer(kind, id, next, record);
+  if (kind === 'fixo') saveGF();
+  if (kind === 'variavel') saveGV();
+  if (typeof triggerHaptic === 'function') triggerHaptic(8);
+  refreshCoupleSuite();
+  if (kind === 'fixo') renderGastosFixos();
+  if (kind === 'variavel') renderGastosVariaveis();
+  if (kind === 'item') { _lastRenderHash = ''; render(); }
+  const meta = getPayerMeta(next);
+  toast(`💳 Quem pagou: ${meta.label}`);
+}
+function buildPayerPillHtml(kind, record) {
+  const id = record.id !== undefined && kind !== 'item' ? record.id : record.row;
+  const meta = getPayerMeta(getRecordPayer(kind, record));
+  return `<button type="button" class="payer-pill ${meta.cls}" onclick="event.stopPropagation(); cyclePayer('${kind}', '${escJs(id)}')" title="Clique para alternar quem pagou esta conta">
+    <span class="payer-pill-dot" style="background:${meta.color}"></span>
+    <span>${escapeHtml(meta.label)}</span>
+  </button>`;
+}
+/* ── 1. Sub-navigation Segmented Control ── */
+let CASA_SUB_VIEW = localStorage.getItem('cn_casa_subview') || 'tudo';
+function setCasaSubView(view, btn) {
+  CASA_SUB_VIEW = view || 'tudo';
+  localStorage.setItem('cn_casa_subview', CASA_SUB_VIEW);
+  const main = document.getElementById('mainCasa');
+  if (main) main.setAttribute('data-casa-view', CASA_SUB_VIEW);
+  document.querySelectorAll('.casa-subnav-btn').forEach(b => {
+    const active = b.getAttribute('data-view') === CASA_SUB_VIEW;
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+  const filtersBar = document.getElementById('filtersBar');
+  if (filtersBar) {
+    filtersBar.style.display = (CASA_SUB_VIEW === 'mes' || CASA_SUB_VIEW === 'analise') ? 'none' : '';
+  }
+  if (CASA_SUB_VIEW === 'analise' || CASA_SUB_VIEW === 'tudo') {
+    setTimeout(() => {
+      try {
+        const frac = ACTIVE_PERSON !== null ? splitFracs()[ACTIVE_PERSON] : 1;
+        renderCharts(DATA, frac);
+        renderHistorico();
+      } catch (_) {}
+    }, 30);
+  }
+}
+/* ── 2. Visor App Income Composition & Couple Settlement Calculation ── */
+function refreshCoupleSuite() {
+  if (!document.getElementById('visorPacingCard')) return;
+  const projected = projectionForMonth(DATA, GASTOS_FIXOS, GASTOS_VARIAVEIS);
+  const fixos = projected.fixed || 0;
+  const parcelas = projected.installments || 0;
+  const variaveis = projected.variable || 0;
+  const totalGasto = fixos + parcelas + variaveis;
+  const baseRenda = RENDA > 0 ? RENDA : (META > 0 ? META : Math.max(totalGasto, 1));
+  const livre = Math.max((RENDA || META || 0) - totalGasto, 0);
+  const deficit = (RENDA || META || 0) > 0 && totalGasto > (RENDA || META || 0) ? totalGasto - (RENDA || META || 0) : 0;
+  const pctF = Math.min(100, Math.round((fixos / baseRenda) * 100));
+  const pctP = Math.min(100 - pctF, Math.round((parcelas / baseRenda) * 100));
+  const pctV = Math.min(100 - pctF - pctP, Math.round((variaveis / baseRenda) * 100));
+  const pctL = Math.max(0, 100 - pctF - pctP - pctV);
+  const setEl = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  setEl('visorValFixos', fmt(fixos));
+  setEl('visorValParcelas', fmt(parcelas));
+  setEl('visorValVariaveis', fmt(variaveis));
+  setEl('visorValLivre', deficit > 0 ? '-' + fmt(deficit) : fmt(livre));
+  setEl('visorPctFixos', pctF + '%');
+  setEl('visorPctParcelas', pctP + '%');
+  setEl('visorPctVariaveis', pctV + '%');
+  setEl('visorPctLivre', (RENDA || META) ? (deficit > 0 ? 'Acima' : pctL + '%') : 'Defina renda');
+  const segF = document.getElementById('visorSegFixos');
+  const segP = document.getElementById('visorSegParcelas');
+  const segV = document.getElementById('visorSegVariaveis');
+  const segL = document.getElementById('visorSegLivre');
+  if (segF) segF.style.width = pctF + '%';
+  if (segP) segP.style.width = pctP + '%';
+  if (segV) segV.style.width = pctV + '%';
+  if (segL) segL.style.width = pctL + '%';
+  // Daily safe-to-spend allowance
+  const now = new Date();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const remainingDays = Math.max(1, daysInMonth - now.getDate() + 1);
+  const dailyFree = livre > 0 ? livre / remainingDays : 0;
+  setEl('visorDailyAllowance', (RENDA || META)
+    ? (deficit > 0 ? `Acima do orçamento em ${fmt(deficit)}` : `Livre por dia: ${fmt(dailyFree)}/dia (${remainingDays}d restantes)`)
+    : 'Configure a renda em 💵 para ver o limite diário');
+  const badge = document.getElementById('visorHealthBadge');
+  if (badge) {
+    if (!(RENDA || META)) {
+      badge.className = 'visor-health-pill warn';
+      badge.textContent = 'Defina a renda do casal';
+    } else if (deficit > 0) {
+      badge.className = 'visor-health-pill danger';
+      badge.textContent = `Orçamento estourado (${Math.round((totalGasto / baseRenda) * 100)}%)`;
+    } else if (pctL >= 25) {
+      badge.className = 'visor-health-pill ok';
+      badge.textContent = `Ritmo saudável · ${pctL}% livre`;
+    } else {
+      badge.className = 'visor-health-pill warn';
+      badge.textContent = `Atenção · apenas ${pctL}% livre`;
+    }
+  }
+  // Update sub-nav badges
+  const pendentesMes = GASTOS_FIXOS.filter(g => !isAcertadoMes(g)).length
+    + GASTOS_VARIAVEIS.filter(g => !isAcertadoMes(g)).length;
+  const comprasAtivas = DATA.filter(i => calcPago(i) < i.total).length;
+  setEl('badgeSubMes', pendentesMes);
+  setEl('badgeSubCompras', comprasAtivas);
+  // Couple Settlement math
+  const p0 = (PESSOAS && PESSOAS[0]) ? PESSOAS[0] : { nome: 'Pessoa 1', cor: '#2563eb', renda: 0 };
+  const p1 = (PESSOAS && PESSOAS[1]) ? PESSOAS[1] : { nome: 'Pessoa 2', cor: '#047857', renda: 0 };
+  const fracs = splitFracs();
+  const f0 = fracs[0] ?? 0.5;
+  const f1 = fracs[1] ?? 0.5;
+  let fair0 = 0, fair1 = 0, paid0 = 0, paid1 = 0;
+  function accumulateEntry(val, payerCode) {
+    if (val <= 0) return;
+    const is5050 = payerCode === '5050-p0' || payerCode === '5050-p1';
+    const share0 = is5050 ? val * 0.5 : val * f0;
+    const share1 = is5050 ? val * 0.5 : val * f1;
+    fair0 += share0;
+    fair1 += share1;
+    if (payerCode === 'p0' || payerCode === '5050-p0') {
+      paid0 += val;
+    } else if (payerCode === 'p1' || payerCode === '5050-p1') {
+      paid1 += val;
+    } else {
+      paid0 += share0;
+      paid1 += share1;
+    }
+  }
+  GASTOS_FIXOS.forEach(g => accumulateEntry(Number(g.valor) || 0, getRecordPayer('fixo', g)));
+  GASTOS_VARIAVEIS.forEach(g => accumulateEntry(Number(g.valor) || 0, getRecordPayer('variavel', g)));
+  DATA.forEach(item => {
+    if (isInstallmentActiveInSelectedMonth(item)) {
+      const valParc = (Number(item.total) || 0) / (Number(item.parcelas) || 1);
+      accumulateEntry(valParc, getRecordPayer('item', item));
+    }
+  });
+  // Net balance: positive means p0 paid more than their fair share (so p1 owes p0)
+  const net0 = paid0 - fair0;
+  const verdictEl = document.getElementById('settlementVerdict');
+  const subEl = document.getElementById('settlementSub');
+  if (verdictEl) {
+    if (Math.abs(net0) < 0.5) {
+      verdictEl.innerHTML = `Contas em equilíbrio · <strong>Ninguém deve diferença</strong> neste mês`;
+      if (subEl) subEl.textContent = `Parte proporcional: ${p0.nome} (${Math.round(f0 * 100)}%) = ${fmt(fair0)} · ${p1.nome} (${Math.round(f1 * 100)}%) = ${fmt(fair1)}.`;
+    } else if (net0 > 0) {
+      verdictEl.innerHTML = `Acerto do mês: <strong>${escapeHtml(p1.nome)} transfere ${fmt(net0)}</strong> para ${escapeHtml(p0.nome)}`;
+      if (subEl) subEl.textContent = `${p0.nome} desembolsou ${fmt(paid0)} (sua parte justa era ${fmt(fair0)}).`;
+    } else {
+      const diff = Math.abs(net0);
+      verdictEl.innerHTML = `Acerto do mês: <strong>${escapeHtml(p0.nome)} transfere ${fmt(diff)}</strong> para ${escapeHtml(p1.nome)}`;
+      if (subEl) subEl.textContent = `${p1.nome} desembolsou ${fmt(paid1)} (sua parte justa era ${fmt(fair1)}).`;
+    }
+  }
+  const renderPersonCard = (elId, p, frac, fair, paid) => {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const diff = paid - fair;
+    const statusTxt = Math.abs(diff) < 0.5
+      ? 'Equilibrado ✓'
+      : (diff > 0 ? `Recebe ${fmt(diff)}` : `Transfere ${fmt(Math.abs(diff))}`);
+    const statusColor = Math.abs(diff) < 0.5 ? 'var(--muted)' : (diff > 0 ? 'var(--accent)' : 'var(--warn)');
+    el.innerHTML = `
+      <div class="settlement-person-head">
+        <div class="settlement-person-name">
+          <span class="split-avatar" style="background:${p.cor};width:22px;height:22px;font-size:9px">${escapeHtml(p.nome.slice(0, 2).toUpperCase())}</span>
+          <span>${escapeHtml(p.nome)}</span>
+        </div>
+        <span class="settlement-person-share">${Math.round(frac * 100)}% da renda</span>
+      </div>
+      <div class="settlement-person-rows">
+        <div class="settlement-person-row"><span>Parte justa no mês</span><strong>${fmt(fair)}</strong></div>
+        <div class="settlement-person-row"><span>Pagou do bolso</span><strong>${fmt(paid)}</strong></div>
+        <div class="settlement-person-row"><span>Balanço</span><strong style="color:${statusColor}">${statusTxt}</strong></div>
+      </div>
+    `;
+  };
+  renderPersonCard('settlementPerson0', p0, f0, fair0, paid0);
+  renderPersonCard('settlementPerson1', p1, f1, fair1, paid1);
+  // Sync dynamic person names in #expensePaidBy select
+  const opt0 = document.getElementById('expOptP0');
+  const opt1 = document.getElementById('expOptP1');
+  const opt50_0 = document.getElementById('expOpt50P0');
+  const opt50_1 = document.getElementById('expOpt50P1');
+  if (opt0) opt0.textContent = `💳 Pago 100% por ${p0.nome}`;
+  if (opt1) opt1.textContent = `💳 Pago 100% por ${p1.nome}`;
+  if (opt50_0) opt50_0.textContent = `🤝 Divisão 50/50 · Pago por ${p0.nome}`;
+  if (opt50_1) opt50_1.textContent = `🤝 Divisão 50/50 · Pago por ${p1.nome}`;
+}
+function settleAllPendingMonth() {
+  let count = 0;
+  GASTOS_FIXOS.forEach(g => {
+    if (!isAcertadoMes(g)) { toggleGastoAcerto('fixo', g.id, true); count++; }
+  });
+  GASTOS_VARIAVEIS.forEach(g => {
+    if (!isAcertadoMes(g)) { toggleGastoAcerto('variavel', g.id, true); count++; }
+  });
+  DATA.forEach(item => {
+    if (isInstallmentActiveInSelectedMonth(item) && !isAcertadoMes(item)) {
+      toggleItemAcerto(item.row, true);
+      count++;
+    }
+  });
+  refreshCoupleSuite();
+  if (count === 0) toast('✅ Todas as contas deste mês já estão acertadas!');
+  else toast(`🤝 ${count} conta${count !== 1 ? 's' : ''} marcada${count !== 1 ? 's' : ''} como acertada${count !== 1 ? 's' : ''}!`);
+}
+/* ── 3. Smart Natural-Language Quick-Add Parser ── */
+function parseSmartExpense(raw) {
+  const text = String(raw || '').trim();
+  if (!text) return null;
+  let working = text;
+  let parcelas = 1;
+  let mode = 'variavel'; // default single-month expense
+  let cat = 'Outros';
+  let paidBy = 'dividido';
+  // Detect installments: e.g. "10x", "12 vezes", "6x"
+  const parcMatch = working.match(/\b(\d{1,2})\s*(?:x|vezes|parcelas?)\b/i);
+  if (parcMatch) {
+    parcelas = Math.min(48, Math.max(1, parseInt(parcMatch[1], 10)));
+    working = working.replace(parcMatch[0], ' ');
+    if (parcelas > 1) mode = 'item';
+  }
+  // Detect explicit type keywords
+  if (/\b(?:fixo|fixa|mensal|recorrente|aluguel|condominio|condomínio|internet|iptu|seguro)\b/i.test(text)) {
+    mode = 'fixo';
+    working = working.replace(/\b(?:fixo|fixa|mensal|recorrente)\b/gi, ' ');
+  } else if (/\b(?:parcelado|compra|item)\b/i.test(text)) {
+    mode = 'item';
+    working = working.replace(/\b(?:parcelado|compra|item)\b/gi, ' ');
+  }
+  // Detect category keywords for house items
+  const knownCats = ['Cozinha', 'Sala', 'Quarto', 'Banheiro', 'Escritório', 'Área de Serviço', 'Eletro', 'Móveis'];
+  for (const c of knownCats) {
+    const re = new RegExp('\\b' + c + '\\b', 'i');
+    if (re.test(working)) {
+      cat = c;
+      mode = 'item';
+      working = working.replace(re, ' ');
+      break;
+    }
+  }
+  // Detect payer by partner name
+  if (typeof PESSOAS !== 'undefined' && PESSOAS.length >= 2) {
+    const n0 = PESSOAS[0].nome.split(' ')[0];
+    const n1 = PESSOAS[1].nome.split(' ')[0];
+    if (n0 && new RegExp('\\b' + n0.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(working)) {
+      paidBy = 'p0';
+      working = working.replace(new RegExp('\\b(?:por\\s+)?' + n0.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i'), ' ');
+    } else if (n1 && new RegExp('\\b' + n1.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(working)) {
+      paidBy = 'p1';
+      working = working.replace(new RegExp('\\b(?:por\\s+)?' + n1.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i'), ' ');
+    }
+  }
+  // Extract monetary value (e.g. "R$ 3.600,50", "280,90", "320")
+  const valMatch = working.match(/(?:R\$\s*)?(\d{1,3}(?:\.\d{3})+|\d+)(?:[.,](\d{1,2}))?\b/);
+  let valor = 0;
+  if (valMatch) {
+    const intPart = valMatch[1].replace(/\./g, '');
+    const decPart = valMatch[2] ? '.' + valMatch[2] : '';
+    valor = parseFloat(intPart + decPart) || 0;
+    working = working.replace(valMatch[0], ' ');
+  }
+  const nome = working.replace(/\s+/g, ' ').replace(/^[\s\-–—:,]+|[\s\-–—:,]+$/g, '').trim();
+  return { nome: nome || 'Despesa', valor, parcelas, mode, cat, paidBy };
+}
+function previewSmartQuickAdd(val) {
+  const el = document.getElementById('smartQuickPreview');
+  if (!el) return;
+  const parsed = parseSmartExpense(val);
+  if (!parsed || !parsed.valor) {
+    el.style.display = 'none';
+    return;
+  }
+  const tipoLabel = parsed.mode === 'item'
+    ? `📦 ${parsed.parcelas}x (${parsed.cat})`
+    : (parsed.mode === 'fixo' ? '📌 Fixo' : '⚡ Variável');
+  el.textContent = `${tipoLabel} · ${fmt(parsed.valor)}`;
+  el.style.display = 'inline-flex';
+}
+function submitSmartQuickAdd() {
+  const input = document.getElementById('smartQuickInput');
+  const parsed = parseSmartExpense(input ? input.value : '');
+  if (!parsed || parsed.valor <= 0) {
+    openExpenseModal('casa', 'variavel');
+    if (parsed && parsed.nome && parsed.nome !== 'Despesa') {
+      const nameEl = document.getElementById('expenseName');
+      if (nameEl) nameEl.value = parsed.nome;
+    }
+    return;
+  }
+  if (parsed.mode === 'item') {
+    openAdd();
+    document.getElementById('nNome').value = parsed.nome;
+    document.getElementById('nCat').value = parsed.cat;
+    document.getElementById('nValor').value = parsed.valor;
+    document.getElementById('nParc').value = parsed.parcelas;
+    document.getElementById('nPagas').value = 0;
+  } else {
+    const id = String(Date.now());
+    const record = {
+      id,
+      nome: parsed.nome,
+      valor: parsed.valor,
+      cor: gfCor(Date.now()),
+      data: todayISO(),
+      acertadoMes: '',
+      pagoPor: parsed.paidBy
+    };
+    setRecordPayer(parsed.mode, id, parsed.paidBy, record);
+    if (parsed.mode === 'fixo') {
+      GASTOS_FIXOS.push(record);
+      saveGF();
+      renderGastosFixos();
+    } else {
+      GASTOS_VARIAVEIS.push(record);
+      saveGV();
+      renderGastosVariaveis();
+    }
+    _lastRenderHash = '';
+    render();
+    renderResumoMes();
+    renderRenda(DATA);
+    renderPeriodUX();
+    refreshCoupleSuite();
+    toast(`✅ ${parsed.nome} (${fmt(parsed.valor)}) adicionado em ${parsed.mode === 'fixo' ? 'Gastos Fixos' : 'Gastos Variáveis'}!`);
+  }
+  if (input) input.value = '';
+  previewSmartQuickAdd('');
+}
+/* ── 4. Unified Modal Mode Switcher ── */
+function switchUnifiedAddMode(targetMode) {
+  if (targetMode === 'item') {
+    closeModals();
+    openAdd();
+  } else {
+    closeModals();
+    openExpenseModal('casa', targetMode);
+    const bItem = document.getElementById('expSwitchItem');
+    const bFixo = document.getElementById('expSwitchFixo');
+    const bVar = document.getElementById('expSwitchVar');
+    if (bItem) bItem.classList.remove('active');
+    if (bFixo) bFixo.classList.toggle('active', targetMode === 'fixo');
+    if (bVar) bVar.classList.toggle('active', targetMode === 'variavel');
+  }
+}
+/* ── 5. Guided Month Rollover ("Fechar / Virar Mês") ── */
+function openViradaMes() {
+  if (typeof triggerHaptic === 'function') triggerHaptic(10);
+  const projected = projectionForMonth(DATA, GASTOS_FIXOS, GASTOS_VARIAVEIS);
+  const activeItems = DATA.filter(i => (i.checks || []).filter(Boolean).length < (i.parcelas || 1));
+  const sub = document.getElementById('viradaMesSub');
+  if (sub) sub.textContent = `Período atual: ${selectedMonthLabel()} · Total do mês: ${fmt(projected.total)}`;
+  const histDesc = document.getElementById('viradaHistDesc');
+  if (histDesc) {
+    histDesc.textContent = `Salva em ${SELECTED_MONTH}: Fixos ${fmt(projected.fixed)} + Variáveis ${fmt(projected.variable)} + Parcelas ${fmt(projected.installments)}.`;
+  }
+  const parcDesc = document.getElementById('viradaParcelasDesc');
+  if (parcDesc) {
+    parcDesc.textContent = activeItems.length
+      ? `${activeItems.length} compra${activeItems.length !== 1 ? 's' : ''} ativa${activeItems.length !== 1 ? 's' : ''} terão +1 parcela marcada como paga.`
+      : 'Nenhuma compra com parcelas pendentes no momento.';
+  }
+  const overlay = document.getElementById('viradaMesOverlay');
+  if (overlay) {
+    document.body.classList.add('modal-open');
+    overlay.classList.add('open');
+  }
+}
+function executeViradaMes() {
+  const doHist = document.getElementById('viradaChkHist')?.checked;
+  const doParc = document.getElementById('viradaChkParcelas')?.checked;
+  const doNext = document.getElementById('viradaChkNextMonth')?.checked;
+  const doClearVar = document.getElementById('viradaChkClearVar')?.checked;
+  const projected = projectionForMonth(DATA, GASTOS_FIXOS, GASTOS_VARIAVEIS);
+  if (doHist) {
+    const mes = SELECTED_MONTH;
+    HISTORICO = HISTORICO.filter(h => h.mes !== mes);
+    HISTORICO.push({
+      mes,
+      compras: Number(projected.installments.toFixed(2)),
+      fixos: Number(projected.fixed.toFixed(2)),
+      variaveis: Number(projected.variable.toFixed(2)),
+      outros: 0
+    });
+    HISTORICO.sort((a, b) => a.mes.localeCompare(b.mes));
+    saveHist();
+  }
+  if (doParc) {
+    DATA.forEach(item => {
+      const checks = item.checks || [];
+      const nextIdx = checks.findIndex(c => !c);
+      if (nextIdx !== -1 && nextIdx < (item.parcelas || 1)) {
+        item.checks[nextIdx] = true;
+        apiPost({ action: 'check', row: item.row, col: nextIdx + 1, value: true }).catch(() => {});
+      }
+    });
+  }
+  if (doClearVar) {
+    GASTOS_VARIAVEIS = [];
+    saveGV();
+  }
+  closeModals();
+  if (doNext) {
+    changeSelectedMonth(1);
+  }
+  _lastRenderHash = '';
+  render();
+  renderGastosFixos();
+  renderGastosVariaveis();
+  renderHistorico();
+  refreshCoupleSuite();
+  toast('✨ Mês fechado com sucesso! Painel atualizado para o novo ciclo.');
+}
+/* ── Hooks into existing render functions to inject Payer Pills & refresh Visor/Settlement ── */
+(function wireCoupleSuiteHooks() {
+  const origRenderGF = window.renderGastosFixos;
+  if (typeof origRenderGF === 'function') {
+    window.renderGastosFixos = function() {
+      origRenderGF.apply(this, arguments);
+      const rows = document.querySelectorAll('#gfList .gf-row');
+      rows.forEach((rowEl, idx) => {
+        const g = GASTOS_FIXOS[idx];
+        if (!g || rowEl.querySelector('.payer-pill')) return;
+        const acertoCol = rowEl.querySelector('.gf-acerto');
+        if (acertoCol) {
+          acertoCol.insertAdjacentHTML('afterbegin', buildPayerPillHtml('fixo', g));
+        }
+      });
+      refreshCoupleSuite();
+    };
+  }
+  const origRenderGV = window.renderGastosVariaveis;
+  if (typeof origRenderGV === 'function') {
+    window.renderGastosVariaveis = function() {
+      origRenderGV.apply(this, arguments);
+      const rows = document.querySelectorAll('#gvList .gf-row');
+      rows.forEach((rowEl, idx) => {
+        const g = GASTOS_VARIAVEIS[idx];
+        if (!g || rowEl.querySelector('.payer-pill')) return;
+        const acertoCol = rowEl.querySelector('.gf-acerto');
+        if (acertoCol) {
+          acertoCol.insertAdjacentHTML('afterbegin', buildPayerPillHtml('variavel', g));
+        }
+      });
+      refreshCoupleSuite();
+    };
+  }
+  const origRenderList = window.renderList;
+  if (typeof origRenderList === 'function') {
+    window.renderList = function(items, frac) {
+      origRenderList.apply(this, arguments);
+      (items || []).forEach(item => {
+        const card = document.getElementById('card-' + item.row);
+        if (!card || card.querySelector('.payer-pill')) return;
+        const acertoCheck = card.querySelector('.acerto-check');
+        if (acertoCheck) {
+          acertoCheck.insertAdjacentHTML('beforebegin', `<div style="margin-top:6px">${buildPayerPillHtml('item', item)}</div>`);
+        }
+      });
+      refreshCoupleSuite();
+    };
+  }
+  const origSaveExpenseModal = window.saveExpenseModal;
+  if (typeof origSaveExpenseModal === 'function') {
+    window.saveExpenseModal = function() {
+      const scope = document.getElementById('expenseScope')?.value;
+      const type = document.getElementById('expenseType')?.value;
+      const paidBy = document.getElementById('expensePaidBy')?.value || 'dividido';
+      origSaveExpenseModal.apply(this, arguments);
+      if (scope === 'casa') {
+        const targetList = type === 'fixo' ? GASTOS_FIXOS : GASTOS_VARIAVEIS;
+        const last = targetList[targetList.length - 1];
+        if (last) {
+          setRecordPayer(type, last.id, paidBy, last);
+          if (type === 'fixo') { saveGF(); renderGastosFixos(); }
+          else { saveGV(); renderGastosVariaveis(); }
+          refreshCoupleSuite();
+        }
+      }
+    };
+  }
+  const origOpenGastoDetail = window.openGastoDetail;
+  if (typeof origOpenGastoDetail === 'function') {
+    window.openGastoDetail = function(tipo, id, idx) {
+      origOpenGastoDetail.apply(this, arguments);
+      const body = document.getElementById('gdBody');
+      if (!body || document.getElementById('gdPaidBy')) return;
+      const list = tipo === 'fixo' ? GASTOS_FIXOS : GASTOS_VARIAVEIS;
+      const g = list.find(x => String(x.id) === String(_gdId)) || (idx !== undefined ? list[idx] : null);
+      const currentPayer = getRecordPayer(tipo, g || { id });
+      const p0Name = (PESSOAS && PESSOAS[0]) ? PESSOAS[0].nome : 'Pessoa 1';
+      const p1Name = (PESSOAS && PESSOAS[1]) ? PESSOAS[1].nome : 'Pessoa 2';
+      body.insertAdjacentHTML('beforeend', `
+        <div class="gd-field">
+          <div class="gd-field-label">Quem pagou este gasto?</div>
+          <div class="gd-edit-row">
+            <select class="fi" id="gdPaidBy">
+              <option value="dividido" ${currentPayer === 'dividido' ? 'selected' : ''}>⚖️ Dividido proporcionalmente à renda</option>
+              <option value="p0" ${currentPayer === 'p0' ? 'selected' : ''}>💳 Pago 100% por ${escapeHtml(p0Name)}</option>
+              <option value="p1" ${currentPayer === 'p1' ? 'selected' : ''}>💳 Pago 100% por ${escapeHtml(p1Name)}</option>
+              <option value="5050-p0" ${currentPayer === '5050-p0' ? 'selected' : ''}>🤝 Divisão 50/50 · Pago por ${escapeHtml(p0Name)}</option>
+              <option value="5050-p1" ${currentPayer === '5050-p1' ? 'selected' : ''}>🤝 Divisão 50/50 · Pago por ${escapeHtml(p1Name)}</option>
+            </select>
+          </div>
+        </div>
+      `);
+    };
+  }
+  const origSaveGastoDetail = window.saveGastoDetail;
+  if (typeof origSaveGastoDetail === 'function') {
+    window.saveGastoDetail = function() {
+      const tipo = _gdType;
+      const id = _gdId;
+      const paidByEl = document.getElementById('gdPaidBy');
+      const paidByVal = paidByEl ? paidByEl.value : null;
+      if (tipo && id && paidByVal) {
+        const list = tipo === 'fixo' ? GASTOS_FIXOS : GASTOS_VARIAVEIS;
+        const g = list.find(x => String(x.id) === String(id));
+        setRecordPayer(tipo, id, paidByVal, g);
+      }
+      origSaveGastoDetail.apply(this, arguments);
+      refreshCoupleSuite();
+    };
+  }
+  const origRenderPeriodUX = window.renderPeriodUX;
+  if (typeof origRenderPeriodUX === 'function') {
+    window.renderPeriodUX = function() {
+      origRenderPeriodUX.apply(this, arguments);
+      refreshCoupleSuite();
+    };
+  }
+  // Initialize saved sub-view and run first refresh
+  setTimeout(() => {
+    const activeBtn = document.querySelector(`.casa-subnav-btn[data-view="${CASA_SUB_VIEW}"]`);
+    if (activeBtn) setCasaSubView(CASA_SUB_VIEW, activeBtn);
+    if (typeof renderGastosFixos === 'function') renderGastosFixos();
+    if (typeof renderGastosVariaveis === 'function') renderGastosVariaveis();
+    refreshCoupleSuite();
+  }, 60);
 })();
 </script>
 </body>
