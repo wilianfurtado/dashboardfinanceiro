@@ -3320,6 +3320,7 @@ html .liquid-glass-interactive:active:not(:disabled) {
 
 
 
+
 <style id="couple-suite-styles">
 /* ═══════════════════════════════════════════════════════════════════════════
    CASA NOVA COUPLE SUITE — Visor Pacing + Splitwise Settlement + Quick-Add
@@ -4150,6 +4151,9 @@ html .liquid-glass-interactive:active:not(:disabled) {
   
 
   
+  
+
+  
   <!-- COUPLE-SUITE:TOP -->
   <div class="casa-subnav-bar" role="region" aria-label="Modos de visualização, perspectiva do casal e lançamento rápido">
     <div class="casa-subnav" role="tablist" aria-label="Visões da aba Casa">
@@ -4934,6 +4938,7 @@ html .liquid-glass-interactive:active:not(:disabled) {
     </div>
   </div>
 </div>
+
 
 
 
@@ -8442,6 +8447,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+
 <script id="couple-suite-engine">
 /* ═══════════════════════════════════════════════════════════════════════════
    CASA NOVA COUPLE SUITE ENGINE
@@ -8452,33 +8458,143 @@ document.addEventListener('DOMContentLoaded', () => {
    5. 1-Click Guided Month Rollover ("Fechar / Virar Mês")
    ═══════════════════════════════════════════════════════════════════════════ */
 let PAGADORES_MAP = {};
+let PAGADORES_TS = {};
+let _pagadoresSyncTimer = null;
 try {
   PAGADORES_MAP = JSON.parse(localStorage.getItem('cn_pagadores') || '{}') || {};
+  PAGADORES_TS = JSON.parse(localStorage.getItem('cn_pagadores_ts') || '{}') || {};
 } catch (_) {
   PAGADORES_MAP = {};
+  PAGADORES_TS = {};
 }
-function savePagadoresMap() {
+function savePagadoresMap(syncCloud = false) {
   localStorage.setItem('cn_pagadores', JSON.stringify(PAGADORES_MAP));
+  localStorage.setItem('cn_pagadores_ts', JSON.stringify(PAGADORES_TS));
+  if (typeof PESSOAS !== 'undefined' && Array.isArray(PESSOAS) && PESSOAS[0]) {
+    PESSOAS[0]._pagadores = PAGADORES_MAP;
+    PESSOAS[0]._pagadoresTs = PAGADORES_TS;
+    localStorage.setItem('cn_pessoas', JSON.stringify(PESSOAS));
+  }
+  if (syncCloud && typeof saveConfigToSheets === 'function') {
+    clearTimeout(_pagadoresSyncTimer);
+    _pagadoresSyncTimer = setTimeout(() => {
+      try { saveConfigToSheets().catch(() => {}); } catch (_) {}
+    }, 650);
+  }
 }
 function getPayerKey(kind, id, monthKey) {
   const m = monthKey || (typeof SELECTED_MONTH !== 'undefined' ? SELECTED_MONTH : '');
   return `${kind}:${String(id)}:${m}`;
 }
-function getRecordPayer(kind, record) {
-  if (!record) return 'dividido';
-  const id = record.id !== undefined ? record.id : record.row;
-  const monthKey = typeof SELECTED_MONTH !== 'undefined' ? SELECTED_MONTH : '';
-  return PAGADORES_MAP[getPayerKey(kind, id, monthKey)]
-      || PAGADORES_MAP[`${kind}:${String(id)}`]
-      || record.pagoPor
-      || 'dividido';
+function normalizePayerRecordName(name) {
+  return String(name || '').trim().toLowerCase().replace(/\s+/g, ' ');
 }
-function setRecordPayer(kind, id, value, record) {
+function getRecordBaseTokens(kind, record, explicitId) {
+  const tokens = [];
+  const addToken = t => {
+    const s = String(t ?? '').trim();
+    if (s && !tokens.includes(s)) tokens.push(s);
+  };
+  if (explicitId !== undefined && explicitId !== null && explicitId !== '') {
+    addToken(explicitId);
+    if (kind === 'item') {
+      const raw = String(explicitId);
+      if (raw.startsWith('row-')) addToken(raw.slice(4));
+      else addToken('row-' + raw);
+    }
+  }
+  if (record) {
+    if (record.id !== undefined && record.id !== null && record.id !== '') {
+      addToken(record.id);
+      if (kind === 'item' && String(record.id).startsWith('row-')) {
+        addToken(String(record.id).slice(4));
+      }
+    }
+    if (record.row !== undefined && record.row !== null && record.row !== '') {
+      addToken(record.row);
+      addToken('row-' + record.row);
+    }
+    const normName = normalizePayerRecordName(record.nome);
+    if (normName) {
+      const amount = Number(record.valor !== undefined ? record.valor : (record.total || 0)) || 0;
+      if (amount > 0) addToken(`nv:${normName}:${amount.toFixed(2)}`);
+      addToken(`nome:${normName}`);
+    }
+  }
+  return tokens;
+}
+function getRecordPayer(kind, record, explicitId) {
+  if (!record && !explicitId) return 'dividido';
   const monthKey = typeof SELECTED_MONTH !== 'undefined' ? SELECTED_MONTH : '';
-  PAGADORES_MAP[getPayerKey(kind, id, monthKey)] = value;
-  PAGADORES_MAP[`${kind}:${String(id)}`] = value;
+  const tokens = getRecordBaseTokens(kind, record, explicitId);
+  for (const tok of tokens) {
+    const mVal = PAGADORES_MAP[getPayerKey(kind, tok, monthKey)];
+    if (mVal) return mVal;
+  }
+  for (const tok of tokens) {
+    const gVal = PAGADORES_MAP[`${kind}:${tok}`];
+    if (gVal) return gVal;
+  }
+  if (record && record.pagoPor) return record.pagoPor;
+  return 'dividido';
+}
+function setRecordPayer(kind, id, value, record, syncCloud = true) {
+  const monthKey = typeof SELECTED_MONTH !== 'undefined' ? SELECTED_MONTH : '';
+  const tokens = getRecordBaseTokens(kind, record, id);
+  const now = Date.now();
+  tokens.forEach(tok => {
+    const mKey = getPayerKey(kind, tok, monthKey);
+    const gKey = `${kind}:${tok}`;
+    PAGADORES_MAP[mKey] = value;
+    PAGADORES_MAP[gKey] = value;
+    PAGADORES_TS[mKey] = now;
+    PAGADORES_TS[gKey] = now;
+  });
   if (record) record.pagoPor = value;
-  savePagadoresMap();
+  savePagadoresMap(syncCloud);
+}
+function syncAndHydratePagadores() {
+  let changed = false;
+  if (typeof PESSOAS !== 'undefined' && Array.isArray(PESSOAS) && PESSOAS[0]) {
+    const remMap = PESSOAS[0]._pagadores;
+    const remTs = PESSOAS[0]._pagadoresTs || {};
+    if (remMap && typeof remMap === 'object') {
+      Object.keys(remMap).forEach(k => {
+        const rTime = Number(remTs[k] || 0);
+        const lTime = Number(PAGADORES_TS[k] || 0);
+        if (!PAGADORES_MAP[k] || rTime > lTime) {
+          if (PAGADORES_MAP[k] !== remMap[k]) {
+            PAGADORES_MAP[k] = remMap[k];
+            PAGADORES_TS[k] = Math.max(rTime, lTime, 1);
+            changed = true;
+          }
+        }
+      });
+    }
+    PESSOAS[0]._pagadores = PAGADORES_MAP;
+    PESSOAS[0]._pagadoresTs = PAGADORES_TS;
+  }
+  const hydrateList = (kind, list) => {
+    (list || []).forEach(rec => {
+      if (!rec) return;
+      const resolved = getRecordPayer(kind, rec);
+      if (rec.pagoPor !== resolved) rec.pagoPor = resolved;
+      if (resolved && resolved !== 'dividido') {
+        const monthKey = typeof SELECTED_MONTH !== 'undefined' ? SELECTED_MONTH : '';
+        const tokens = getRecordBaseTokens(kind, rec);
+        tokens.forEach(tok => {
+          const mKey = getPayerKey(kind, tok, monthKey);
+          const gKey = `${kind}:${tok}`;
+          if (!PAGADORES_MAP[mKey]) { PAGADORES_MAP[mKey] = resolved; changed = true; }
+          if (!PAGADORES_MAP[gKey]) { PAGADORES_MAP[gKey] = resolved; changed = true; }
+        });
+      }
+    });
+  };
+  if (typeof DATA !== 'undefined') hydrateList('item', DATA);
+  if (typeof GASTOS_FIXOS !== 'undefined') hydrateList('fixo', GASTOS_FIXOS);
+  if (typeof GASTOS_VARIAVEIS !== 'undefined') hydrateList('variavel', GASTOS_VARIAVEIS);
+  if (changed) savePagadoresMap(false);
 }
 function getPayerMeta(code) {
   const p0 = (typeof PESSOAS !== 'undefined' && PESSOAS[0]) ? PESSOAS[0] : { nome: 'Pessoa 1', cor: '#2563eb' };
@@ -8499,14 +8615,18 @@ function getPayerMeta(code) {
 function cyclePayer(kind, id) {
   const order = ['dividido', 'p0', 'p1', '5050-p0', '5050-p1'];
   let record = null;
-  if (kind === 'fixo') record = GASTOS_FIXOS.find(g => String(g.id) === String(id));
-  else if (kind === 'variavel') record = GASTOS_VARIAVEIS.find(g => String(g.id) === String(id));
-  else if (kind === 'item') record = DATA.find(i => String(i.row) === String(id) || String(i.id) === String(id));
-  const current = getRecordPayer(kind, record || { id });
+  if (kind === 'fixo') {
+    record = GASTOS_FIXOS.find(g => String(g.id) === String(id) || normalizePayerRecordName(g.nome) === normalizePayerRecordName(id));
+  } else if (kind === 'variavel') {
+    record = GASTOS_VARIAVEIS.find(g => String(g.id) === String(id) || normalizePayerRecordName(g.nome) === normalizePayerRecordName(id));
+  } else if (kind === 'item') {
+    record = DATA.find(i => String(i.row) === String(id) || String(i.id) === String(id) || ('row-' + i.row) === String(id) || normalizePayerRecordName(i.nome) === normalizePayerRecordName(id));
+  }
+  const current = getRecordPayer(kind, record, id);
   const next = order[(order.indexOf(current) + 1) % order.length];
-  setRecordPayer(kind, id, next, record);
-  if (kind === 'fixo') saveGF();
-  if (kind === 'variavel') saveGV();
+  setRecordPayer(kind, id, next, record, true);
+  if (kind === 'fixo') localStorage.setItem('cn_gastos_fixos', JSON.stringify(GASTOS_FIXOS));
+  if (kind === 'variavel') localStorage.setItem('cn_gastos_variaveis', JSON.stringify(GASTOS_VARIAVEIS));
   if (typeof triggerHaptic === 'function') triggerHaptic(8);
   refreshCoupleSuite();
   if (kind === 'fixo') renderGastosFixos();
@@ -8516,8 +8636,8 @@ function cyclePayer(kind, id) {
   toast(`💳 Quem pagou: ${meta.label}`);
 }
 function buildPayerPillHtml(kind, record) {
-  const id = record.id !== undefined && kind !== 'item' ? record.id : record.row;
-  const meta = getPayerMeta(getRecordPayer(kind, record));
+  const id = (kind === 'item') ? (record.row !== undefined ? record.row : record.id) : (record.id !== undefined ? record.id : record.nome);
+  const meta = getPayerMeta(getRecordPayer(kind, record, id));
   return `<button type="button" class="payer-pill ${meta.cls}" onclick="event.stopPropagation(); cyclePayer('${kind}', '${escJs(id)}')" title="Clique para alternar quem pagou esta conta">
     <span class="payer-pill-dot" style="background:${meta.color}"></span>
     <span>${escapeHtml(meta.label)}</span>
@@ -9026,6 +9146,7 @@ function executeViradaMes() {
 }
 /* ── Hooks into existing render functions to inject Payer Pills, Nubank Card Filters & Desktop +1 Parcela ── */
 function decorateGastoCard(kind, cardId, listElId, dataList, filterMode) {
+  syncAndHydratePagadores();
   const card = document.getElementById(cardId);
   const head = card?.querySelector('.card-head');
   if (head) {
@@ -9048,11 +9169,20 @@ function decorateGastoCard(kind, cardId, listElId, dataList, filterMode) {
   rows.forEach((rowEl, idx) => {
     const g = dataList[idx];
     if (!g) return;
-    if (!rowEl.querySelector('.payer-pill')) {
+    const existingPill = rowEl.querySelector('.payer-pill');
+    if (existingPill) {
+      existingPill.outerHTML = buildPayerPillHtml(kind, g);
+    } else {
       const acertoCol = rowEl.querySelector('.gf-acerto');
       if (acertoCol) {
         acertoCol.insertAdjacentHTML('afterbegin', buildPayerPillHtml(kind, g));
       }
+    }
+    const payerCode = getRecordPayer(kind, g);
+    if (payerCode === '5050-p0' || payerCode === '5050-p1') {
+      rowEl.querySelectorAll('.gf-split-val').forEach(valEl => {
+        valEl.textContent = fmt((Number(g.valor) || 0) * 0.5);
+      });
     }
     const settled = isAcertadoMes(g);
     const hide = (filterMode === 'pending' && settled) || (filterMode === 'settled' && !settled);
@@ -9064,9 +9194,30 @@ function decorateGastoCard(kind, cardId, listElId, dataList, filterMode) {
 }
 
 (function wireCoupleSuiteHooks() {
+  const origRender = window.render;
+  if (typeof origRender === 'function') {
+    window.render = function() {
+      syncAndHydratePagadores();
+      return origRender.apply(this, arguments);
+    };
+  }
+  const origFetchData = window.fetchData;
+  if (typeof origFetchData === 'function') {
+    window.fetchData = async function() {
+      const res = await origFetchData.apply(this, arguments);
+      syncAndHydratePagadores();
+      _lastRenderHash = '';
+      if (typeof render === 'function') render();
+      if (typeof renderGastosFixos === 'function') renderGastosFixos();
+      if (typeof renderGastosVariaveis === 'function') renderGastosVariaveis();
+      refreshCoupleSuite();
+      return res;
+    };
+  }
   const origRenderGF = window.renderGastosFixos;
   if (typeof origRenderGF === 'function') {
     window.renderGastosFixos = function() {
+      syncAndHydratePagadores();
       origRenderGF.apply(this, arguments);
       decorateGastoCard('fixo', 'casaFixosCard', 'gfList', GASTOS_FIXOS, GF_CARD_FILTER);
       refreshCoupleSuite();
@@ -9075,6 +9226,7 @@ function decorateGastoCard(kind, cardId, listElId, dataList, filterMode) {
   const origRenderGV = window.renderGastosVariaveis;
   if (typeof origRenderGV === 'function') {
     window.renderGastosVariaveis = function() {
+      syncAndHydratePagadores();
       origRenderGV.apply(this, arguments);
       decorateGastoCard('variavel', 'casaVariaveisCard', 'gvList', GASTOS_VARIAVEIS, GV_CARD_FILTER);
       refreshCoupleSuite();
@@ -9083,13 +9235,35 @@ function decorateGastoCard(kind, cardId, listElId, dataList, filterMode) {
   const origRenderList = window.renderList;
   if (typeof origRenderList === 'function') {
     window.renderList = function(items, frac) {
+      syncAndHydratePagadores();
       origRenderList.apply(this, arguments);
       (items || []).forEach(item => {
         const card = document.getElementById('card-' + item.row);
-        if (!card || card.querySelector('.payer-pill')) return;
-        const acertoCheck = card.querySelector('.acerto-check');
-        if (acertoCheck) {
-          acertoCheck.insertAdjacentHTML('beforebegin', `<div style="margin-top:6px">${buildPayerPillHtml('item', item)}</div>`);
+        if (!card) return;
+        const existingPill = card.querySelector('.payer-pill');
+        if (existingPill) {
+          existingPill.outerHTML = buildPayerPillHtml('item', item);
+        } else {
+          const acertoCheck = card.querySelector('.acerto-check');
+          if (acertoCheck) {
+            acertoCheck.insertAdjacentHTML('beforebegin', `<div style="margin-top:6px">${buildPayerPillHtml('item', item)}</div>`);
+          }
+        }
+        const payerCode = getRecordPayer('item', item);
+        if (payerCode === '5050-p0' || payerCode === '5050-p1') {
+          card.querySelectorAll('.split-pct').forEach(el => { el.textContent = '50%'; });
+          const parc = item.parcelas || 1;
+          const pagas = (item.checks || []).filter(Boolean).length;
+          const quitado = pagas >= parc;
+          const valParc50 = ((item.total || 0) / parc) * 0.5;
+          const valPago50 = valParc50 * pagas;
+          const valRest50 = ((item.total || 0) * 0.5) - valPago50;
+          card.querySelectorAll('.split-val').forEach(el => {
+            el.textContent = quitado ? fmt(valPago50) : fmt(valRest50);
+          });
+          card.querySelectorAll('.split-parc').forEach(el => {
+            if (!quitado) el.textContent = `${fmt(valParc50)}/mês`;
+          });
         }
         // Add desktop +1 parcela quick button below dots if not quitado
         const pagas = (item.checks || []).filter(Boolean).length;
@@ -9113,9 +9287,9 @@ function decorateGastoCard(kind, cardId, listElId, dataList, filterMode) {
         const targetList = type === 'fixo' ? GASTOS_FIXOS : GASTOS_VARIAVEIS;
         const last = targetList[targetList.length - 1];
         if (last) {
-          setRecordPayer(type, last.id, paidBy, last);
-          if (type === 'fixo') { saveGF(); renderGastosFixos(); }
-          else { saveGV(); renderGastosVariaveis(); }
+          setRecordPayer(type, last.id, paidBy, last, true);
+          if (type === 'fixo') { localStorage.setItem('cn_gastos_fixos', JSON.stringify(GASTOS_FIXOS)); renderGastosFixos(); }
+          else { localStorage.setItem('cn_gastos_variaveis', JSON.stringify(GASTOS_VARIAVEIS)); renderGastosVariaveis(); }
           refreshCoupleSuite();
         }
       }
@@ -9129,7 +9303,7 @@ function decorateGastoCard(kind, cardId, listElId, dataList, filterMode) {
       if (!body || document.getElementById('gdPaidBy')) return;
       const list = tipo === 'fixo' ? GASTOS_FIXOS : GASTOS_VARIAVEIS;
       const g = list.find(x => String(x.id) === String(_gdId)) || (idx !== undefined ? list[idx] : null);
-      const currentPayer = getRecordPayer(tipo, g || { id });
+      const currentPayer = getRecordPayer(tipo, g, id);
       const p0Name = (PESSOAS && PESSOAS[0]) ? PESSOAS[0].nome : 'Pessoa 1';
       const p1Name = (PESSOAS && PESSOAS[1]) ? PESSOAS[1].nome : 'Pessoa 2';
       body.insertAdjacentHTML('beforeend', `
@@ -9155,12 +9329,14 @@ function decorateGastoCard(kind, cardId, listElId, dataList, filterMode) {
       const id = _gdId;
       const paidByEl = document.getElementById('gdPaidBy');
       const paidByVal = paidByEl ? paidByEl.value : null;
-      if (tipo && id && paidByVal) {
-        const list = tipo === 'fixo' ? GASTOS_FIXOS : GASTOS_VARIAVEIS;
-        const g = list.find(x => String(x.id) === String(id));
-        setRecordPayer(tipo, id, paidByVal, g);
-      }
+      const list = tipo === 'fixo' ? GASTOS_FIXOS : GASTOS_VARIAVEIS;
+      const g = (tipo && id) ? list.find(x => String(x.id) === String(id)) : null;
       origSaveGastoDetail.apply(this, arguments);
+      if (tipo && id && paidByVal) {
+        setRecordPayer(tipo, id, paidByVal, g, true);
+        if (tipo === 'fixo') { localStorage.setItem('cn_gastos_fixos', JSON.stringify(GASTOS_FIXOS)); renderGastosFixos(); }
+        else { localStorage.setItem('cn_gastos_variaveis', JSON.stringify(GASTOS_VARIAVEIS)); renderGastosVariaveis(); }
+      }
       refreshCoupleSuite();
     };
   }
@@ -9173,6 +9349,7 @@ function decorateGastoCard(kind, cardId, listElId, dataList, filterMode) {
   }
   // Initialize saved sub-view and run first refresh
   setTimeout(() => {
+    syncAndHydratePagadores();
     const activeBtn = document.querySelector(`.casa-subnav-btn[data-view="${CASA_SUB_VIEW}"]`);
     if (activeBtn) setCasaSubView(CASA_SUB_VIEW, activeBtn);
     if (typeof renderGastosFixos === 'function') renderGastosFixos();
