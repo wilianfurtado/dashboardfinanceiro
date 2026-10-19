@@ -3319,6 +3319,7 @@ html .liquid-glass-interactive:active:not(:disabled) {
 
 
 
+
 <style id="couple-suite-styles">
 /* ═══════════════════════════════════════════════════════════════════════════
    CASA NOVA COUPLE SUITE — Visor Pacing + Splitwise Settlement + Quick-Add
@@ -3390,7 +3391,13 @@ html .liquid-glass-interactive:active:not(:disabled) {
 [data-theme="dark"] .casa-subnav-btn.active .casa-subnav-badge {
   background: rgba(15, 23, 42, 0.22);
 }
-/* View visibility filtering on #mainCasa */
+/* View visibility filtering on #mainCasa — eliminates triple redundancy of Renda/Meta bars */
+#mainCasa[data-casa-view="tudo"] #rendaBar,
+#mainCasa[data-casa-view="tudo"] #metaBar,
+#mainCasa[data-casa-view="mes"] #rendaBar,
+#mainCasa[data-casa-view="mes"] #metaBar {
+  display: none !important;
+}
 #mainCasa[data-casa-view="mes"] .kpis,
 #mainCasa[data-casa-view="mes"] #chartsGrid,
 #mainCasa[data-casa-view="mes"] #casaItemsSection,
@@ -3425,6 +3432,49 @@ html .liquid-glass-interactive:active:not(:disabled) {
 #mainCasa[data-casa-view="analise"] .gastos-grid {
   grid-template-columns: 1fr;
 }
+/* ── Honeydue / Tandym: Global Couple Perspective Switcher ── */
+.couple-perspective-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px;
+  border-radius: var(--r-full);
+  background: var(--lg-t2, var(--surface));
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--lg-inset), var(--sh-sm);
+}
+.perspective-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  min-height: 34px;
+  border-radius: var(--r-full);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  transition: background-color var(--transition-fast), color var(--transition-fast), transform 120ms var(--ease-spring);
+}
+.perspective-pill:hover {
+  color: var(--text);
+  background: var(--surface-subtle);
+}
+.perspective-pill.active {
+  background: var(--accent);
+  color: #ffffff;
+}
+.perspective-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
 /* ── 2. Smart Quick-Add Bar (Nubank / Copilot natural input) ── */
 .smart-quick-bar {
   display: flex;
@@ -3438,7 +3488,7 @@ html .liquid-glass-interactive:active:not(:disabled) {
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   backdrop-filter: blur(20px) saturate(160%);
   flex: 1;
-  min-width: 280px;
+  min-width: 260px;
 }
 .smart-quick-ico {
   font-size: 13px;
@@ -3526,6 +3576,22 @@ html .liquid-glass-interactive:active:not(:disabled) {
   gap: 8px;
   flex-wrap: wrap;
 }
+.visor-cfg-btn {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 11px;
+  min-height: 30px;
+  border-radius: var(--r-full);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), transform 120ms var(--ease-spring);
+}
+.visor-cfg-btn:hover {
+  background: var(--surface-active);
+}
 .visor-daily-pill {
   font-size: 11.5px;
   font-weight: 600;
@@ -3594,6 +3660,14 @@ html .liquid-glass-interactive:active:not(:disabled) {
   display: flex;
   flex-direction: column;
   gap: 3px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast), transform 120ms var(--ease-spring);
+}
+.visor-bucket:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-active);
+  transform: translateY(-1px);
 }
 .visor-bucket-top {
   display: flex;
@@ -3625,7 +3699,7 @@ html .liquid-glass-interactive:active:not(:disabled) {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
-/* ── 4. Splitwise / Honeydue Couple Settlement Card ── */
+/* ── 4. Splitwise / Honeydue Couple Settlement Card + Transfer Flow Pill ── */
 .settlement-card {
   margin-bottom: 18px;
   padding: 18px 20px;
@@ -3652,12 +3726,36 @@ html .liquid-glass-interactive:active:not(:disabled) {
   justify-content: space-between;
   gap: 10px;
 }
+.settlement-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 .settlement-eyebrow {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--muted);
+}
+.settlement-flow-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px;
+  border-radius: var(--r-full);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.settlement-flow-arrow {
+  color: var(--accent);
+  font-weight: 800;
 }
 .settlement-verdict {
   font-size: 16px;
@@ -3715,6 +3813,11 @@ html .liquid-glass-interactive:active:not(:disabled) {
   flex-direction: column;
   justify-content: space-between;
   gap: 8px;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+.settlement-person:hover {
+  border-color: var(--border-strong);
 }
 .settlement-person-head {
   display: flex;
@@ -3753,7 +3856,7 @@ html .liquid-glass-interactive:active:not(:disabled) {
   color: var(--text);
   font-weight: 600;
 }
-/* ── 5. Payer Pill ("Quem pagou?") on expense & item rows ── */
+/* ── 5. Payer Pill ("Quem pagou?") & Nubank Gasto Card Filters ── */
 .payer-pill {
   display: inline-flex;
   align-items: center;
@@ -3786,6 +3889,74 @@ html .liquid-glass-interactive:active:not(:disabled) {
   height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
+}
+.gasto-card-filters {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px;
+  border-radius: var(--r-full);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+}
+.gasto-filter-btn {
+  padding: 4px 9px;
+  min-height: 26px;
+  border-radius: var(--r-full);
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+.gasto-filter-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--sh-sm);
+}
+.gf-row.acertado {
+  opacity: 0.72;
+}
+.gf-row.acertado:hover {
+  opacity: 1;
+}
+/* Clean up duplicate footer in Fixos/Variáveis cards */
+#casaFixosCard .expense-add-button,
+#casaVariaveisCard .expense-add-button {
+  margin-top: 6px;
+  padding: 7px 12px;
+  min-height: 34px;
+  font-size: 11.5px;
+  background: transparent;
+  border-style: dashed;
+  color: var(--muted);
+}
+#casaFixosCard .expense-add-button:hover,
+#casaVariaveisCard .expense-add-button:hover {
+  color: var(--text);
+  border-style: solid;
+}
+.desk-next-parcel-btn {
+  margin-top: 6px;
+  padding: 3px 9px;
+  min-height: 24px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--accent-border);
+  background: var(--accent-lt);
+  color: var(--accent);
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+.desk-next-parcel-btn:hover {
+  background: var(--accent);
+  color: #ffffff;
 }
 /* ── 6. Period Close/Rollover Button & Modal Type Switcher ── */
 .period-close-month-btn {
@@ -3976,14 +4147,22 @@ html .liquid-glass-interactive:active:not(:disabled) {
   
 
   
+  
+
+  
   <!-- COUPLE-SUITE:TOP -->
-  <div class="casa-subnav-bar" role="region" aria-label="Modos de visualização e lançamento rápido">
+  <div class="casa-subnav-bar" role="region" aria-label="Modos de visualização, perspectiva do casal e lançamento rápido">
     <div class="casa-subnav" role="tablist" aria-label="Visões da aba Casa">
       <button class="casa-subnav-btn active" type="button" role="tab" aria-selected="true" data-view="tudo" onclick="setCasaSubView('tudo', this)">🗂️ Tudo</button>
       <button class="casa-subnav-btn" type="button" role="tab" aria-selected="false" data-view="mes" onclick="setCasaSubView('mes', this)">📌 Dia a Dia <span class="casa-subnav-badge" id="badgeSubMes">0</span></button>
       <button class="casa-subnav-btn" type="button" role="tab" aria-selected="false" data-view="compras" onclick="setCasaSubView('compras', this)">📦 Compras & Parcelas <span class="casa-subnav-badge" id="badgeSubCompras">0</span></button>
       <button class="casa-subnav-btn" type="button" role="tab" aria-selected="false" data-view="analise" onclick="setCasaSubView('analise', this)">📊 Análise & Visor</button>
     </div>
+
+    <div class="couple-perspective-switch" id="couplePerspectiveSwitch" role="group" aria-label="Filtrar valores por pessoa do casal">
+      <button type="button" class="perspective-pill active" onclick="setCouplePerspective(null)">👥 Casal 100%</button>
+    </div>
+
     <form class="smart-quick-bar" onsubmit="event.preventDefault(); submitSmartQuickAdd();">
       <span class="smart-quick-ico" aria-hidden="true">⚡</span>
       <input class="smart-quick-input" id="smartQuickInput" type="text" placeholder="Lançar em 1 frase: ex. Mercado 280, Aluguel 2200 fixo ou Sofá 3600 10x Sala" oninput="previewSmartQuickAdd(this.value)" aria-label="Lançamento rápido em uma frase">
@@ -4001,6 +4180,8 @@ html .liquid-glass-interactive:active:not(:disabled) {
       <div class="visor-badges">
         <span class="visor-daily-pill" id="visorDailyAllowance">Livre/dia: —</span>
         <span class="visor-health-pill ok" id="visorHealthBadge">Calculando…</span>
+        <button type="button" class="visor-cfg-btn" onclick="openRenda()" title="Configurar renda e divisão proporcional">💵 Renda</button>
+        <button type="button" class="visor-cfg-btn" onclick="openMeta()" title="Configurar limite mensal">🎯 Meta</button>
       </div>
     </div>
     <div class="visor-stack-track" role="img" aria-label="Barra de composição da renda">
@@ -4010,22 +4191,22 @@ html .liquid-glass-interactive:active:not(:disabled) {
       <div class="visor-seg" id="visorSegLivre" style="width:100%;background:var(--accent)" title="Sobra Livre"></div>
     </div>
     <div class="visor-legend">
-      <div class="visor-bucket">
+      <button type="button" class="visor-bucket" onclick="navigateFromVisorBucket('fixos')" title="Ir para Gastos Fixos">
         <div class="visor-bucket-top"><span><span class="visor-dot" style="background:var(--blue)"></span>Fixos</span><span class="visor-bucket-pct" id="visorPctFixos">0%</span></div>
         <div class="visor-bucket-val" id="visorValFixos">R$ 0</div>
-      </div>
-      <div class="visor-bucket">
+      </button>
+      <button type="button" class="visor-bucket" onclick="navigateFromVisorBucket('parcelas')" title="Ir para Compras & Parcelas">
         <div class="visor-bucket-top"><span><span class="visor-dot" style="background:var(--ai)"></span>Parcelas</span><span class="visor-bucket-pct" id="visorPctParcelas">0%</span></div>
         <div class="visor-bucket-val" id="visorValParcelas">R$ 0</div>
-      </div>
-      <div class="visor-bucket">
+      </button>
+      <button type="button" class="visor-bucket" onclick="navigateFromVisorBucket('variaveis')" title="Ir para Gastos Variáveis">
         <div class="visor-bucket-top"><span><span class="visor-dot" style="background:var(--warn)"></span>Variáveis</span><span class="visor-bucket-pct" id="visorPctVariaveis">0%</span></div>
         <div class="visor-bucket-val" id="visorValVariaveis">R$ 0</div>
-      </div>
-      <div class="visor-bucket">
+      </button>
+      <button type="button" class="visor-bucket" onclick="navigateFromVisorBucket('livre')" title="Ajustar Renda & Divisão">
         <div class="visor-bucket-top"><span><span class="visor-dot" style="background:var(--accent)"></span>Livre no Mês</span><span class="visor-bucket-pct" id="visorPctLivre">0%</span></div>
         <div class="visor-bucket-val" id="visorValLivre">R$ 0</div>
-      </div>
+      </button>
     </div>
   </section>
   <!-- Splitwise / Honeydue: Balanço "Quem Pagou?" & Acerto Pix entre o Casal -->
@@ -4033,18 +4214,21 @@ html .liquid-glass-interactive:active:not(:disabled) {
     <div class="settlement-grid">
       <div class="settlement-hero">
         <div>
-          <div class="settlement-eyebrow">🤝 Balanço Real entre o Casal · Quem Pagou vs. Parte Justa</div>
-          <div class="settlement-verdict" id="settlementVerdict">Calculando acerto do mês…</div>
+          <div class="settlement-top-row">
+            <span class="settlement-eyebrow">🤝 Balanço Real entre o Casal · Quem Pagou vs. Parte Justa</span>
+            <span class="settlement-flow-pill" id="settlementFlowPill">🤝 Equilibrado</span>
+          </div>
+          <div class="settlement-verdict" id="settlementVerdict" style="margin-top:6px">Calculando acerto do mês…</div>
           <div class="settlement-sub" id="settlementSub">Toque no botão "Quem pagou" em qualquer conta abaixo quando uma pessoa pagar o valor inteiro sozinha.</div>
         </div>
         <div class="settlement-actions">
           <button class="settlement-btn primary" type="button" onclick="settleAllPendingMonth()">✓ Marcar mês como acertado</button>
-          <button class="settlement-btn" type="button" onclick="openViradaMes()">✨ Fechar / Virar mês</button>
-          <button class="settlement-btn" type="button" onclick="openRenda()">⚖️ Ajustar divisão (%)</button>
+          <button class="settlement-btn" type="button" onclick="copySettlementSummary()" title="Copiar resumo formatado para enviar no WhatsApp ou Telegram">📋 Copiar p/ WhatsApp</button>
+          <button class="settlement-btn" type="button" onclick="openViradaMes()">✨ Fechar mês</button>
         </div>
       </div>
-      <div class="settlement-person" id="settlementPerson0"></div>
-      <div class="settlement-person" id="settlementPerson1"></div>
+      <div class="settlement-person" id="settlementPerson0" onclick="setCouplePerspective(0)" title="Clique para focar na visão desta pessoa"></div>
+      <div class="settlement-person" id="settlementPerson1" onclick="setCouplePerspective(1)" title="Clique para focar na visão desta pessoa"></div>
     </div>
   </section>
   <!-- /COUPLE-SUITE:TOP -->
@@ -4750,6 +4934,7 @@ html .liquid-glass-interactive:active:not(:disabled) {
     </div>
   </div>
 </div>
+
 
 
 
@@ -8256,6 +8441,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+
 <script id="couple-suite-engine">
 /* ═══════════════════════════════════════════════════════════════════════════
    CASA NOVA COUPLE SUITE ENGINE
@@ -8337,8 +8523,11 @@ function buildPayerPillHtml(kind, record) {
     <span>${escapeHtml(meta.label)}</span>
   </button>`;
 }
-/* ── 1. Sub-navigation Segmented Control ── */
+/* ── 1. Sub-navigation Segmented Control & Global Couple Perspective ── */
 let CASA_SUB_VIEW = localStorage.getItem('cn_casa_subview') || 'tudo';
+let GF_CARD_FILTER = 'all';
+let GV_CARD_FILTER = 'all';
+
 function setCasaSubView(view, btn) {
   CASA_SUB_VIEW = view || 'tudo';
   localStorage.setItem('cn_casa_subview', CASA_SUB_VIEW);
@@ -8363,22 +8552,92 @@ function setCasaSubView(view, btn) {
     }, 30);
   }
 }
+
+function setCouplePerspective(idx) {
+  if (idx === null || ACTIVE_PERSON === idx) {
+    ACTIVE_PERSON = null;
+  } else {
+    ACTIVE_PERSON = idx;
+  }
+  if (typeof triggerHaptic === 'function') triggerHaptic(8);
+  _lastRenderHash = '';
+  render();
+  refreshCoupleSuite();
+  if (ACTIVE_PERSON === null) {
+    toast('👥 Visão completa do casal (100%)');
+  } else if (PESSOAS && PESSOAS[ACTIVE_PERSON]) {
+    const pctVal = Math.round((splitFracs()[ACTIVE_PERSON] || 0.5) * 100);
+    toast(`👤 Foco em ${PESSOAS[ACTIVE_PERSON].nome} (${pctVal}% proporcional)`);
+  }
+}
+
+function navigateFromVisorBucket(bucket) {
+  if (bucket === 'fixos') {
+    if (CASA_SUB_VIEW === 'compras' || CASA_SUB_VIEW === 'analise') setCasaSubView('mes');
+    document.getElementById('casaFixosCard')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } else if (bucket === 'variaveis') {
+    if (CASA_SUB_VIEW === 'compras' || CASA_SUB_VIEW === 'analise') setCasaSubView('mes');
+    document.getElementById('casaVariaveisCard')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } else if (bucket === 'parcelas') {
+    setCasaSubView('compras');
+    document.getElementById('casaItemsSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    openRenda();
+  }
+}
+
+function setGastoCardFilter(kind, mode) {
+  if (kind === 'fixo') {
+    GF_CARD_FILTER = mode;
+    renderGastosFixos();
+  } else {
+    GV_CARD_FILTER = mode;
+    renderGastosVariaveis();
+  }
+}
+
 /* ── 2. Visor App Income Composition & Couple Settlement Calculation ── */
 function refreshCoupleSuite() {
   if (!document.getElementById('visorPacingCard')) return;
+  const p0 = (PESSOAS && PESSOAS[0]) ? PESSOAS[0] : { nome: 'Pessoa 1', cor: '#2563eb', renda: 0 };
+  const p1 = (PESSOAS && PESSOAS[1]) ? PESSOAS[1] : { nome: 'Pessoa 2', cor: '#047857', renda: 0 };
+  const fracs = splitFracs();
+  const f0 = fracs[0] ?? 0.5;
+  const f1 = fracs[1] ?? 0.5;
+  const activeFrac = ACTIVE_PERSON !== null ? (fracs[ACTIVE_PERSON] ?? 1) : 1;
+
+  // Render global Couple Perspective Switcher pills
+  const perspWrap = document.getElementById('couplePerspectiveSwitch');
+  if (perspWrap) {
+    perspWrap.innerHTML = `
+      <button type="button" class="perspective-pill ${ACTIVE_PERSON === null ? 'active' : ''}" onclick="setCouplePerspective(null)" title="Ver 100% dos valores do casal">👥 Casal 100%</button>
+      <button type="button" class="perspective-pill ${ACTIVE_PERSON === 0 ? 'active' : ''}" onclick="setCouplePerspective(0)" title="Filtrar todo o painel pela parte de ${escapeHtml(p0.nome)}">
+        <span class="perspective-dot" style="background:${p0.cor}"></span>${escapeHtml(p0.nome)} (${Math.round(f0 * 100)}%)
+      </button>
+      <button type="button" class="perspective-pill ${ACTIVE_PERSON === 1 ? 'active' : ''}" onclick="setCouplePerspective(1)" title="Filtrar todo o painel pela parte de ${escapeHtml(p1.nome)}">
+        <span class="perspective-dot" style="background:${p1.cor}"></span>${escapeHtml(p1.nome)} (${Math.round(f1 * 100)}%)
+      </button>
+    `;
+  }
+
   const projected = projectionForMonth(DATA, GASTOS_FIXOS, GASTOS_VARIAVEIS);
-  const fixos = projected.fixed || 0;
-  const parcelas = projected.installments || 0;
-  const variaveis = projected.variable || 0;
+  const fixos = (projected.fixed || 0) * activeFrac;
+  const parcelas = (projected.installments || 0) * activeFrac;
+  const variaveis = (projected.variable || 0) * activeFrac;
   const totalGasto = fixos + parcelas + variaveis;
-  const baseRenda = RENDA > 0 ? RENDA : (META > 0 ? META : Math.max(totalGasto, 1));
-  const livre = Math.max((RENDA || META || 0) - totalGasto, 0);
-  const deficit = (RENDA || META || 0) > 0 && totalGasto > (RENDA || META || 0) ? totalGasto - (RENDA || META || 0) : 0;
+  const rawBaseRenda = RENDA > 0 ? (RENDA * activeFrac) : (META > 0 ? (META * activeFrac) : Math.max(totalGasto, 1));
+  const baseRenda = Math.max(rawBaseRenda, 1);
+  const orcamentoAtivo = (RENDA || META || 0) * activeFrac;
+  const livre = Math.max(orcamentoAtivo - totalGasto, 0);
+  const deficit = orcamentoAtivo > 0 && totalGasto > orcamentoAtivo ? totalGasto - orcamentoAtivo : 0;
   const pctF = Math.min(100, Math.round((fixos / baseRenda) * 100));
   const pctP = Math.min(100 - pctF, Math.round((parcelas / baseRenda) * 100));
   const pctV = Math.min(100 - pctF - pctP, Math.round((variaveis / baseRenda) * 100));
   const pctL = Math.max(0, 100 - pctF - pctP - pctV);
   const setEl = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  setEl('visorHeadline', ACTIVE_PERSON !== null && PESSOAS[ACTIVE_PERSON]
+    ? `Composição da renda de ${PESSOAS[ACTIVE_PERSON].nome} (${Math.round(activeFrac * 100)}%)`
+    : 'Para onde vai a renda do casal neste mês');
   setEl('visorValFixos', fmt(fixos));
   setEl('visorValParcelas', fmt(parcelas));
   setEl('visorValVariaveis', fmt(variaveis));
@@ -8426,11 +8685,6 @@ function refreshCoupleSuite() {
   setEl('badgeSubMes', pendentesMes);
   setEl('badgeSubCompras', comprasAtivas);
   // Couple Settlement math
-  const p0 = (PESSOAS && PESSOAS[0]) ? PESSOAS[0] : { nome: 'Pessoa 1', cor: '#2563eb', renda: 0 };
-  const p1 = (PESSOAS && PESSOAS[1]) ? PESSOAS[1] : { nome: 'Pessoa 2', cor: '#047857', renda: 0 };
-  const fracs = splitFracs();
-  const f0 = fracs[0] ?? 0.5;
-  const f1 = fracs[1] ?? 0.5;
   let fair0 = 0, fair1 = 0, paid0 = 0, paid1 = 0;
   function accumulateEntry(val, payerCode) {
     if (val <= 0) return;
@@ -8458,22 +8712,27 @@ function refreshCoupleSuite() {
   });
   // Net balance: positive means p0 paid more than their fair share (so p1 owes p0)
   const net0 = paid0 - fair0;
+  window._lastSettlementState = { p0, p1, f0, f1, fair0, fair1, paid0, paid1, net0, projected };
   const verdictEl = document.getElementById('settlementVerdict');
   const subEl = document.getElementById('settlementSub');
+  const flowEl = document.getElementById('settlementFlowPill');
   if (verdictEl) {
     if (Math.abs(net0) < 0.5) {
       verdictEl.innerHTML = `Contas em equilíbrio · <strong>Ninguém deve diferença</strong> neste mês`;
       if (subEl) subEl.textContent = `Parte proporcional: ${p0.nome} (${Math.round(f0 * 100)}%) = ${fmt(fair0)} · ${p1.nome} (${Math.round(f1 * 100)}%) = ${fmt(fair1)}.`;
+      if (flowEl) flowEl.innerHTML = `🤝 100% Equilibrado`;
     } else if (net0 > 0) {
       verdictEl.innerHTML = `Acerto do mês: <strong>${escapeHtml(p1.nome)} transfere ${fmt(net0)}</strong> para ${escapeHtml(p0.nome)}`;
       if (subEl) subEl.textContent = `${p0.nome} desembolsou ${fmt(paid0)} (sua parte justa era ${fmt(fair0)}).`;
+      if (flowEl) flowEl.innerHTML = `<span>${escapeHtml(p1.nome)}</span> <span class="settlement-flow-arrow">➔ ${fmt(net0)} ➔</span> <span>${escapeHtml(p0.nome)}</span>`;
     } else {
       const diff = Math.abs(net0);
       verdictEl.innerHTML = `Acerto do mês: <strong>${escapeHtml(p0.nome)} transfere ${fmt(diff)}</strong> para ${escapeHtml(p1.nome)}`;
       if (subEl) subEl.textContent = `${p1.nome} desembolsou ${fmt(paid1)} (sua parte justa era ${fmt(fair1)}).`;
+      if (flowEl) flowEl.innerHTML = `<span>${escapeHtml(p0.nome)}</span> <span class="settlement-flow-arrow">➔ ${fmt(diff)} ➔</span> <span>${escapeHtml(p1.nome)}</span>`;
     }
   }
-  const renderPersonCard = (elId, p, frac, fair, paid) => {
+  const renderPersonCard = (elId, p, frac, fair, paid, idx) => {
     const el = document.getElementById(elId);
     if (!el) return;
     const diff = paid - fair;
@@ -8481,6 +8740,7 @@ function refreshCoupleSuite() {
       ? 'Equilibrado ✓'
       : (diff > 0 ? `Recebe ${fmt(diff)}` : `Transfere ${fmt(Math.abs(diff))}`);
     const statusColor = Math.abs(diff) < 0.5 ? 'var(--muted)' : (diff > 0 ? 'var(--accent)' : 'var(--warn)');
+    el.style.borderColor = ACTIVE_PERSON === idx ? p.cor : '';
     el.innerHTML = `
       <div class="settlement-person-head">
         <div class="settlement-person-name">
@@ -8496,8 +8756,8 @@ function refreshCoupleSuite() {
       </div>
     `;
   };
-  renderPersonCard('settlementPerson0', p0, f0, fair0, paid0);
-  renderPersonCard('settlementPerson1', p1, f1, fair1, paid1);
+  renderPersonCard('settlementPerson0', p0, f0, fair0, paid0, 0);
+  renderPersonCard('settlementPerson1', p1, f1, fair1, paid1, 1);
   // Sync dynamic person names in #expensePaidBy select
   const opt0 = document.getElementById('expOptP0');
   const opt1 = document.getElementById('expOptP1');
@@ -8508,6 +8768,37 @@ function refreshCoupleSuite() {
   if (opt50_0) opt50_0.textContent = `🤝 Divisão 50/50 · Pago por ${p0.nome}`;
   if (opt50_1) opt50_1.textContent = `🤝 Divisão 50/50 · Pago por ${p1.nome}`;
 }
+
+function copySettlementSummary() {
+  const st = window._lastSettlementState;
+  if (!st) { refreshCoupleSuite(); return; }
+  const { p0, p1, f0, f1, fair0, fair1, paid0, paid1, net0, projected } = st;
+  const mesLabel = typeof selectedMonthLabel === 'function' ? selectedMonthLabel() : SELECTED_MONTH;
+  let acertoLine = '✅ Contas 100% equilibradas (ninguém deve diferença).';
+  if (Math.abs(net0) >= 0.5) {
+    acertoLine = net0 > 0
+      ? `💸 *Acerto Pix:* ${p1.nome} transfere *${fmt(net0)}* para ${p0.nome}`
+      : `💸 *Acerto Pix:* ${p0.nome} transfere *${fmt(Math.abs(net0))}* para ${p1.nome}`;
+  }
+  const text = [
+    `🏠 *Resumo Casa Nova — ${mesLabel}*`,
+    `• Total do mês: *${fmt(projected.total)}* (Fixos ${fmt(projected.fixed)} · Variáveis ${fmt(projected.variable)} · Parcelas ${fmt(projected.installments)})`,
+    `• ${p0.nome} (${Math.round(f0 * 100)}%): parte justa ${fmt(fair0)} | pagou ${fmt(paid0)}`,
+    `• ${p1.nome} (${Math.round(f1 * 100)}%): parte justa ${fmt(fair1)} | pagou ${fmt(paid1)}`,
+    acertoLine
+  ].join('\n');
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      toast('📋 Resumo copiado! Pronto para colar no WhatsApp.');
+    }).catch(() => {
+      toast('📋 ' + acertoLine.replace(/\*/g, ''));
+    });
+  } else {
+    toast('📋 ' + acertoLine.replace(/\*/g, ''));
+  }
+}
+
 function settleAllPendingMonth() {
   let count = 0;
   GASTOS_FIXOS.forEach(g => {
@@ -8733,21 +9024,51 @@ function executeViradaMes() {
   refreshCoupleSuite();
   toast('✨ Mês fechado com sucesso! Painel atualizado para o novo ciclo.');
 }
-/* ── Hooks into existing render functions to inject Payer Pills & refresh Visor/Settlement ── */
+/* ── Hooks into existing render functions to inject Payer Pills, Nubank Card Filters & Desktop +1 Parcela ── */
+function decorateGastoCard(kind, cardId, listElId, dataList, filterMode) {
+  const card = document.getElementById(cardId);
+  const head = card?.querySelector('.card-head');
+  if (head) {
+    let filterWrap = head.querySelector('.gasto-card-filters');
+    if (!filterWrap) {
+      filterWrap = document.createElement('div');
+      filterWrap.className = 'gasto-card-filters';
+      head.appendChild(filterWrap);
+    }
+    const pendCount = dataList.filter(g => !isAcertadoMes(g)).length;
+    filterWrap.innerHTML = `
+      <button type="button" class="gasto-filter-btn ${filterMode === 'all' ? 'active' : ''}" onclick="setGastoCardFilter('${kind}','all')">Todas (${dataList.length})</button>
+      <button type="button" class="gasto-filter-btn ${filterMode === 'pending' ? 'active' : ''}" onclick="setGastoCardFilter('${kind}','pending')">Pendentes (${pendCount})</button>
+      <button type="button" class="gasto-filter-btn ${filterMode === 'settled' ? 'active' : ''}" onclick="setGastoCardFilter('${kind}','settled')">Acertadas</button>
+    `;
+  }
+  const container = document.getElementById(listElId);
+  if (!container) return;
+  const rows = Array.from(container.querySelectorAll('.gf-row'));
+  rows.forEach((rowEl, idx) => {
+    const g = dataList[idx];
+    if (!g) return;
+    if (!rowEl.querySelector('.payer-pill')) {
+      const acertoCol = rowEl.querySelector('.gf-acerto');
+      if (acertoCol) {
+        acertoCol.insertAdjacentHTML('afterbegin', buildPayerPillHtml(kind, g));
+      }
+    }
+    const settled = isAcertadoMes(g);
+    const hide = (filterMode === 'pending' && settled) || (filterMode === 'settled' && !settled);
+    rowEl.style.display = hide ? 'none' : '';
+  });
+  // Sort pending rows first, settled rows at the bottom (Nubank / Apple Wallet pattern)
+  rows.sort((a, b) => (a.classList.contains('acertado') ? 1 : 0) - (b.classList.contains('acertado') ? 1 : 0));
+  rows.forEach(r => container.appendChild(r));
+}
+
 (function wireCoupleSuiteHooks() {
   const origRenderGF = window.renderGastosFixos;
   if (typeof origRenderGF === 'function') {
     window.renderGastosFixos = function() {
       origRenderGF.apply(this, arguments);
-      const rows = document.querySelectorAll('#gfList .gf-row');
-      rows.forEach((rowEl, idx) => {
-        const g = GASTOS_FIXOS[idx];
-        if (!g || rowEl.querySelector('.payer-pill')) return;
-        const acertoCol = rowEl.querySelector('.gf-acerto');
-        if (acertoCol) {
-          acertoCol.insertAdjacentHTML('afterbegin', buildPayerPillHtml('fixo', g));
-        }
-      });
+      decorateGastoCard('fixo', 'casaFixosCard', 'gfList', GASTOS_FIXOS, GF_CARD_FILTER);
       refreshCoupleSuite();
     };
   }
@@ -8755,15 +9076,7 @@ function executeViradaMes() {
   if (typeof origRenderGV === 'function') {
     window.renderGastosVariaveis = function() {
       origRenderGV.apply(this, arguments);
-      const rows = document.querySelectorAll('#gvList .gf-row');
-      rows.forEach((rowEl, idx) => {
-        const g = GASTOS_VARIAVEIS[idx];
-        if (!g || rowEl.querySelector('.payer-pill')) return;
-        const acertoCol = rowEl.querySelector('.gf-acerto');
-        if (acertoCol) {
-          acertoCol.insertAdjacentHTML('afterbegin', buildPayerPillHtml('variavel', g));
-        }
-      });
+      decorateGastoCard('variavel', 'casaVariaveisCard', 'gvList', GASTOS_VARIAVEIS, GV_CARD_FILTER);
       refreshCoupleSuite();
     };
   }
@@ -8777,6 +9090,13 @@ function executeViradaMes() {
         const acertoCheck = card.querySelector('.acerto-check');
         if (acertoCheck) {
           acertoCheck.insertAdjacentHTML('beforebegin', `<div style="margin-top:6px">${buildPayerPillHtml('item', item)}</div>`);
+        }
+        // Add desktop +1 parcela quick button below dots if not quitado
+        const pagas = (item.checks || []).filter(Boolean).length;
+        const parc = item.parcelas || 1;
+        const dotsWrap = card.querySelector('.item-desktop-only .dots');
+        if (dotsWrap && pagas < parc && !card.querySelector('.desk-next-parcel-btn')) {
+          dotsWrap.parentElement.insertAdjacentHTML('beforeend', `<div><button type="button" class="desk-next-parcel-btn" onclick="markNextParcel(${item.row})" title="Avançar próxima parcela (+1)">+1 parcela paga</button></div>`);
         }
       });
       refreshCoupleSuite();
