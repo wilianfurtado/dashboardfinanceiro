@@ -3321,6 +3321,7 @@ html .liquid-glass-interactive:active:not(:disabled) {
 
 
 
+
 <style id="couple-suite-styles">
 /* ═══════════════════════════════════════════════════════════════════════════
    CASA NOVA COUPLE SUITE — Visor Pacing + Splitwise Settlement + Quick-Add
@@ -3891,6 +3892,37 @@ html .liquid-glass-interactive:active:not(:disabled) {
   border-radius: 50%;
   flex-shrink: 0;
 }
+.split-avatar,
+.gf-split-av {
+  position: relative;
+  overflow: hidden;
+}
+.person-google-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+.payer-pill-avatar {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.14);
+}
+.perspective-avatar {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
 .gasto-card-filters {
   display: inline-flex;
   align-items: center;
@@ -4140,6 +4172,9 @@ html .liquid-glass-interactive:active:not(:disabled) {
     <div class="month-kpi liquid-glass liquid-glass-interactive" style="--mk:var(--accent)"><div class="month-kpi-label">Saldo livre</div><div class="month-kpi-value" id="monthBalance">—</div><div class="month-kpi-note" id="monthBalanceNote">após os gastos</div></div>
     <div class="month-kpi liquid-glass liquid-glass-interactive" style="--mk:var(--purple)"><div class="month-kpi-label">Comprometimento</div><div class="month-kpi-value" id="monthCommitment">—</div><div class="month-kpi-note" id="monthCommitmentNote">da renda do casal</div></div>
   </section>
+
+  
+  
 
   
   
@@ -4938,6 +4973,7 @@ html .liquid-glass-interactive:active:not(:disabled) {
     </div>
   </div>
 </div>
+
 
 
 
@@ -8448,6 +8484,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+
 <script id="couple-suite-engine">
 /* ═══════════════════════════════════════════════════════════════════════════
    CASA NOVA COUPLE SUITE ENGINE
@@ -8459,20 +8496,29 @@ document.addEventListener('DOMContentLoaded', () => {
    ═══════════════════════════════════════════════════════════════════════════ */
 let PAGADORES_MAP = {};
 let PAGADORES_TS = {};
+let GOOGLE_PHOTOS_MAP = {};
 let _pagadoresSyncTimer = null;
 try {
   PAGADORES_MAP = JSON.parse(localStorage.getItem('cn_pagadores') || '{}') || {};
   PAGADORES_TS = JSON.parse(localStorage.getItem('cn_pagadores_ts') || '{}') || {};
+  GOOGLE_PHOTOS_MAP = JSON.parse(localStorage.getItem('cn_google_photos') || '{}') || {};
 } catch (_) {
   PAGADORES_MAP = {};
   PAGADORES_TS = {};
+  GOOGLE_PHOTOS_MAP = {};
 }
 function savePagadoresMap(syncCloud = false) {
   localStorage.setItem('cn_pagadores', JSON.stringify(PAGADORES_MAP));
   localStorage.setItem('cn_pagadores_ts', JSON.stringify(PAGADORES_TS));
+  localStorage.setItem('cn_google_photos', JSON.stringify(GOOGLE_PHOTOS_MAP));
   if (typeof PESSOAS !== 'undefined' && Array.isArray(PESSOAS) && PESSOAS[0]) {
     PESSOAS[0]._pagadores = PAGADORES_MAP;
     PESSOAS[0]._pagadoresTs = PAGADORES_TS;
+    PESSOAS[0]._fotos = GOOGLE_PHOTOS_MAP;
+    PESSOAS.forEach(p => {
+      const k = normalizePayerRecordName(p.nome);
+      if (k && GOOGLE_PHOTOS_MAP[k]) p.foto = GOOGLE_PHOTOS_MAP[k];
+    });
     localStorage.setItem('cn_pessoas', JSON.stringify(PESSOAS));
   }
   if (syncCloud && typeof saveConfigToSheets === 'function') {
@@ -8480,6 +8526,116 @@ function savePagadoresMap(syncCloud = false) {
     _pagadoresSyncTimer = setTimeout(() => {
       try { saveConfigToSheets().catch(() => {}); } catch (_) {}
     }, 650);
+  }
+}
+function captureCurrentUserGooglePhoto(syncCloud = true) {
+  let u = (typeof CURRENT_USER !== 'undefined' && CURRENT_USER) ? CURRENT_USER : null;
+  if (!u) {
+    try { u = JSON.parse(localStorage.getItem('cn_session') || 'null'); } catch (_) {}
+  }
+  if (!u || !u.picture || !u.name) return false;
+  const key = normalizePayerRecordName(u.name);
+  if (!key) return false;
+  let updated = false;
+  if (GOOGLE_PHOTOS_MAP[key] !== u.picture) {
+    GOOGLE_PHOTOS_MAP[key] = u.picture;
+    updated = true;
+  }
+  if (typeof PESSOAS !== 'undefined' && Array.isArray(PESSOAS)) {
+    PESSOAS.forEach(p => {
+      const pk = normalizePayerRecordName(p.nome);
+      if (pk && (pk === key || pk.startsWith(key) || key.startsWith(pk))) {
+        if (p.foto !== u.picture) {
+          p.foto = u.picture;
+          GOOGLE_PHOTOS_MAP[pk] = u.picture;
+          updated = true;
+        }
+      }
+    });
+  }
+  if (updated) savePagadoresMap(syncCloud);
+  return updated;
+}
+function getPersonPhoto(personOrName) {
+  if (!personOrName) return '';
+  if (typeof personOrName === 'object' && personOrName.foto) return personOrName.foto;
+  const name = typeof personOrName === 'object' ? personOrName.nome : String(personOrName);
+  const key = normalizePayerRecordName(name);
+  if (!key) return '';
+  if (GOOGLE_PHOTOS_MAP[key]) return GOOGLE_PHOTOS_MAP[key];
+  for (const k of Object.keys(GOOGLE_PHOTOS_MAP)) {
+    if (k.startsWith(key) || key.startsWith(k)) return GOOGLE_PHOTOS_MAP[k];
+  }
+  if (typeof CURRENT_USER !== 'undefined' && CURRENT_USER && CURRENT_USER.picture && CURRENT_USER.name) {
+    const ck = normalizePayerRecordName(CURRENT_USER.name);
+    if (ck === key || ck.startsWith(key) || key.startsWith(ck)) return CURRENT_USER.picture;
+  }
+  return '';
+}
+function personAvatarInnerHtml(p) {
+  const nome = (p && p.nome) ? p.nome : 'P';
+  const initials = escapeHtml(nome.slice(0, 2).toUpperCase());
+  const photo = getPersonPhoto(p);
+  if (!photo) return initials;
+  return `${initials}<img src="${escapeHtml(photo)}" alt="${escapeHtml(nome)}" class="person-google-photo" referrerpolicy="no-referrer" onerror="this.remove()">`;
+}
+function hydratePersonAvatarsInDom() {
+  captureCurrentUserGooglePhoto(false);
+  if (typeof PESSOAS === 'undefined' || !Array.isArray(PESSOAS) || !PESSOAS.length) return;
+  const injectImg = (el, person) => {
+    if (!el || !person) return;
+    const photo = getPersonPhoto(person);
+    if (!photo) return;
+    const existing = el.querySelector('img.person-google-photo');
+    if (existing) {
+      if (existing.getAttribute('src') !== photo) existing.setAttribute('src', photo);
+      return;
+    }
+    el.style.position = 'relative';
+    el.style.overflow = 'hidden';
+    el.insertAdjacentHTML('beforeend', `<img src="${escapeHtml(photo)}" alt="${escapeHtml(person.nome || '')}" class="person-google-photo" referrerpolicy="no-referrer" onerror="this.remove()">`);
+  };
+  const matchPersonByText = txt => {
+    const norm = normalizePayerRecordName(txt);
+    if (!norm) return null;
+    return PESSOAS.find(p => {
+      const pk = normalizePayerRecordName(p.nome);
+      return pk && (norm === pk || norm.startsWith(pk) || pk.startsWith(norm));
+    }) || null;
+  };
+  // 1. Gastos Fixos & Variáveis rows (.gf-split-pill)
+  document.querySelectorAll('.gf-split-pill').forEach(pill => {
+    const av = pill.querySelector('.gf-split-av');
+    const nameEl = pill.querySelector('.gf-split-name');
+    const person = nameEl ? matchPersonByText(nameEl.textContent) : null;
+    if (av && person) injectImg(av, person);
+  });
+  // 2. Compras da Casa rows (.split-row)
+  document.querySelectorAll('.split-row').forEach(row => {
+    const av = row.querySelector('.split-avatar');
+    const nameEl = row.querySelector('.split-name');
+    const rawName = nameEl ? (nameEl.childNodes[0]?.textContent || nameEl.textContent) : '';
+    const person = matchPersonByText(rawName);
+    if (av && person) injectImg(av, person);
+  });
+  // 3. Header split totals (#gfTotalSplit, #gvTotalSplit)
+  ['gfTotalSplit', 'gvTotalSplit'].forEach(id => {
+    const wrap = document.getElementById(id);
+    if (!wrap) return;
+    wrap.querySelectorAll('.split-avatar').forEach((av, idx) => {
+      if (PESSOAS[idx]) injectImg(av, PESSOAS[idx]);
+    });
+  });
+  // 4. Resumo do Mês (#resumoGrid) & Gasto Detail modal (#gdBody)
+  document.querySelectorAll('#resumoGrid .resumo-pessoa .split-avatar, #gdBody .gd-split-card .split-avatar').forEach((av, idx) => {
+    if (PESSOAS[idx % PESSOAS.length]) injectImg(av, PESSOAS[idx % PESSOAS.length]);
+  });
+  // 5. Modal Renda do Casal (#pessoasForm)
+  const pForm = document.getElementById('pessoasForm');
+  if (pForm) {
+    Array.from(pForm.children).forEach((row, idx) => {
+      if (PESSOAS[idx] && row.firstElementChild) injectImg(row.firstElementChild, PESSOAS[idx]);
+    });
   }
 }
 function getPayerKey(kind, id, monthKey) {
@@ -8555,6 +8711,7 @@ function setRecordPayer(kind, id, value, record, syncCloud = true) {
 }
 function syncAndHydratePagadores() {
   let changed = false;
+  captureCurrentUserGooglePhoto(false);
   if (typeof PESSOAS !== 'undefined' && Array.isArray(PESSOAS) && PESSOAS[0]) {
     const remMap = PESSOAS[0]._pagadores;
     const remTs = PESSOAS[0]._pagadoresTs || {};
@@ -8571,8 +8728,27 @@ function syncAndHydratePagadores() {
         }
       });
     }
+    const remFotos = PESSOAS[0]._fotos;
+    if (remFotos && typeof remFotos === 'object') {
+      Object.keys(remFotos).forEach(k => {
+        if (remFotos[k] && GOOGLE_PHOTOS_MAP[k] !== remFotos[k]) {
+          GOOGLE_PHOTOS_MAP[k] = remFotos[k];
+          changed = true;
+        }
+      });
+    }
+    PESSOAS.forEach(p => {
+      const pk = normalizePayerRecordName(p.nome);
+      if (p.foto && pk && GOOGLE_PHOTOS_MAP[pk] !== p.foto) {
+        GOOGLE_PHOTOS_MAP[pk] = p.foto;
+        changed = true;
+      } else if (!p.foto && pk && GOOGLE_PHOTOS_MAP[pk]) {
+        p.foto = GOOGLE_PHOTOS_MAP[pk];
+      }
+    });
     PESSOAS[0]._pagadores = PAGADORES_MAP;
     PESSOAS[0]._pagadoresTs = PAGADORES_TS;
+    PESSOAS[0]._fotos = GOOGLE_PHOTOS_MAP;
   }
   const hydrateList = (kind, list) => {
     (list || []).forEach(rec => {
@@ -8601,15 +8777,15 @@ function getPayerMeta(code) {
   const p1 = (typeof PESSOAS !== 'undefined' && PESSOAS[1]) ? PESSOAS[1] : { nome: 'Pessoa 2', cor: '#047857' };
   switch (code) {
     case 'p0':
-      return { code: 'p0', label: `${p0.nome} pagou`, short: p0.nome, color: p0.cor, cls: 'paid-by-p0' };
+      return { code: 'p0', label: `${p0.nome} pagou`, short: p0.nome, color: p0.cor, cls: 'paid-by-p0', person: p0 };
     case 'p1':
-      return { code: 'p1', label: `${p1.nome} pagou`, short: p1.nome, color: p1.cor, cls: 'paid-by-p1' };
+      return { code: 'p1', label: `${p1.nome} pagou`, short: p1.nome, color: p1.cor, cls: 'paid-by-p1', person: p1 };
     case '5050-p0':
-      return { code: '5050-p0', label: `50/50 · ${p0.nome} pagou`, short: `50/50 ${p0.nome}`, color: p0.cor, cls: 'paid-by-p0' };
+      return { code: '5050-p0', label: `50/50 · ${p0.nome} pagou`, short: `50/50 ${p0.nome}`, color: p0.cor, cls: 'paid-by-p0', person: p0 };
     case '5050-p1':
-      return { code: '5050-p1', label: `50/50 · ${p1.nome} pagou`, short: `50/50 ${p1.nome}`, color: p1.cor, cls: 'paid-by-p1' };
+      return { code: '5050-p1', label: `50/50 · ${p1.nome} pagou`, short: `50/50 ${p1.nome}`, color: p1.cor, cls: 'paid-by-p1', person: p1 };
     default:
-      return { code: 'dividido', label: 'Dividido (% renda)', short: 'Dividido', color: 'var(--muted)', cls: '' };
+      return { code: 'dividido', label: 'Dividido (% renda)', short: 'Dividido', color: 'var(--muted)', cls: '', person: null };
   }
 }
 function cyclePayer(kind, id) {
@@ -8638,8 +8814,12 @@ function cyclePayer(kind, id) {
 function buildPayerPillHtml(kind, record) {
   const id = (kind === 'item') ? (record.row !== undefined ? record.row : record.id) : (record.id !== undefined ? record.id : record.nome);
   const meta = getPayerMeta(getRecordPayer(kind, record, id));
+  const photo = meta.person ? getPersonPhoto(meta.person) : '';
+  const indicatorHtml = photo
+    ? `<img src="${escapeHtml(photo)}" alt="" class="payer-pill-avatar" referrerpolicy="no-referrer" onerror="this.style.display='none'">`
+    : `<span class="payer-pill-dot" style="background:${meta.color}"></span>`;
   return `<button type="button" class="payer-pill ${meta.cls}" onclick="event.stopPropagation(); cyclePayer('${kind}', '${escJs(id)}')" title="Clique para alternar quem pagou esta conta">
-    <span class="payer-pill-dot" style="background:${meta.color}"></span>
+    ${indicatorHtml}
     <span>${escapeHtml(meta.label)}</span>
   </button>`;
 }
@@ -8729,13 +8909,21 @@ function refreshCoupleSuite() {
   // Render global Couple Perspective Switcher pills
   const perspWrap = document.getElementById('couplePerspectiveSwitch');
   if (perspWrap) {
+    const ph0 = getPersonPhoto(p0);
+    const ph1 = getPersonPhoto(p1);
+    const dot0 = ph0
+      ? `<img src="${escapeHtml(ph0)}" alt="" class="perspective-avatar" referrerpolicy="no-referrer" onerror="this.style.display='none'">`
+      : `<span class="perspective-dot" style="background:${p0.cor}"></span>`;
+    const dot1 = ph1
+      ? `<img src="${escapeHtml(ph1)}" alt="" class="perspective-avatar" referrerpolicy="no-referrer" onerror="this.style.display='none'">`
+      : `<span class="perspective-dot" style="background:${p1.cor}"></span>`;
     perspWrap.innerHTML = `
       <button type="button" class="perspective-pill ${ACTIVE_PERSON === null ? 'active' : ''}" onclick="setCouplePerspective(null)" title="Ver 100% dos valores do casal">👥 Casal 100%</button>
       <button type="button" class="perspective-pill ${ACTIVE_PERSON === 0 ? 'active' : ''}" onclick="setCouplePerspective(0)" title="Filtrar todo o painel pela parte de ${escapeHtml(p0.nome)}">
-        <span class="perspective-dot" style="background:${p0.cor}"></span>${escapeHtml(p0.nome)} (${Math.round(f0 * 100)}%)
+        ${dot0}${escapeHtml(p0.nome)} (${Math.round(f0 * 100)}%)
       </button>
       <button type="button" class="perspective-pill ${ACTIVE_PERSON === 1 ? 'active' : ''}" onclick="setCouplePerspective(1)" title="Filtrar todo o painel pela parte de ${escapeHtml(p1.nome)}">
-        <span class="perspective-dot" style="background:${p1.cor}"></span>${escapeHtml(p1.nome)} (${Math.round(f1 * 100)}%)
+        ${dot1}${escapeHtml(p1.nome)} (${Math.round(f1 * 100)}%)
       </button>
     `;
   }
@@ -8864,7 +9052,7 @@ function refreshCoupleSuite() {
     el.innerHTML = `
       <div class="settlement-person-head">
         <div class="settlement-person-name">
-          <span class="split-avatar" style="background:${p.cor};width:22px;height:22px;font-size:9px">${escapeHtml(p.nome.slice(0, 2).toUpperCase())}</span>
+          <span class="split-avatar" style="background:${p.cor};width:22px;height:22px;font-size:9px">${personAvatarInnerHtml(p)}</span>
           <span>${escapeHtml(p.nome)}</span>
         </div>
         <span class="settlement-person-share">${Math.round(frac * 100)}% da renda</span>
@@ -8887,6 +9075,7 @@ function refreshCoupleSuite() {
   if (opt1) opt1.textContent = `💳 Pago 100% por ${p1.nome}`;
   if (opt50_0) opt50_0.textContent = `🤝 Divisão 50/50 · Pago por ${p0.nome}`;
   if (opt50_1) opt50_1.textContent = `🤝 Divisão 50/50 · Pago por ${p1.nome}`;
+  hydratePersonAvatarsInDom();
 }
 
 function copySettlementSummary() {
@@ -9191,14 +9380,26 @@ function decorateGastoCard(kind, cardId, listElId, dataList, filterMode) {
   // Sort pending rows first, settled rows at the bottom (Nubank / Apple Wallet pattern)
   rows.sort((a, b) => (a.classList.contains('acertado') ? 1 : 0) - (b.classList.contains('acertado') ? 1 : 0));
   rows.forEach(r => container.appendChild(r));
+  hydratePersonAvatarsInDom();
 }
 
 (function wireCoupleSuiteHooks() {
+  const origOnAuthSuccess = window.onAuthSuccess;
+  if (typeof origOnAuthSuccess === 'function') {
+    window.onAuthSuccess = function() {
+      captureCurrentUserGooglePhoto(true);
+      origOnAuthSuccess.apply(this, arguments);
+      hydratePersonAvatarsInDom();
+      refreshCoupleSuite();
+    };
+  }
   const origRender = window.render;
   if (typeof origRender === 'function') {
     window.render = function() {
       syncAndHydratePagadores();
-      return origRender.apply(this, arguments);
+      const res = origRender.apply(this, arguments);
+      hydratePersonAvatarsInDom();
+      return res;
     };
   }
   const origFetchData = window.fetchData;
@@ -9211,7 +9412,22 @@ function decorateGastoCard(kind, cardId, listElId, dataList, filterMode) {
       if (typeof renderGastosFixos === 'function') renderGastosFixos();
       if (typeof renderGastosVariaveis === 'function') renderGastosVariaveis();
       refreshCoupleSuite();
+      hydratePersonAvatarsInDom();
       return res;
+    };
+  }
+  const origRenderResumoMes = window.renderResumoMes;
+  if (typeof origRenderResumoMes === 'function') {
+    window.renderResumoMes = function() {
+      origRenderResumoMes.apply(this, arguments);
+      hydratePersonAvatarsInDom();
+    };
+  }
+  const origOpenRenda = window.openRenda;
+  if (typeof origOpenRenda === 'function') {
+    window.openRenda = function() {
+      origOpenRenda.apply(this, arguments);
+      hydratePersonAvatarsInDom();
     };
   }
   const origRenderGF = window.renderGastosFixos;
@@ -9273,6 +9489,7 @@ function decorateGastoCard(kind, cardId, listElId, dataList, filterMode) {
           dotsWrap.parentElement.insertAdjacentHTML('beforeend', `<div><button type="button" class="desk-next-parcel-btn" onclick="markNextParcel(${item.row})" title="Avançar próxima parcela (+1)">+1 parcela paga</button></div>`);
         }
       });
+      hydratePersonAvatarsInDom();
       refreshCoupleSuite();
     };
   }
@@ -9299,6 +9516,7 @@ function decorateGastoCard(kind, cardId, listElId, dataList, filterMode) {
   if (typeof origOpenGastoDetail === 'function') {
     window.openGastoDetail = function(tipo, id, idx) {
       origOpenGastoDetail.apply(this, arguments);
+      hydratePersonAvatarsInDom();
       const body = document.getElementById('gdBody');
       if (!body || document.getElementById('gdPaidBy')) return;
       const list = tipo === 'fixo' ? GASTOS_FIXOS : GASTOS_VARIAVEIS;
@@ -9349,12 +9567,14 @@ function decorateGastoCard(kind, cardId, listElId, dataList, filterMode) {
   }
   // Initialize saved sub-view and run first refresh
   setTimeout(() => {
+    captureCurrentUserGooglePhoto(true);
     syncAndHydratePagadores();
     const activeBtn = document.querySelector(`.casa-subnav-btn[data-view="${CASA_SUB_VIEW}"]`);
     if (activeBtn) setCasaSubView(CASA_SUB_VIEW, activeBtn);
     if (typeof renderGastosFixos === 'function') renderGastosFixos();
     if (typeof renderGastosVariaveis === 'function') renderGastosVariaveis();
     refreshCoupleSuite();
+    hydratePersonAvatarsInDom();
   }, 60);
 })();
 </script>
